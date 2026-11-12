@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcador de Fútbol</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#111;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center}
+.marcador{width:700px;max-width:95%;background:#222;border-radius:18px;padding:25px;color:white;box-shadow:0 10px 30px #0008}
+.equipos{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.equipo{text-align:center}
+.nombre{font-size:30px;font-weight:bold;margin-bottom:15px}
+.resultado{font-size:80px;font-weight:900;margin-bottom:25px}
+.boton-gol{width:100%;padding:18px;border:0;border-radius:12px;background:#16a34a;color:white;font-size:24px;font-weight:bold;cursor:pointer}
+.boton-gol:hover{background:#22c55e}
+.boton-gol:active{transform:scale(.97)}
+.controles{text-align:center}
+.reiniciar{margin-top:25px;padding:12px 25px;border:0;border-radius:10px;background:#555;color:white;font-size:18px;font-weight:bold;cursor:pointer}
+.reiniciar:hover{background:#777}
+@media(max-width:600px){.nombre{font-size:20px}.resultado{font-size:55px}.boton-gol{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="marcador">
+  <div class="equipos">
+    <div class="equipo">
+      <div class="nombre">Jugador 1</div>
+      <div class="resultado" id="marcador1">0</div>
+      <button class="boton-gol" onclick="golJugador1()">⚽ GOL</button>
+    </div>
+    <div class="equipo">
+      <div class="nombre">Jugador 2</div>
+      <div class="resultado" id="marcador2">0</div>
+      <button class="boton-gol" onclick="golJugador2()">⚽ GOL</button>
+    </div>
+  </div>
+  <div class="controles">
+    <button class="reiniciar" onclick="reiniciar()">Reiniciar marcador</button>
+  </div>
+</div>
+<script>
+let goles1=0,goles2=0;
+function golJugador1(){goles1++;document.getElementById("marcador1").textContent=goles1}
+function golJugador2(){goles2++;document.getElementById("marcador2").textContent=goles2}
+function reiniciar(){goles1=0;goles2=0;document.getElementById("marcador1").textContent=0;document.getElementById("marcador2").textContent=0}
+</script>
+</body>
+</html>
