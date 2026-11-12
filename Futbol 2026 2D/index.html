@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futbol 2026 2D</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #05070c;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #game-container {
+            position: relative;
+            width: 900px;
+            height: 550px;
+            background-image: url('Data/Fondo.png'); /* Fondo principal del menú */
+            background-size: cover;
+            background-position: center;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            background: transparent;
+        }
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(11, 15, 25, 0.65); /* Capa semitransparente para que se alcance a ver Data/Fondo.png */
+            z-index: 10;
+            transition: opacity 0.3s ease;
+        }
+        .hidden {
+            display: none !important;
+        }
+        h1 {
+            font-size: 2.6rem;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+        p {
+            color: #e2e8f0;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .btn {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            margin: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.6);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #4b5563, #374151);
+            box-shadow: 0 4px 12px rgba(75, 85, 99, 0.4);
+        }
+
+        /* SELECCIÓN DE EQUIPOS */
+        .selectors-container {
+            display: flex;
+            gap: 50px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .selector-box {
+            background: rgba(17, 24, 39, 0.85);
+            border: 3px solid #374151;
+            border-radius: 12px;
+            padding: 20px;
+            width: 260px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        }
+        .selector-title {
+            font-size: 1rem;
+            color: #93c5fd;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+        .team-picker-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .arrow-btn {
+            background: #374151;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .arrow-btn:hover {
+            background: #2563eb;
+        }
+        .shield-display {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .shield-display img {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+        }
+        .team-name-label {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffffff;
+            background: #111827;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #374151;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* HUD DE PARTIDO */
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            pointer-events: none;
+            font-weight: bold;
+            font-size: 1.3rem;
+            z-index: 5;
+        }
+        .hud-box {
+            background: rgba(15, 23, 42, 0.85);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .hud-flag {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+        .power-bar-container {
+            width: 100px;
+            height: 10px;
+            background: #334155;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .power-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #eab308, #ef4444);
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* CONTROLES TÁCTILES */
+        .touch-controls {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .touch-group {
+            display: flex;
+            gap: 8px;
+            pointer-events: auto;
+        }
+        .t-btn {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .t-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- PANTALLA PRINCIPAL -->
+        <div id="main-menu" class="screen">
+            <h1>Mundial 2026 ⚽ Pro</h1>
+            <p>¡Controles: WASD mover | Q Quitar balón | E Disparar | L Superpoder!</p>
+            <button class="btn" onclick="goToTeamSelect()">JUGAR PARTIDO</button>
+            <button class="btn btn-secondary" onclick="alert('Usa W,A,S,D para moverte libremente. Presiona Q para robarle el balón al rival y dejarlo aturdido 0.5s. E para disparar a puerta. L para Superpoder al 100%!')">CÓMO JUGAR</button>
+        </div>
+
+        <!-- SELECCIÓN DE EQUIPOS -->
+        <div id="team-select" class="screen hidden">
+            <h1>Selección de Equipos</h1>
+            <p>Usa las flechas para cambiar de selección:</p>
+            
+            <div class="selectors-container">
+                <div class="selector-box">
+                    <div class="selector-title">Jugador 1 (Local)</div>
+                    <div class="team-picker-row">
+                        <button class="arrow-btn" onclick="changeTeam(1, -1)">◀</button>
+                        <div class="shield-display" id="display-p1-shield"></div>
+                        <button class="arrow-btn" onclick="changeTeam(1, 1)">▶</button>
+                    </div>
+                    <div class="team-name-label" id="label-p1-name">Argelia</div>
+                </div>
+
+                <div class="selector-box">
+                    <div class="selector-title">Jugador 2 (Rival)</div>
+                    <div class="team-picker-row">
+                        <button class="arrow-btn" onclick="changeTeam(2, -1)">◀</button>
+                        <div class="shield-display" id="display-p2-shield"></div>
+                        <button class="arrow-btn" onclick="changeTeam(2, 1)">▶</button>
+                    </div>
+                    <div class="team-name-label" id="label-p2-name">Argentina</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" onclick="backToMenu()">VOLVER</button>
+                <button class="btn" onclick="startMatch()">¡INICIAR PARTIDO!</button>
+            </div>
+        </div>
+
+        <!-- MEDIO TIEMPO -->
+        <div id="halftime-screen" class="screen hidden">
+            <h1>MEDIO TIEMPO ⏱️</h1>
+            <p id="halftime-score-text">¡Terminó la primera parte!</p>
+            <button class="btn" onclick="startSecondHalf()">INICIAR SEGUNDO TIEMPO</button>
+        </div>
+
+        <!-- FIN DE PARTIDO -->
+        <div id="gameover-screen" class="screen hidden">
+            <h1>FIN DEL PARTIDO 🏆</h1>
+            <p id="gameover-score-text">Resultado Final</p>
+            <button class="btn" onclick="backToMenu()">VOLVER AL MENÚ</button>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div class="hud-box">
+                <img id="p1-flag-img" class="hud-flag" src="" alt=""> <span id="p1-name">Equipo 1</span>: <span id="p1-score">0</span>
+                <div class="power-bar-container"><div id="p1-power" class="power-bar-fill"></div></div>
+            </div>
+            <div class="hud-box" id="match-timer">02:00</div>
+            <div class="hud-box">
+                <div class="power-bar-container"><div id="p2-power" class="power-bar-fill"></div></div>
+                <span id="p2-score">0</span> : <span id="p2-name">Equipo 2</span> <img id="p2-flag-img" class="hud-flag" src="" alt="">
+            </div>
+        </div>
+
+        <!-- CONTROLES TÁCTILES -->
+        <div class="touch-controls hidden" id="touch-controls">
+            <div class="touch-group">
+                <div class="t-btn" ontouchstart="keys['KeyA']=true" ontouchend="keys['KeyA']=false">⬅️</div>
+                <div class="t-btn" ontouchstart="keys['KeyD']=true" ontouchend="keys['KeyD']=false">➡️</div>
+                <div class="t-btn" ontouchstart="keys['KeyW']=true" ontouchend="keys['KeyW']=false">⬆️</div>
+                <div class="t-btn" ontouchstart="keys['KeyS']=true" ontouchend="keys['KeyS']=false">⬇️</div>
+            </div>
+            <div class="touch-group">
+                <div class="t-btn" ontouchstart="trySteal()" style="background: rgba(220,38,38,0.4);">ROB</div>
+                <div class="t-btn" ontouchstart="keys['KeyE']=true" ontouchend="keys['KeyE']=false" style="background: rgba(37,99,235,0.4);">SHO</div>
+                <div class="t-btn" ontouchstart="keys['KeyL']=true" ontouchend="keys['KeyL']=false" style="background: rgba(234,179,8,0.4);">⚡</div>
+            </div>
+        </div>
+
+        <!-- CANVAS (Aquí se dibuja Data/Juego.png como césped de la cancha durante el partido) -->
+        <canvas id="canvas" width="900" height="550"></canvas>
+    </div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Imagen de la cancha para el partido
+    const juegoBgImage = new Image();
+    juegoBgImage.src = 'Data/Juego.png';
+
+    const balonImg = new Image();
+    balonImg.src = 'Data/Balon.png';
+
+    const allTeams = [
+        {name: "Argelia", file: "algeria-national-team-logo-footylogos", code: "dz", color: "#006233"},
+        {name: "Argentina", file: "argentina-national-team-logo-footylogos", code: "ar", color: "#75aadb"},
+        {name: "Australia", file: "australia-national-team-logo-footylogos", code: "au", color: "#00008b"},
+        {name: "Austria", file: "austria-national-team-logo-footylogos", code: "at", color: "#ed2939"},
+        {name: "Bélgica", file: "belgium-national-team-logo-footylogos", code: "be", color: "#ef3340"},
+        {name: "Bosnia y Herz.", file: "bosnia-and-herzegovina-national-team-logo-footylogos", code: "ba", color: "#002395"},
+        {name: "Brasil", file: "brazil-national-team-logo-footylogos", code: "br", color: "#fedf00"},
+        {name: "Cabo Verde", file: "cabo-verde-national-team-logo-footylogos", code: "cv", color: "#003893"},
+        {name: "Canadá", file: "canada-national-team-logo-footylogos", code: "ca", color: "#ff0000"},
+        {name: "Colombia", file: "colombia-national-team-logo-footylogos", code: "co", color: "#fcd116"},
+        {name: "Costa de Marfil", file: "cote-d-ivoire-national-team-logo-footylogos", code: "ci", color: "#f77f00"},
+        {name: "Croacia", file: "croatia-national-team-logo-footylogos", code: "hr", color: "#ff0000"},
+        {name: "Curazao", file: "curacao-national-team-logo-footylogos", code: "cw", color: "#002b49"},
+        {name: "Chequia", file: "czechia-national-team-logo-footylogos", code: "cz", color: "#11457E"},
+        {name: "RD Congo", file: "dr-congo-national-team-logo-footylogos", code: "cd", color: "#007fff"},
+        {name: "Ecuador", file: "ecuador-national-team-logo-footylogos", code: "ec", color: "#ffdd00"},
+        {name: "Egipto", file: "egypt-national-team-logo-footylogos", code: "eg", color: "#ce1126"},
+        {name: "Inglaterra", file: "england-national-team-logo-footylogos", code: "gb-eng", color: "#ffffff"},
+        {name: "Francia", file: "france-national-team-logo-footylogos", code: "fr", color: "#002395"},
+        {name: "Alemania", file: "germany-national-team-logo-footylogos", code: "de", color: "#dd0000"},
+        {name: "Ghana", file: "ghana-national-team-logo-footylogos", code: "gh", color: "#ce1126"},
+        {name: "Haití", file: "haiti-national-team-logo-footylogos", code: "ht", color: "#00209f"},
+        {name: "Irán", file: "iran-national-team-logo-footylogos", code: "ir", color: "#da0000"},
+        {name: "Irak", file: "iraq-national-team-logo-footylogos", code: "iq", color: "#007a3d"},
+        {name: "Japón", file: "japon-national-team-logo-footylogos", code: "jp", color: "#bc002d"},
+        {name: "Jordania", file: "jordan-national-team-logo-footylogos", code: "jo", color: "#007a3d"},
+        {name: "México", file: "mexico-national-team-logo-footylogos", code: "mx", color: "#006341"},
+        {name: "Marruecos", file: "morocco-national-team-logo-footylogos", code: "ma", color: "#c1272d"},
+        {name: "Países Bajos", file: "netherlands-national-team-dutch-logo-footylogos", code: "nl", color: "#ff7f00"},
+        {name: "Nueva Zelanda", file: "new-zealand-national-team-logo-footylogos", code: "nz", color: "#000000"},
+        {name: "Noruega", file: "norway-national-team-logo-footylogos", code: "no", color: "#ba0c2f"},
+        {name: "Panamá", file: "panama-national-team-logo-footylogos", code: "pa", color: "#0032a0"},
+        {name: "Paraguay", file: "paraguay-national-team-logo-footylogos", code: "py", color: "#d52b1e"},
+        {name: "Portugal", file: "portugal-national-team-logo-footylogos", code: "pt", color: "#ff0000"},
+        {name: "Catar", file: "qatar-national-team-logo-footylogos", code: "qa", color: "#8a1538"},
+        {name: "Arabia Saudita", file: "saudi-arabia-national-team-logo-footylogos", code: "sa", color: "#006c35"},
+        {name: "Escocia", file: "scotland-national-team-logo-footylogos", code: "gb-sct", color: "#0065bd"},
+        {name: "Senegal", file: "senegal-national-team-logo-footylogos", code: "sn", color: "#00853f"},
+        {name: "Sudáfrica", file: "south-africa-national-team-logo-footylogos", code: "za", color: "#007a3d"},
+        {name: "Corea del Sur", file: "south-korea-national-team-logo-footylogos", code: "kr", color: "#0047a0"},
+        {name: "España", file: "spain-national-team-logo-footylogos", code: "es", color: "#aa151b"},
+        {name: "Suecia", file: "sweden-national-team-logo-footylogos", code: "se", color: "#006aa7"},
+        {name: "Suiza", file: "switzerland-national-team-logo-footylogos", code: "ch", color: "#ff0000"},
+        {name: "Túnez", file: "tunisia-national-team-logo-footylogos", code: "tn", color: "#e70013"},
+        {name: "Turquía", file: "turkey-national-team-logo-footylogos", code: "tr", color: "#e30a17"},
+        {name: "Uruguay", file: "uruguay-national-team-logo-footylogos", code: "uy", color: "#0038a8"},
+        {name: "Estados Unidos", file: "usa-national-team-logo-footylogos", code: "us", color: "#3c3b6e"},
+        {name: "Uzbekistán", file: "uzbekistan-national-team-logo-footylogos", code: "uz", color: "#0099b5"}
+    ];
+
+    let indexP1 = 0;
+    let indexP2 = 1;
+
+    // Precargar imágenes ISO para los jugadores en la cancha
+    const countryImages = {};
+    allTeams.forEach(team => {
+        const img = new Image();
+        img.src = `Data/Paises/${team.code}.png`;
+        countryImages[team.name] = img;
+    });
+
+    function updateSelectors() {
+        let team1 = allTeams[indexP1];
+        document.getElementById('label-p1-name').innerText = team1.name;
+        let container1 = document.getElementById('display-p1-shield');
+        container1.innerHTML = `<img src="Data/Escudos/${team1.file}.png" alt="${team1.name}">`;
+
+        let team2 = allTeams[indexP2];
+        document.getElementById('label-p2-name').innerText = team2.name;
+        let container2 = document.getElementById('display-p2-shield');
+        container2.innerHTML = `<img src="Data/Escudos/${team2.file}.png" alt="${team2.name}">`;
+    }
+
+    function changeTeam(player, direction) {
+        if (player === 1) {
+            indexP1 = (indexP1 + direction + allTeams.length) % allTeams.length;
+        } else {
+            indexP2 = (indexP2 + direction + allTeams.length) % allTeams.length;
+        }
+        updateSelectors();
+    }
+
+    function goToTeamSelect() {
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('team-select').classList.remove('hidden');
+        updateSelectors();
+    }
+
+    function backToMenu() {
+        document.getElementById('team-select').classList.add('hidden');
+        document.getElementById('halftime-screen').classList.add('hidden');
+        document.getElementById('gameover-screen').classList.add('hidden');
+        document.getElementById('hud').classList.add('hidden');
+        document.getElementById('touch-controls').classList.add('hidden');
+        document.getElementById('main-menu').classList.remove('hidden');
+        gameState = 'MENU';
+    }
+
+    let gameState = 'MENU';
+    let keys = {};
+
+    window.addEventListener('keydown', e => {
+        keys[e.code] = true;
+        if (e.code === 'KeyQ') {
+            trySteal();
+        }
+    });
+    window.addEventListener('keyup', e => keys[e.code] = false);
+
+    let player1, player2, ball;
+    let score1 = 0, score2 = 0;
+    let timeLeft = 120;
+    let currentHalf = 1;
+    let timerInterval = null;
+
+    let ballOwner = null;
+    let goalAnimTimer = 0;
+    let goalTextMsg = "";
+
+    function startMatch() {
+        let selectedTeam1 = allTeams[indexP1];
+        let selectedTeam2 = allTeams[indexP2];
+
+        document.getElementById('team-select').classList.add('hidden');
+        document.getElementById('hud').classList.remove('hidden');
+        document.getElementById('touch-controls').classList.remove('hidden');
+
+        document.getElementById('p1-flag-img').src = `Data/Escudos/${selectedTeam1.file}.png`;
+        document.getElementById('p1-name').innerText = selectedTeam1.name;
+        document.getElementById('p2-flag-img').src = `Data/Escudos/${selectedTeam2.file}.png`;
+        document.getElementById('p2-name').innerText = selectedTeam2.name;
+
+        player1 = { x: 300, y: 275, radius: 22, vx: 0, vy: 0, color: selectedTeam1.color, power: 0, teamData: selectedTeam1 };
+        player2 = { x: 600, y: 275, radius: 22, vx: 0, vy: 0, color: selectedTeam2.color, power: 0, teamData: selectedTeam2, stunTimer: 0 };
+        ball = { x: 450, y: 275, radius: 14, vx: 0, vy: 0 };
+
+        score1 = 0;
+        score2 = 0;
+        timeLeft = 120;
+        currentHalf = 1;
+        ballOwner = null;
+        updateHud();
+        
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(updateTimer, 1000);
+
+        gameState = 'PLAYING';
+    }
+
+    function updateTimer() {
+        if (gameState === 'PLAYING' && goalAnimTimer <= 0) {
+            timeLeft--;
+            let mins = Math.floor(timeLeft / 60);
+            let secs = timeLeft % 60;
+            document.getElementById('match-timer').innerText = 
+                (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                if (currentHalf === 1) {
+                    gameState = 'HALFTIME';
+                    document.getElementById('hud').classList.add('hidden');
+                    document.getElementById('touch-controls').classList.add('hidden');
+                    document.getElementById('halftime-score-text').innerText = 
+                        `Resultado parcial: ${allTeams[indexP1].name} ${score1} - ${score2} ${allTeams[indexP2].name}`;
+                    document.getElementById('halftime-screen').classList.remove('hidden');
+                } else {
+                    gameState = 'GAMEOVER';
+                    document.getElementById('hud').classList.add('hidden');
+                    document.getElementById('touch-controls').classList.add('hidden');
+                    document.getElementById('gameover-score-text').innerText = 
+                        `Resultado Final: ${allTeams[indexP1].name} ${score1} - ${score2} ${allTeams[indexP2].name}`;
+                    document.getElementById('gameover-screen').classList.remove('hidden');
+                }
+            }
+        }
+    }
+
+    function startSecondHalf() {
+        document.getElementById('halftime-screen').classList.add('hidden');
+        document.getElementById('hud').classList.remove('hidden');
+        document.getElementById('touch-controls').classList.remove('hidden');
+        
+        currentHalf = 2;
+        timeLeft = 120;
+        resetBallPositions();
+        
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(updateTimer, 1000);
+        
+        gameState = 'PLAYING';
+    }
+
+    function updateHud() {
+        document.getElementById('p1-score').innerText = score1;
+        document.getElementById('p2-score').innerText = score2;
+        document.getElementById('p1-power').style.width = player1.power + '%';
+        document.getElementById('p2-power').style.width = player2.power + '%';
+    }
+
+    function trySteal() {
+        if (gameState !== 'PLAYING' || goalAnimTimer > 0) return;
+
+        let distP1P2 = Math.hypot(player1.x - player2.x, player1.y - player2.y);
+        if (distP1P2 < 85) {
+            if (ballOwner === 'p2') {
+                ballOwner = 'p1';
+                player2.stunTimer = 30;
+                ball.vx = 4; ball.vy = 0;
+            }
+        }
+    }
+
+    function update() {
+        if (gameState !== 'PLAYING') return;
+
+        if (goalAnimTimer > 0) {
+            goalAnimTimer--;
+            if (goalAnimTimer <= 0) {
+                resetBallPositions();
+            }
+            return;
+        }
+
+        if (player2.stunTimer > 0) player2.stunTimer--;
+
+        let speed = 4.5;
+        
+        player1.vx = 0;
+        player1.vy = 0;
+        if (keys['KeyA']) player1.vx = -speed;
+        if (keys['KeyD']) player1.vx = speed;
+        if (keys['KeyW']) player1.vy = -speed;
+        if (keys['KeyS']) player1.vy = speed;
+
+        player1.x += player1.vx;
+        player1.y += player1.vy;
+
+        let minX = 65, maxX = 835, minY = 50, maxY = 500;
+        if (player1.x < minX) player1.x = minX;
+        if (player1.x > maxX) player1.x = maxX;
+        if (player1.y < minY) player1.y = minY;
+        if (player1.y > maxY) player1.y = maxY;
+
+        if (player2.stunTimer === 0) {
+            if (player2.x < ball.x) player2.vx = 3.8;
+            else if (player2.x > ball.x) player2.vx = -3.8;
+            if (player2.y < ball.y) player2.vy = 3.8;
+            else if (player2.y > ball.y) player2.vy = -3.8;
+
+            player2.x += player2.vx;
+            player2.y += player2.vy;
+        }
+
+        if (player2.x < minX) player2.x = minX;
+        if (player2.x > maxX) player2.x = maxX;
+        if (player2.y < minY) player2.y = minY;
+        if (player2.y > maxY) player2.y = maxY;
+
+        if (keys['KeyQ']) {
+            trySteal();
+        }
+
+        let shootPressed = keys['KeyE'] || keys['KeyK'];
+        if (shootPressed) {
+            if (ballOwner === 'p1') {
+                ballOwner = null;
+                ball.vx = 16;
+                ball.vy = (Math.random() - 0.5) * 4;
+            } else if (ballOwner === 'p2' && player2.stunTimer === 0) {
+                ballOwner = null;
+                ball.vx = -16;
+                ball.vy = (Math.random() - 0.5) * 4;
+            }
+        }
+
+        if (ballOwner === 'p1') {
+            ball.x = player1.x + 20;
+            ball.y = player1.y;
+            if (player1.power < 100) player1.power += 0.2;
+        } else if (ballOwner === 'p2') {
+            ball.x = player2.x - 20;
+            ball.y = player2.y;
+            if (player2.power < 100) player2.power += 0.2;
+        } else {
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+            ball.vx *= 0.97;
+            ball.vy *= 0.97;
+
+            if (ball.y < minY) { ball.y = minY; ball.vy *= -0.8; }
+            if (ball.y > maxY) { ball.y = maxY; ball.vy *= -0.8; }
+
+            let d1 = Math.hypot(ball.x - player1.x, ball.y - player1.y);
+            if (d1 < player1.radius + ball.radius) ballOwner = 'p1';
+
+            let d2 = Math.hypot(ball.x - player2.x, ball.y - player2.y);
+            if (d2 < player2.radius + ball.radius && player2.stunTimer === 0) ballOwner = 'p2';
+        }
+
+        if (keys['KeyL'] && player1.power >= 100) {
+            ballOwner = null;
+            ball.vx = 22;
+            ball.vy = 0;
+            player1.power = 0;
+        }
+
+        let goalTop = 205;
+        let goalBottom = 345;
+
+        if (ball.x <= minX + 5) {
+            if (ball.y > goalTop && ball.y < goalBottom) {
+                score2++;
+                triggerGoal(`¡GOL DE ${allTeams[indexP2].name.toUpperCase()}! ⚽`);
+            } else {
+                ball.x = minX; ball.vx *= -0.8;
+            }
+        }
+        if (ball.x >= maxX - 5) {
+            if (ball.y > goalTop && ball.y < goalBottom) {
+                score1++;
+                triggerGoal(`¡GOOOOL DE ${allTeams[indexP1].name.toUpperCase()}! ⚽🔥`);
+            } else {
+                ball.x = maxX; ball.vx *= -0.8;
+            }
+        }
+
+        updateHud();
+    }
+
+    function triggerGoal(message) {
+        goalTextMsg = message;
+        goalAnimTimer = 120;
+    }
+
+    function resetBallPositions() {
+        ballOwner = null;
+        ball.x = 450;
+        ball.y = 275;
+        ball.vx = 0;
+        ball.vy = 0;
+
+        player1.x = 300;
+        player1.y = 275;
+        player1.vx = 0;
+        player1.vy = 0;
+
+        player2.x = 600;
+        player2.y = 275;
+        player2.vx = 0;
+        player2.vy = 0;
+        player2.stunTimer = 0;
+    }
+
+    function drawPlayer(player, isRival) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+
+        // Los avatares en la cancha usan Data/Paises/ISO.png
+        const img = countryImages[player.teamData.name];
+        if (img && img.complete && img.naturalWidth !== 0) {
+            ctx.drawImage(img, player.x - player.radius, player.y - player.radius, player.radius * 2, player.radius * 2);
+        } else {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x - player.radius, player.y - player.radius, player.radius * 2, player.radius * 2);
+        }
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = (isRival && player.stunTimer > 0) ? '#ef4444' : '#fff';
+        ctx.stroke();
+
+        if (isRival && player.stunTimer > 0) {
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 13px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('¡ATURDIDO!', player.x, player.y - player.radius - 12);
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Dibuja el fondo de la cancha (Data/Juego.png) durante el partido
+        if (juegoBgImage.complete && juegoBgImage.naturalWidth !== 0) {
+            ctx.drawImage(juegoBgImage, 0, 0, canvas.width, canvas.height);
+        } else {
+            ctx.fillStyle = '#1b5e20';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        if (gameState !== 'PLAYING') return;
+
+        drawPlayer(player1, false);
+        drawPlayer(player2, true);
+
+        if (balonImg.complete && balonImg.naturalWidth !== 0) {
+            ctx.drawImage(balonImg, ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
+        } else {
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        if (goalAnimTimer > 0) {
+            ctx.save();
+            ctx.font = 'bold 48px sans-serif';
+            ctx.fillStyle = '#fbbf24';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 6;
+            ctx.textAlign = 'center';
+            ctx.strokeText(goalTextMsg, canvas.width / 2, canvas.height / 2 - 30);
+            ctx.fillText(goalTextMsg, canvas.width / 2, canvas.height / 2 - 30);
+            ctx.restore();
+        }
+    }
+
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    requestAnimationFrame(gameLoop);
+</script>
+
+</body>
+</html>
