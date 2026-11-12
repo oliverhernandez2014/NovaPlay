@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NovaPlay | Portal de Juegos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #090b10;
+      color: #f1f5f9;
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.08), transparent 35%),
+        radial-gradient(circle at 85% 80%, rgba(168, 85, 247, 0.08), transparent 35%);
+    }
+    .font-arcade {
+      font-family: 'Orbitron', sans-serif;
+    }
+    .neon-card {
+      background: rgba(15, 20, 32, 0.85);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      transition: all 0.22s ease;
+    }
+    .neon-card:hover {
+      border-color: #06b6d4;
+      box-shadow: 0 0 22px rgba(6, 182, 212, 0.22);
+      transform: translateY(-3px);
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090b10;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #06b6d4;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+
+  <!-- Barra Superior -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-[#090b10]/85 border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <button onclick="cerrarVisor()" class="flex items-center gap-3 text-left group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
+          <span class="text-xl">🕹️</span>
+        </div>
+        <div>
+          <h1 class="font-arcade text-lg sm:text-xl font-extrabold tracking-wider bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+            NOVAPLAY
+          </h1>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Colección Oficial de Juegos</p>
+        </div>
+      </button>
+
+      <div class="flex items-center gap-3">
+        <div class="relative hidden sm:block">
+          <input
+            id="buscador"
+            type="text"
+            placeholder="Buscar juego..."
+            oninput="renderizarJuegos()"
+            class="w-56 md:w-64 bg-slate-900/90 border border-slate-700/80 rounded-xl pl-9 pr-3 py-1.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+          />
+          <span class="absolute left-3 top-2 text-slate-500 text-xs">🔍</span>
+        </div>
+
+        <span id="contador-juegos" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-cyan-400">
+          0 juegos
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- VISOR DE JUEGO ACTIVO (Oculto por defecto) -->
+    <section id="seccion-visor" class="hidden mb-8">
+      <div class="rounded-2xl overflow-hidden border border-cyan-500/40 bg-[#0d111a] shadow-2xl shadow-cyan-950/30">
+        <!-- Barra de control del visor -->
+        <div class="px-4 py-3 bg-slate-900/95 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <button
+              onclick="cerrarVisor()"
+              class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors flex items-center gap-1.5">
+              ← Volver al catálogo
+            </button>
+            <div class="flex items-center gap-2">
+              <span id="visor-icono" class="text-xl">🎮</span>
+              <div>
+                <h2 id="visor-titulo" class="font-bold text-sm sm:text-base text-white leading-tight">Título del Juego</h2>
+                <span id="visor-categoria" class="text-[11px] text-cyan-400 font-medium">Categoría</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button
+              onclick="reiniciarJuego()"
+              title="Reiniciar juego"
+              class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors">
+              🔄 Reiniciar
+            </button>
+            <a
+              id="btn-nueva-pestana"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Abrir enlace directo del juego"
+              class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition-colors">
+              ↗ Pestaña nueva
+            </a>
+            <button
+              onclick="pantallaCompleta()"
+              title="Pantalla completa"
+              class="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-xs font-bold transition-colors">
+              ⛶ Pantalla completa
+            </button>
+          </div>
+        </div>
+
+        <!-- Contenedor Iframe -->
+        <div id="contenedor-iframe" class="relative w-full bg-black aspect-video max-h-[78vh]">
+          <iframe
+            id="frame-juego"
+            src="about:blank"
+            class="w-full h-full border-0"
+            allow="autoplay; fullscreen; gamepad"
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN DE CATÁLOGO -->
+    <section id="seccion-catalogo">
+      <!-- Buscador móvil y filtros -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div id="barra-categorias" class="flex items-center gap-2 overflow-x-auto pb-1">
+          <!-- Se generan dinámicamente -->
+        </div>
+
+        <div class="relative sm:hidden">
+          <input
+            id="buscador-movil"
+            type="text"
+            placeholder="Buscar juego..."
+            oninput="sincronizarBusqueda(this.value)"
+            class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+          />
+          <span class="absolute left-3 top-2.5 text-slate-500 text-xs">🔍</span>
+        </div>
+      </div>
+
+      <!-- Cuadrícula de Juegos -->
+      <div id="grid-juegos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <!-- Tarjetas generadas dinámicamente -->
+      </div>
+
+      <!-- Estado Vacío (Visible cuando MIS_JUEGOS está vacío) -->
+      <div id="estado-vacio" class="hidden rounded-2xl border border-dashed border-slate-700/90 bg-slate-900/40 p-8 sm:p-12 text-center max-w-2xl mx-auto my-8">
+        <div class="w-16 h-16 rounded-2xl bg-slate-800/90 border border-slate-700 flex items-center justify-center text-3xl mx-auto mb-4">
+          📂
+        </div>
+        <h2 class="font-arcade text-lg sm:text-xl font-bold text-white mb-2">
+          Aún no hay juegos publicados en NovaPlay
+        </h2>
+        <p class="text-sm text-slate-400 mb-6 leading-relaxed">
+          Sube las carpetas de tus juegos a este repositorio (cada una con su propio <code class="text-cyan-400 bg-slate-800 px-1.5 py-0.5 rounded">index.html</code>) y regístralas en la lista <code class="text-purple-400 bg-slate-800 px-1.5 py-0.5 rounded">MIS_JUEGOS</code> dentro de este archivo.
+        </p>
+        <div class="text-left bg-[#06080d] border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-300 overflow-x-auto">
+          <p class="text-slate-500 mb-1">// Ejemplo en el código de index.html:</p>
+          <pre class="text-cyan-300">const MIS_JUEGOS = [
+  {
+    id: 'geometry-dash',
+    title: 'Geometry Dash',
+    category: 'Plataformas',
+    icon: '🟦',
+    description: 'Esquiva los obstáculos.',
+    url: './geometry-dash/'
+  }
+];</pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-slate-800/70 py-5 text-center text-xs text-slate-500">
+    NovaPlay &bull; Portal de juegos web
+  </footer>
+
+  <script>
+    // =========================================================================
+    // LISTA DE TUS JUEGOS
+    // Agrega aquí cada carpeta de juego que subas a tu repositorio NovaPlay.
+    // Ejemplo:
+    // {
+    //   id: 'geometry-dash',
+    //   title: 'Geometry Dash',
+    //   category: 'Plataformas',
+    //   icon: '🟦',
+    //   description: 'Salta y esquiva los pinchos al ritmo.',
+    //   url: './geometry-dash/'
+    // }
+    // =========================================================================
+    const MIS_JUEGOS = [
+      // Pega tus juegos aquí separados por coma
+    ];
+
+    let categoriaActiva = 'Todos';
+    let juegoActual = null;
+
+    function inicializar() {
+      renderizarCategorias();
+      renderizarJuegos();
+    }
+
+    function sincronizarBusqueda(valor) {
+      document.getElementById('buscador').value = valor;
+      renderizarJuegos();
+    }
+
+    function renderizarCategorias() {
+      const barra = document.getElementById('barra-categorias');
+      const categorias = ['Todos', ...new Set(MIS_JUEGOS.map(j => j.category).filter(Boolean))];
+
+      barra.innerHTML = categorias.map(cat => {
+        const activa = cat === categoriaActiva;
+        return `
+          <button
+            onclick="seleccionarCategoria('${cat}')"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              activa
+                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/25'
+                : 'bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700'
+            }">
+            ${cat}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function seleccionarCategoria(cat) {
+      categoriaActiva = cat;
+      renderizarCategorias();
+      renderizarJuegos();
+    }
+
+    function renderizarJuegos() {
+      const grid = document.getElementById('grid-juegos');
+      const vacio = document.getElementById('estado-vacio');
+      const contador = document.getElementById('contador-juegos');
+      const textoBusqueda = (document.getElementById('buscador').value || '').toLowerCase().trim();
+
+      contador.textContent = `${MIS_JUEGOS.length} ${MIS_JUEGOS.length === 1 ? 'juego' : 'juegos'}`;
+
+      if (MIS_JUEGOS.length === 0) {
+        grid.innerHTML = '';
+        vacio.classList.remove('hidden');
+        return;
+      }
+
+      vacio.classList.add('hidden');
+
+      const filtrados = MIS_JUEGOS.filter(juego => {
+        const coincideCategoria = categoriaActiva === 'Todos' || juego.category === categoriaActiva;
+        const coincideTexto =
+          juego.title.toLowerCase().includes(textoBusqueda) ||
+          (juego.description && juego.description.toLowerCase().includes(textoBusqueda));
+        return coincideCategoria && coincideTexto;
+      });
+
+      if (filtrados.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12 text-slate-400 text-sm">
+            No se encontraron juegos con ese filtro.
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtrados.map(juego => `
+        <article class="neon-card rounded-2xl p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div class="w-12 h-12 rounded-xl bg-slate-800/90 border border-slate-700/80 flex items-center justify-center text-2xl">
+                ${juego.icon || '🎮'}
+              </div>
+              <span class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                ${juego.category || 'Arcade'}
+              </span>
+            </div>
+
+            <h3 class="text-base font-bold text-white mb-1.5">${juego.title}</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-5">
+              ${juego.description || 'Haz clic en jugar para iniciar.'}
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 pt-2 border-t border-slate-800/80">
+            <button
+              onclick="abrirJuego('${juego.id}')"
+              class="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs transition-all shadow-md shadow-cyan-500/15">
+              ▶ JUGAR
+            </button>
+            <a
+              href="${juego.url}"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Abrir enlace directo"
+              class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors">
+              ↗
+            </a>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function abrirJuego(id) {
+      const juego = MIS_JUEGOS.find(j => j.id === id);
+      if (!juego) return;
+
+      juegoActual = juego;
+      document.getElementById('visor-icono').textContent = juego.icon || '🎮';
+      document.getElementById('visor-titulo').textContent = juego.title;
+      document.getElementById('visor-categoria').textContent = juego.category || 'Arcade';
+      document.getElementById('btn-nueva-pestana').href = juego.url;
+
+      const iframe = document.getElementById('frame-juego');
+      iframe.src = juego.url;
+
+      const visor = document.getElementById('seccion-visor');
+      visor.classList.remove('hidden');
+      visor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function cerrarVisor() {
+      const visor = document.getElementById('seccion-visor');
+      const iframe = document.getElementById('frame-juego');
+      visor.classList.add('hidden');
+      iframe.src = 'about:blank';
+      juegoActual = null;
+    }
+
+    function reiniciarJuego() {
+      if (!juegoActual) return;
+      const iframe = document.getElementById('frame-juego');
+      iframe.src = juegoActual.url;
+    }
+
+    function pantallaCompleta() {
+      const contenedor = document.getElementById('contenedor-iframe');
+      if (contenedor.requestFullscreen) {
+        contenedor.requestFullscreen();
+      } else if (contenedor.webkitRequestFullscreen) {
+        contenedor.webkitRequestFullscreen();
+      }
+    }
+
+    inicializar();
+  </script>
+</body>
+</html>
