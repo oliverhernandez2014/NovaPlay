@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 7 HTML</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { 
+            height: 100vh; 
+            background: #000;
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
+        }
+
+        /* --- PANTALLA DE CARGA RESPLANDECIENTE (STARTING WINDOWS) --- */
+        #boot-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: opacity 0.6s ease;
+        }
+        .logo-container { position: relative; width: 100px; height: 100px; margin-bottom: 20px; }
+        .glow-orb {
+            position: absolute; width: 35px; height: 35px; border-radius: 50%;
+            filter: blur(12px); opacity: 0.7; animation: pulseGlow 2s infinite alternate;
+        }
+        .orb-r { background: #ea4335; top: 15px; left: 15px; }
+        .orb-g { background: #34a853; top: 15px; right: 15px; animation-delay: 0.5s; }
+        .orb-b { background: #4285f4; bottom: 15px; left: 15px; animation-delay: 1s; }
+        .orb-y { background: #fbbc05; bottom: 15px; right: 15px; animation-delay: 1.5s; }
+        @keyframes pulseGlow { 0% { transform: scale(0.8); opacity: 0.4; } 100% { transform: scale(1.3); opacity: 0.95; } }
+        .boot-text { font-size: 16px; color: #ccc; letter-spacing: 1px; font-weight: 300; margin-top: 15px; }
+
+        /* --- PANTALLA DE BIENVENIDA (WELCOME SCREEN) --- */
+        #lock-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1d6fa5 0%, #082d56 100%);
+            z-index: 1900; display: none; flex-direction: column; align-items: center; justify-content: center; color: white;
+        }
+        .welcome-avatar {
+            width: 90px; height: 90px; background: url('https://img.icons8.com/color/96/flower-essential-oil.png') no-repeat center/cover;
+            border: 4px solid rgba(255,255,255,0.6); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); margin-bottom: 15px;
+        }
+        .welcome-text { font-size: 24px; font-weight: 300; text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+        .win7-btn {
+            margin-top: 15px; padding: 5px 15px; background: linear-gradient(#fbfbfb, #e1e1e1);
+            border: 1px solid #707070; border-radius: 3px; color: #222; font-size: 12px; cursor: pointer;
+            box-shadow: inset 0 1px 0 #fff, 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .win7-btn:hover { background: linear-gradient(#eaf6fd, #a7d9f5); border-color: #3c7fb1; }
+
+        /* --- CONTROL DE CUENTAS DE USUARIO (UAC MODAL) --- */
+        #uac-modal {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1800; display: none; justify-content: center; align-items: center;
+        }
+        .uac-box {
+            width: 450px; background: #f0f0f0; border: 1px solid #666; box-shadow: 0 4px 20px rgba(0,0,0,0.6); border-radius: 4px; overflow: hidden;
+        }
+        .uac-header { background: #fff; padding: 12px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #ddd; }
+
+        /* --- ENTORNO PRINCIPAL --- */
+        #desktop-environment {
+            width: 100%; height: 100%;
+            background: url('https://images.hdqwalls.com/download/windows-7-official-original-4k-72-1920x1080.jpg') no-repeat center center/cover;
+            display: flex; flex-direction: column; visibility: hidden; position: relative;
+        }
+
+        /* CAPA EFECTO CRISTAL AERO GLASS */
+        .aero-glass {
+            background: linear-gradient(rgba(225, 240, 255, 0.4), rgba(150, 200, 245, 0.45));
+            backdrop-filter: blur(15px) saturate(140%); -webkit-backdrop-filter: blur(15px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255,255,255,0.7);
+        }
+
+        /* ICONOS ESCRITORIO */
+        .desktop { 
+            height: calc(100vh - 40px); width: 100%; padding: 15px;
+            display: flex; flex-direction: column; gap: 6px; align-content: flex-start; flex-wrap: wrap; 
+        }
+        .desktop-icon { 
+            width: 85px; height: 80px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; text-align: center; 
+            color: white; font-size: 11px; text-shadow: 1px 1px 3px #000;
+            border: 1px solid transparent; border-radius: 3px; cursor: pointer;
+        }
+        .desktop-icon:hover { 
+            background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: inset 0 0 5px rgba(255,255,255,0.4);
+        }
+        .desktop-icon img { width: 38px; height: 38px; margin-bottom: 4px; }
+
+        /* --- VENTANAS DE DISEÑO AERO --- */
+        .window { 
+            position: absolute; width: 640px; height: 440px; 
+            border-radius: 6px 6px 0 0; display: none; flex-direction: column; 
+            overflow: hidden; padding: 5px 6px 6px 6px; z-index: 10; transition: width 0.2s, height 0.2s, left 0.2s, top 0.2s;
+        }
+        .window-header { height: 28px; display: flex; justify-content: space-between; align-items: center; cursor: move; }
+        .window-title { 
+            font-size: 12px; color: #1e395b; font-weight: bold; display: flex; align-items: center; gap: 6px;
+            text-shadow: 0 1px 1px rgba(255,255,255,0.7);
+        }
+        .window-title img { width: 16px; height: 16px; }
+        
+        .window-controls { display: flex; gap: 3px; align-items: center; }
+        .win7-ctrl {
+            width: 26px; height: 18px; border: 1px solid rgba(0,0,0,0.3); border-radius: 3px;
+            background: linear-gradient(#ffffff, #cccccc); cursor: pointer; font-size: 10px; font-weight: bold; text-align: center; line-height: 16px;
+            box-shadow: inset 0 1px 0 #fff;
+        }
+        .win7-ctrl:hover { background: linear-gradient(#f0f8ff, #99ccff); }
+        .win7-ctrl.close-btn { width: 44px; background: linear-gradient(#f99f9f, #cc1111); color: white; border-color: #7a0000; box-shadow: inset 0 1px 0 #ffcccc;}
+        .win7-ctrl.close-btn:hover { background: linear-gradient(#ff6666, #ff0000); }
+
+        .window-body { flex-grow: 1; padding: 12px; background: #ffffff; border: 1px solid #7f9db9; font-size: 12px; color: #000; overflow-y: auto; }
+
+        /* --- GADGETS --- */
+        .gadget-container { position: absolute; right: 20px; top: 30px; display: flex; flex-direction: column; gap: 20px; z-index: 5; }
+        .gadget-clock {
+            width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3); backdrop-filter: blur(4px); position: relative;
+        }
+        .clock-face { width: 100%; height: 100%; position: relative; }
+        .clock-hand { position: absolute; background: #222; bottom: 50%; left: 50%; transform-origin: bottom; border-radius: 2px; }
+        .hand-h { width: 3px; height: 28px; margin-left: -1.5px; }
+        .hand-m { width: 2px; height: 38px; margin-left: -1px; }
+        .hand-s { width: 1px; height: 42px; margin-left: -0.5px; background: red; }
+
+        /* --- MENÚS CONTEXTUALES Y JUMP LISTS --- */
+        .context-menu, .jump-list { 
+            position: absolute; background: rgba(252, 253, 255, 0.98); border: 1px solid #979797; 
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.25); width: 200px; display: none; z-index: 1000; padding: 2px;
+        }
+        .menu-item { padding: 5px 22px; font-size: 11px; color: #222; cursor: pointer; }
+        .menu-item:hover { background: linear-gradient(#eaf6fd, #d1eefd); border: 1px solid #aedef9; padding: 4px 21px; }
+        .menu-separator { height: 1px; background: #e2e2e2; margin: 4px 2px; }
+        .menu-title-header { font-size: 10px; font-weight: bold; color: #666; padding: 4px 8px; }
+
+        /* --- BARRA DE TAREAS AERO CLÁSICA --- */
+        .taskbar { 
+            height: 40px; width: 100%; position: relative; z-index: 900; display: flex; justify-content: space-between; align-items: center; padding: 0 2px;
+            background: linear-gradient(rgba(215, 235, 255, 0.35), rgba(130, 190, 245, 0.45));
+            backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .taskbar-left, .taskbar-right { display: flex; align-items: center; height: 100%; }
+        
+        .start-button {
+            width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle, #5ca4ff 0%, #00469b 100%);
+            border: 1px solid #002255; display: flex; align-items: center; justify-content: center; cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.5), inset 0 1px 2px #fff; margin-left: 2px; margin-right: 6px;
+        }
+        .start-button:hover { filter: brightness(1.2); transform: scale(1.03); }
+        .start-button img { width: 20px; height: 20px; filter: hue-rotate(140deg); }
+
+        .running-apps { display: flex; gap: 2px; height: 100%; align-items: center; }
+        .taskbar-app {
+            width: 46px; height: 34px; display: flex; align-items: center; justify-content: center;
+            border-radius: 3px; cursor: pointer; border: 1px solid transparent; position: relative;
+        }
+        .taskbar-app:hover { background: rgba(255, 255, 255, 0.25); border-color: rgba(255, 255, 255, 0.35); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4); }
+        .taskbar-app.active { background: rgba(255, 255, 255, 0.35); border-color: rgba(255, 255, 255, 0.5); }
+        .taskbar-app img { width: 24px; height: 24px; }
+
+        .system-tray {
+            padding: 0 8px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 3px; height: 32px; display: flex; align-items: center; gap: 6px; color: white; font-size: 11px; margin-right: 4px;
+        }
+        .show-desktop-btn { width: 14px; height: 100%; border-left: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); cursor: pointer; }
+        .show-desktop-btn:hover { background: rgba(255,255,255,0.25); }
+
+        /* --- MENÚ INICIO ASIMÉTRICO --- */
+        .start-menu { 
+            position: absolute; bottom: -520px; left: 4px; width: 390px; height: 480px; 
+            border-radius: 5px 5px 0 0; z-index: 850; display: flex; flex-direction: column;
+            transition: bottom 0.22s cubic-bezier(0, 1, 0.5, 1); padding: 5px;
+        }
+        .start-menu.active { bottom: 40px; }
+        .start-main { display: flex; flex-grow: 1; height: calc(100% - 40px); }
+        .start-left { width: 62%; background: white; border-radius: 3px 0 0 3px; padding: 8px 4px; display: flex; flex-direction: column; gap: 2px; }
+        .start-right { width: 38%; background: rgba(228, 241, 255, 0.75); border-radius: 0 3px 3px 0; padding: 12px 8px; font-size: 11px; display: flex; flex-direction: column; gap: 10px; color: #1e395b; border-left: 1px solid rgba(255,255,255,0.4); }
+        
+        .start-prog-item { display: flex; align-items: center; gap: 8px; font-size: 11px; padding: 4px 6px; cursor: pointer; border-radius: 3px; color: #333; }
+        .start-prog-item:hover { background: linear-gradient(#eef7fc, #cceeff); border: 1px solid #99ccff; padding: 3px 5px; }
+        .start-prog-item img { width: 22px; height: 22px; }
+        
+        .start-search-box { width: 100%; padding: 4px 6px; font-size: 11px; border: 1px solid #999; border-radius: 2px; outline: none; }
+        .start-footer-bar { height: 40px; display: flex; justify-content: space-between; align-items: center; padding: 0 5px 0 8px; }
+
+        /* --- EXPLORADOR INTERNO: BIBLIOTECAS --- */
+        .lib-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        .lib-card { border: 1px solid #ccc; padding: 8px; border-radius: 4px; display: flex; gap: 8px; align-items: center; background: #fafafa; cursor: pointer; }
+        .lib-card:hover { background: #edf5fc; border-color: #b8d6f3; }
+    </style>
+</head>
+<body oncontextmenu="openDesktopContextMenu(event)">
+
+    <div id="boot-screen">
+        <div class="logo-container">
+            <div class="glow-orb orb-r"></div><div class="glow-orb orb-g"></div>
+            <div class="glow-orb orb-b"></div><div class="glow-orb orb-y"></div>
+        </div>
+        <div class="boot-text">Iniciando Windows</div>
+    </div>
+
+    <div id="lock-screen">
+        <div class="welcome-avatar"></div>
+        <div class="welcome-text">Bienvenido</div>
+        <button class="win7-btn" onclick="loginToDesktop()">Iniciar sesión</button>
+    </div>
+
+    <div id="uac-modal">
+        <div class="uac-box">
+            <div class="uac-header">
+                <img src="https://img.icons8.com/color/32/shield.png">
+                <div>
+                    <b style="font-size:13px; color:#003399;">¿Desea permitir que este programa realice cambios en el equipo?</b>
+                </div>
+            </div>
+            <div style="padding:15px; background:#fff; font-size:12px;">
+                <p><b>Nombre del programa:</b> Herramienta del Sistema Administrativo</p>
+                <p style="color:#555;"><b>Editor:</b> Microsoft Windows Verified</p>
+                <p style="margin-top:10px; font-size:11px; color:#666;">⚙️ Origen del archivo: Unidad de disco duro local</p>
+            </div>
+            <div style="padding:10px; background:#f0f0f0; text-align:right; border-top:1px solid #dfdfdf; display:flex; justify-content:flex-end; gap:8px;">
+                <button class="win7-btn" style="margin:0; width:70px; font-weight:bold;" onclick="approveUAC()">Sí</button>
+                <button class="win7-btn" style="margin:0; width:70px;" onclick="cancelUAC()">No</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="desktop-environment">
+        
+        <div class="gadget-container">
+            <div class="gadget-clock">
+                <div class="clock-face">
+                    <div id="hh" class="clock-hand hand-h"></div>
+                    <div id="mm" class="clock-hand hand-m"></div>
+                    <div id="ss" class="clock-hand hand-s"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="desktop" onclick="closePanels()">
+            <div class="desktop-icon" onclick="openApp('explorer')" id="icon-explorer" onmousedown="shakeDetectStart(event, 'app-explorer')"><img src="https://img.icons8.com/color/48/computer-explorer.png"><span>Equipo</span></div>
+            <div class="desktop-icon" onclick="openApp('ie')"><img src="https://img.icons8.com/color/48/internet-explorer-2012.png"><span>Internet Explorer</span></div>
+            <div class="desktop-icon" onclick="triggerUAC('control')"><img src="https://img.icons8.com/color/48/control-panel.png"><span>Panel de Control</span></div>
+            <div class="desktop-icon" onclick="triggerUAC('perf')"><img src="https://img.icons8.com/color/48/activity-history.png"><span>Monitor de Recursos</span></div>
+            <div class="desktop-icon" onclick="openApp('games')"><img src="https://img.icons8.com/color/48/chess-board.png"><span>Juegos Clásicos</span></div>
+        </div>
+
+        <div id="app-explorer" class="window aero-glass" onclick="focusWindow(this)">
+            <div class="window-header" onmousedown="dragStart(event, 'app-explorer')">
+                <div class="window-title" id="shake-handle-explorer"><img src="https://img.icons8.com/color/16/computer-explorer.png"> Bibliotecas del Sistema</div>
+                <div class="window-controls">
+                    <div class="win7-ctrl" onclick="minimizeApp('explorer')">─</div>
+                    <div class="win7-ctrl" onclick="toggleMaximize('app-explorer')">⬜</div>
+                    <div class="win7-ctrl close-btn" onclick="closeApp('explorer')">✕</div>
+                </div>
+            </div>
+            <div class="window-body" style="display:flex; padding:0;">
+                <div style="width:150px; background:#f4f9fd; border-right:1px solid #d9d9d9; padding:10px; font-size:11px; display:flex; flex-direction:column; gap:8px;">
+                    <b>⭐ Favoritos</b>
+                    <span style="padding-left:10px; cursor:pointer;" onclick="alert('Abriendo carpeta Descargas')">📥 Descargas</span>
+                    <b>📁 Bibliotecas</b>
+                    <span style="padding-left:10px; color:#0066cc; font-weight:bold;">🗂️ Documentos</span>
+                    <span style="padding-left:10px; cursor:pointer;">🖼️ Imágenes</span>
+                    <span style="padding-left:10px; cursor:pointer;">🎵 Música</span>
+                    <span style="padding-left:10px; cursor:pointer;">🎬 Videos</span>
+                </div>
+                <div style="flex-grow:1; padding:15px;">
+                    <h3 style="font-weight:300; color:#1e395b; border-bottom:1px solid #b8d6f3; padding-bottom:4px;">Bibliotecas</h3>
+                    <p style="color:#555; margin-top:4px; font-size:11px;">Agrupación de contenido desde múltiples ubicaciones físicas:</p>
+                    <div class="lib-grid">
+                        <div class="lib-card"><img src="https://img.icons8.com/fluent/32/document.png"><div><b>Documentos</b><br><span style="font-size:10px; color:#777;">2 ubicaciones</span></div></div>
+                        <div class="lib-card"><img src="https://img.icons8.com/fluent/32/image.png"><div><b>Imágenes</b><br><span style="font-size:10px; color:#777;">1 ubicación</span></div></div>
+                        <div class="lib-card"><img src="https://img.icons8.com/fluent/32/music.png"><div><b>Música</b><br><span style="font-size:10px; color:#777;">Ficheros locales</span></div></div>
+                        <div class="lib-card"><img src="https://img.icons8.com/fluent/32/video-playlist.png"><div><b>Videos</b><br><span style="font-size:10px; color:#777;">0 archivos</span></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-ie" class="window aero-glass" onclick="focusWindow(this)">
+            <div class="window-header" onmousedown="dragStart(event, 'app-ie')">
+                <div class="window-title"><img src="https://img.icons8.com/color/16/internet-explorer-2012.png"> Internet Explorer 8</div>
+                <div class="window-controls">
+                    <div class="win7-ctrl" onclick="minimizeApp('ie')">─</div><div class="win7-ctrl" onclick="toggleMaximize('app-ie')">⬜</div>
+                    <div class="win7-ctrl close-btn" onclick="closeApp('ie')">✕</div>
+                </div>
+            </div>
+            <div style="background:#edeedf; padding:4px 8px; display:flex; gap:6px; align-items:center; border-bottom:1px solid #aaa;">
+                <input type="text" value="http://www.google.com (Soporte Caducado)" style="flex-grow:1; padding:2px 6px; font-size:11px; border:1px solid #999;" disabled>
+            </div>
+            <div class="window-body" style="background:#fff5f5; padding:20px;">
+                <div style="display:flex; gap:15px; align-items:flex-start;">
+                    <img src="https://img.icons8.com/color/48/high-priority.png">
+                    <div>
+                        <h3 style="color:#cc0000;">Navegación Web No Segura Detectada</h3>
+                        <p style="margin-top:10px; font-size:12px; line-height:1.5; color:#333;">
+                            ⚠️ <b>Estado Crítico (Era Posterior):</b> Internet Explorer 11 y 8 están completamente descontinuados. <br><br>
+                            Los navegadores alternativos principales en este sistema operativo también han congelado su desarrollo:
+                        </p>
+                        <ul style="margin:10px 0 10px 20px; font-size:11px; color:#555;">
+                            <li><b>Google Chrome:</b> Última versión compatible obsoleta (v109 lanzada en enero de 2023).</li>
+                            <li><b>Mozilla Firefox:</b> Soporte extendido oficial finalizado por completo en 2024.</li>
+                        </ul>
+                        <p style="font-size:11px; font-style:italic; color:#666;">Consecuencia: Las páginas web modernas con certificados TLS actualizados fallarán al cargar o serán vulnerables a exploits remotos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-control" class="window aero-glass" onclick="focusWindow(this)">
+            <div class="window-header" onmousedown="dragStart(event, 'app-control')">
+                <div class="window-title"><img src="https://img.icons8.com/color/16/control-panel.png"> Panel de Control - Requisitos Generales</div>
+                <div class="window-controls">
+                    <div class="win7-ctrl" onclick="minimizeApp('control')">─</div><div class="win7-ctrl" onclick="toggleMaximize('app-control')">⬜</div>
+                    <div class="win7-ctrl close-btn" onclick="closeApp('control')">✕</div>
+                </div>
+            </div>
+            <div class="window-body">
+                <h4 style="color:#1e395b; border-bottom:1px solid #ccc; padding-bottom:4px;">Requisitos Mínimos del Sistema (Arquitectura de 2009)</h4>
+                <table style="width:100%; border-collapse:collapse; margin-top:8px; font-size:11px;">
+                    <tr style="border-bottom:1px solid #eee;"><td style="padding:4px; font-weight:bold;">Procesador</td><td>1 GHz o más rápido (Compatible con x86 o x64)</td></tr>
+                    <tr style="border-bottom:1px solid #eee;"><td style="padding:4px; font-weight:bold;">Memoria RAM</td><td>1 GB (32-bit) o 2 GB (64-bit)</td></tr>
+                    <tr style="border-bottom:1px solid #eee;"><td style="padding:4px; font-weight:bold;">Disco Duro</td><td>16 GB (32-bit) o 20 GB (64-bit) de espacio libre</td></tr>
+                    <tr style="border-bottom:1px solid #eee;"><td style="padding:4px; font-weight:bold;">Tarjeta Gráfica</td><td>DirectX 9 con controlador WDDM 1.0 (Obligatorio para Aero Glass)</td></tr>
+                    <tr style="border-bottom:1px solid #eee;"><td style="padding:4px; font-weight:bold;">Resolución</td><td>Mínimo de pantalla de 800x600 (Recomendado 1024x768)</td></tr>
+                </table>
+                <div style="margin-top:15px; background:#e1f0fa; padding:10px; border:1px solid #a8d1f0; border-radius:4px; font-size:11px; color:#1e395b;">
+                    ℹ️ <b>Nota de Seguridad Histórica:</b> Este sistema no implementa ni requiere hardware moderno como módulos físicos TPM 2.0 ni sistemas de Arranque Seguro (Secure Boot).
+                </div>
+            </div>
+        </div>
+
+        <div id="app-perf" class="window aero-glass" onclick="focusWindow(this)">
+            <div class="window-header" onmousedown="dragStart(event, 'app-perf')">
+                <div class="window-title"><img src="https://img.icons8.com/color/16/activity-history.png"> Monitor de Recursos del Sistema</div>
+                <div class="window-controls">
+                    <div class="win7-ctrl" onclick="minimizeApp('perf')">─</div><div class="win7-ctrl" onclick="toggleMaximize('app-perf')">⬜</div>
+                    <div class="win7-ctrl close-btn" onclick="closeApp('perf')">✕</div>
+                </div>
+            </div>
+            <div class="window-body">
+                <p style="margin-bottom:10px; font-weight:bold;">Estadísticas del Procesador y Memoria:</p>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <div>
+                        <span style="font-size:11px;">Uso de CPU (Simulado en Núcleo): <b id="cpu-val">24%</b></span>
+                        <div style="width:100%; height:12px; background:#eee; border:1px solid #ccc; border-radius:2px; overflow:hidden; margin-top:2px;">
+                            <div id="cpu-bar" style="width:24%; height:100%; background:linear-gradient(#99ff99, #33cc33);"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <span style="font-size:11px;">Uso de Memoria RAM Física: <b>1.42 GB / 2.00 GB</b></span>
+                        <div style="width:100%; height:12px; background:#eee; border:1px solid #ccc; border-radius:2px; overflow:hidden; margin-top:2px;">
+                            <div style="width:71%; height:100%; background:linear-gradient(#99ccff, #3399ff);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-games" class="window aero-glass" onclick="focusWindow(this)">
+            <div class="window-header" onmousedown="dragStart(event, 'app-games')">
+                <div class="window-title"><img src="https://img.icons8.com/color/16/chess-board.png"> Centro de Entretenimiento Clásico</div>
+                <div class="window-controls">
+                    <div class="win7-ctrl" onclick="minimizeApp('games')">─</div><div class="win7-ctrl" onclick="toggleMaximize('app-games')">⬜</div>
+                    <div class="win7-ctrl close-btn" onclick="closeApp('games')">✕</div>
+                </div>
+            </div>
+            <div class="window-body">
+                <h4 style="color:#cc6600;">Preservación de Software</h4>
+                <p style="margin:6px 0 12px 0; line-height:1.4;">
+                    Esta suite incluye los videojuegos nativos icónicos que fueron removidos de forma nativa en los sistemas de producción modernos:
+                </p>
+                <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; font-size:11px;">
+                    <div style="border:1px solid #ddd; padding:8px; display:flex; gap:8px; align-items:center;"><img src="https://img.icons8.com/color/32/solitaire.png"><b>Solitario Spider</b></div>
+                    <div style="border:1px solid #ddd; padding:8px; display:flex; gap:8px; align-items:center;"><img src="https://img.icons8.com/color/32/chess-board.png"><b>Chess Titans</b></div>
+                    <div style="border:1px solid #ddd; padding:8px; display:flex; gap:8px; align-items:center;"><img src="https://img.icons8.com/color/32/minesweeper.png"><b>Buscaminas (Mine)</b></div>
+                    <div style="border:1px solid #ddd; padding:8px; display:flex; gap:8px; align-items:center;"><img src="https://img.icons8.com/color/32/cake.png"><b>Purble Place</b></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="taskbar">
+            <div class="taskbar-left">
+                <div class="start-button" onclick="toggleStartMenu(event)">
+                    <img src="https://win11.blueedge.me/img/icon/home.png" alt="Start Orb">
+                </div>
+                <div class="running-apps">
+                    <div class="taskbar-app" id="tbar-explorer" onclick="openApp('explorer')" oncontextmenu="openJumpList(event, 'explorer')"><img src="https://img.icons8.com/color/48/computer-explorer.png"></div>
+                    <div class="taskbar-app" id="tbar-ie" onclick="openApp('ie')" oncontextmenu="openJumpList(event, 'ie')"><img src="https://img.icons8.com/color/48/internet-explorer-2012.png"></div>
+                    <div class="taskbar-app" id="tbar-control" onclick="triggerUAC('control')" oncontextmenu="openJumpList(event, 'control')"><img src="https://img.icons8.com/color/48/control-panel.png"></div>
+                    <div class="taskbar-app" id="tbar-perf" onclick="triggerUAC('perf')" oncontextmenu="openJumpList(event, 'perf')"><img src="https://img.icons8.com/color/48/activity-history.png"></div>
+                </div>
+            </div>
+            
+            <div class="taskbar-right">
+                <div class="system-tray">
+                    <span>🛡️</span><span>🔊</span><span>📶</span>
+                    <span id="tray-time" style="font-weight:400;">00:00</span>
+                </div>
+                <div class="show-desktop-btn" onclick="minimizeAllWindows()" title="Mostrar escritorio"></div>
+            </div>
+        </div>
+
+        <div class="start-menu aero-glass" id="startMenu">
+            <div class="start-main">
+                <div class="start-left" id="start-programs-list">
+                    <div class="start-prog-item" onclick="openApp('explorer')"><img src="https://img.icons8.com/color/32/computer-explorer.png"><span>Equipo (Explorador)</span></div>
+                    <div class="start-prog-item" onclick="openApp('ie')"><img src="https://img.icons8.com/color/32/internet-explorer-2012.png"><span>Internet Explorer</span></div>
+                    <div class="start-prog-item" onclick="triggerUAC('control')"><img src="https://img.icons8.com/color/32/control-panel.png"><span>Panel de Control</span></div>
+                    <div class="start-prog-item" onclick="triggerUAC('perf')"><img src="https://img.icons8.com/color/32/activity-history.png"><span>Monitor de Recursos</span></div>
+                    <div class="start-prog-item" onclick="openApp('games')"><img src="https://img.icons8.com/color/32/chess-board.png"><span>Juegos Clásicos</span></div>
+                </div>
+                <div class="start-right">
+                    <b style="color:#1e395b; margin-bottom:5px; display:block;">Usuario Local</b>
+                    <span style="cursor:pointer;" onclick="openApp('explorer')">Documentos</span>
+                    <span style="cursor:pointer;" onclick="openApp('explorer')">Imágenes</span>
+                    <span style="cursor:pointer;" onclick="openApp('explorer')">Música</span>
+                    <div class="menu-separator" style="background:rgba(0,0,0,0.15)"></div>
+                    <span style="cursor:pointer;" onclick="openApp('explorer')">Equipo</span>
+                    <span style="cursor:pointer;" onclick="triggerUAC('control')">Panel de Control</span>
+                </div>
+            </div>
+            <div class="start-footer-bar">
+                <input type="text" class="start-search-box" id="startSearchInput" placeholder="Buscar programas o archivos..." onkeyup="filterStartMenu()">
+                <button class="win7-btn" style="margin:0; font-weight:bold; padding:2px 8px;" onclick="location.reload()">Apagar ⏻</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="context-menu" id="customContextMenu">
+        <div class="menu-item" onclick="alert('Actualizando caché gráfica del Escritorio')">Actualizar</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" onclick="triggerUAC('control')">Personalizar Sistema</div>
+    </div>
+
+    <div class="jump-list" id="customJumpList">
+        <div class="menu-title-header" id="jump-title">Aplicación</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" id="jump-opt-1">📄 Archivo reciente 1</div>
+        <div class="menu-item" id="jump-opt-2">📄 Archivo reciente 2</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" id="jump-close-opt">Cerrar ventana</div>
+    </div>
+
+    <script>
+        // Inicialización y Carga de Pantallas
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('boot-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('boot-screen').style.display = 'none';
+                    document.getElementById('lock-screen').style.display = 'flex';
+                }, 600);
+            }, 2500);
+        });
+
+        function loginToDesktop() {
+            document.getElementById('lock-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('desktop-environment').style.visibility = 'visible';
+            }, 400);
+        }
+
+        // Lógica de Ventanas e Interfaces Abiertas/Cerradas
+        let pendingAppId = '';
+        function triggerUAC(appId) {
+            closePanels();
+            pendingAppId = appId;
+            document.getElementById('uac-modal').style.display = 'flex';
+        }
+        function approveUAC() {
+            document.getElementById('uac-modal').style.display = 'none';
+            if(pendingAppId) { openApp(pendingAppId); pendingAppId = ''; }
+        }
+        function cancelUAC() { document.getElementById('uac-modal').style.display = 'none'; pendingAppId = ''; }
+
+        function openApp(id) {
+            closePanels();
+            const win = document.getElementById(`app-${id}`);
+            if(win) {
+                win.style.display = 'flex';
+                // Restaura dimensiones por si fue minimizada/modificada por Snap
+                if(!win.style.width) { win.style.width = "640px"; win.style.height = "440px"; }
+                focusWindow(win);
+                document.getElementById(`tbar-${id}`).classList.add('active');
+            }
+        }
+        function closeApp(id) {
+            document.getElementById(`app-${id}`).style.display = 'none';
+            document.getElementById(`tbar-${id}`).classList.remove('active');
+        }
+        function minimizeApp(id) { document.getElementById(`app-${id}`).style.display = 'none'; }
+        
+        function focusWindow(win) {
+            document.querySelectorAll('.window').forEach(w => w.style.zIndex = 10);
+            win.style.zIndex = 100;
+        }
+        function minimizeAllWindows() { document.querySelectorAll('.window').forEach(w => w.style.display = 'none'); }
+
+        function toggleMaximize(winId) {
+            const win = document.getElementById(winId);
+            if(win.style.width === "100%") {
+                win.style.width = "640px"; win.style.height = "440px"; win.style.top = "10%"; win.style.left = "15%";
+            } else {
+                win.style.width = "100%"; win.style.height = "calc(100vh - 40px)"; win.style.top = "0px"; win.style.left = "0px";
+            }
+        }
+
+        // Menús e Interfaces Flotantes
+        function toggleStartMenu(e) { e.stopPropagation(); document.getElementById('startMenu').classList.toggle('active'); }
+        function closePanels() {
+            document.getElementById('startMenu').classList.remove('active');
+            document.getElementById('customContextMenu').style.display = 'none';
+            document.getElementById('customJumpList').style.display = 'none';
+        }
+
+        function openDesktopContextMenu(e) {
+            e.preventDefault();
+            closePanels();
+            const menu = document.getElementById('customContextMenu');
+            menu.style.display = 'block'; menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
+        }
+
+        // --- SISTEMA INTERACTIVO DE JUMP LISTS (CLIC DERECHO EN BARRA DE TAREAS) ---
+        function openJumpList(e, appId) {
+            e.preventDefault(); e.stopPropagation();
+            closePanels();
+            const list = document.getElementById('customJumpList');
+            const title = document.getElementById('jump-title');
+            const opt1 = document.getElementById('jump-opt-1');
+            const opt2 = document.getElementById('jump-opt-2');
+            const closeOpt = document.getElementById('jump-close-opt');
+
+            if(appId === 'explorer') { title.textContent = "Equipo / Explorador"; opt1.textContent = "📥 Descargas recientes"; opt2.textContent = "📁 Disco Local (C:)"; }
+            else if(appId === 'ie') { title.textContent = "Internet Explorer"; opt1.textContent = "🌐 Historial de navegación"; opt2.textContent = "⭐ Sitios marcados"; }
+            else if(appId === 'control') { title.textContent = "Panel de Control"; opt1.textContent = "⚙️ Administrador de Dispositivos"; opt2.textContent = "🛡️ Firewall de Windows"; }
+            else { title.textContent = "Tareas del Sistema"; opt1.textContent = "📊 Ver hilos de CPU"; opt2.textContent = "💽 Volcado de memoria"; }
+
+            closeOpt.onclick = () => closeApp(appId);
+
+            list.style.display = 'block';
+            list.style.left = e.clientX + 'px';
+            list.style.top = (e.clientY - 110) + 'px'; // Posiciona arriba de la barra de tareas
+        }
+
+        // --- MOTOR DE BÚSQUEDA DEL MENÚ INICIO EN TIEMPO REAL ---
+        function filterStartMenu() {
+            const query = document.getElementById('startSearchInput').value.toLowerCase();
+            const items = document.querySelectorAll('#start-programs-list .start-prog-item');
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        // --- COMPORTAMIENTO MECÁNICO DE AERO SHAKE (AGITAR VENTANA) ---
+        let shakeCount = 0, lastX = 0, isShaking = false;
+        function shakeDetectStart(e, targetWinId) {
+            isShaking = true; shakeCount = 0; lastX = e.clientX;
+            document.addEventListener('mousemove', function(evt) {
+                if(!isShaking) return;
+                let diff = Math.abs(evt.clientX - lastX);
+                if(diff > 45) { 
+                    shakeCount++; lastX = evt.clientX;
+                    if(shakeCount > 4) { // Si se agita más de 4 veces seguidas de forma abrupta
+                        document.querySelectorAll('.window').forEach(w => {
+                            if(w.id !== targetWinId) w.style.display = 'none';
+                        });
+                        isShaking = false;
+                    }
+                }
+            });
+            document.addEventListener('mouseup', () => isShaking = false);
+        }
+
+        // --- ARRASTRE Y SOPORTE DE AERO SNAP (IZQUIERDA/DERECHA) ---
+        let activeWin = null, initX, initY, currX = 0, currY = 0, offsets = {};
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            focusWindow(activeWin);
+            if (!offsets[id]) offsets[id] = {x: 0, y: 0};
+            initX = e.clientX - offsets[id].x; initY = e.clientY - offsets[id].y;
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+        }
+        function drag(e) {
+            if (activeWin) {
+                currX = e.clientX - initX; currY = e.clientY - initY;
+                offsets[activeWin.id] = {x: currX, y: currY};
+                activeWin.style.transform = `translate3d(${currX}px, ${currY}px, 0)`;
+
+                // Mecánica Aero Snap Izquierda
+                if (e.clientX <= 4) {
+                    activeWin.style.transform = 'none'; activeWin.style.width = '50%'; activeWin.style.height = 'calc(100vh - 40px)';
+                    activeWin.style.left = '0px'; activeWin.style.top = '0px'; dragEnd();
+                } 
+                // Mecánica Aero Snap Derecha
+                else if (e.clientX >= window.innerWidth - 4) {
+                    activeWin.style.transform = 'none'; activeWin.style.width = '50%'; activeWin.style.height = 'calc(100vh - 40px)';
+                    activeWin.style.left = '50%'; activeWin.style.top = '0px'; dragEnd();
+                }
+            }
+        }
+        function dragEnd() { activeWin = null; document.removeEventListener('mousemove', drag); document.removeEventListener('mouseup', dragEnd); }
+
+        // Mecánica física interna del Gadget Reloj Analógico
+        function runSystemClock() {
+            const now = new Date();
+            const hr = now.getHours(), min = now.getMinutes(), sec = now.getSeconds();
+            document.getElementById('hh').style.transform = `rotate(${ (hr * 30) + (min / 2) }deg)`;
+            document.getElementById('mm').style.transform = `rotate(${ (min * 6) + (sec / 10) }deg)`;
+            document.getElementById('ss').style.transform = `rotate(${ sec * 6 }deg)`;
+            document.getElementById('tray-time').textContent = `${hr}:${min < 10 ? '0'+min : min}`;
+
+            // Simulación dinámica de fluctuación de carga para el Monitor de Recursos
+            if(Math.random() > 0.7) {
+                let rCpu = Math.floor(Math.random() * 40) + 10;
+                document.getElementById('cpu-val').textContent = rCpu + "%";
+                document.getElementById('cpu-bar').style.width = rCpu + "%";
+            }
+        }
+        setInterval(runSystemClock, 1000);
+        runSystemClock();
+    </script>
+</body>
+</html>
