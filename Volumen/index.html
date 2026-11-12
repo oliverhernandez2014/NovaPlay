@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Matemático: Capacidad y Volumen</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .quiz-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 550px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            font-size: 22px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        .progress {
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .question {
+            font-size: 18px;
+            color: #222;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+        .option {
+            background-color: #e9ecef;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            padding: 14px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+        .option:hover {
+            background-color: #dee2e6;
+        }
+        .option.selected {
+            background-color: #d1ecf1;
+            border-color: #17a2b8;
+            font-weight: bold;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            text-align: center;
+            color: #333;
+        }
+        .result h2 {
+            color: #28a745;
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+        .result p {
+            font-size: 18px;
+            margin: 8px 0;
+        }
+        .score-box {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz">
+    <div id="quiz-content">
+        <h1 id="quiz-title">Quiz de Capacidad y Volumen</h1>
+        <div class="progress" id="progress-text">Pregunta 1 de 30</div>
+        <div class="question" id="question-text">Cargando pregunta...</div>
+        <div id="options-container"></div>
+        <button id="next-btn" onclick="nextQuestion()">Siguiente Pregunta</button>
+    </div>
+    <div id="result-container" style="display: none;" class="result"></div>
+</div>
+
+<script>
+    const quizData = [
+        { question: "Un tanque de agua tiene un volumen de 3 m³. ¿Cuántos litros (L) de agua puede almacenar?", options: ["300 L", "3.000 L", "30.000 L", "30 L"], correct: 1 },
+        { question: "Una jeringa médica tiene un volumen interno de 5 cm³. ¿A cuántos mililitros (mL) equivale?", options: ["0,5 mL", "5 mL", "50 mL", "500 mL"], correct: 1 },
+        { question: "El motor de una motocicleta tiene una cilindrada de 250 cm³. ¿Cuál es su capacidad equivalente en litros (L)?", options: ["2,5 L", "0,25 L", "25 L", "0,025 L"], correct: 1 },
+        { question: "Un contenedor tiene un volumen de 12 dm³. ¿Cuál es su capacidad en litros (L)?", options: ["1,2 L", "12 L", "120 L", "1.200 L"], correct: 1 },
+        { question: "Una piscina inflable se llena con un volumen de 8,5 m³ de agua. ¿A cuántos litros (L) corresponde?", options: ["8.500 L", "850 L", "85.000 L", "85 L"], correct: 0 },
+        { question: "Una botella grande de refresco tiene una capacidad de 2 L. ¿A cuántos decímetros cúbicos (dm³) equivale?", options: ["20 dm³", "0,2 dm³", "2 dm³", "200 dm³"], correct: 2 },
+        { question: "Un envase de leche contiene 1.000 mL. ¿Cuál es su volumen equivalente en centímetros cúbicos (cm³)?", options: ["100 cm³", "1.000 cm³", "10 cm³", "10.000 cm³"], correct: 1 },
+        { question: "El tanque de gasolina de un coche compacto almacena 50 L. ¿A cuántos metros cúbicos (m³) equivale este volumen?", options: ["0,5 m³", "0,05 m³", "5 m³", "0,005 m³"], correct: 1 },
+        { question: "Un frasco de perfume premium contiene 75 mL. ¿Cuál es su volumen expresado en decímetros cúbicos (dm³)?", options: ["0,075 dm³", "0,75 dm³", "7,5 dm³", "0,0075 dm³"], correct: 0 },
+        { question: "Un camión cisterna transporta 15.000 L de agua. ¿Cuál es el volumen total de la cisterna en metros cúbicos (m³)?", options: ["150 m³", "15 m³", "1.500 m³", "1,5 m³"], correct: 1 },
+        { question: "Un acuario mediano tiene una capacidad de 150 L. ¿A cuántos decímetros cúbicos (dm³) equivale su volumen?", options: ["150 dm³", "1,5 dm³", "15 dm³", "1.500 dm³"], correct: 0 },
+        { question: "Un termo para café tiene un volumen de 1,2 dm³. ¿Cuántos mililitros (mL) puede contener?", options: ["120 mL", "1.200 mL", "12 mL", "12.000 mL"], correct: 1 },
+        { question: "El depósito de un experimento químico mide 0,008 m³. ¿Cuál es su capacidad en litros (L)?", options: ["0,8 L", "8 L", "80 L", "0,08 L"], correct: 1 },
+        { question: "Un bote de pintura de un galón tiene aproximadamente 3,78 L de capacidad. ¿A cuántos centímetros cúbicos (cm³) equivale?", options: ["3.780 cm³", "378 cm³", "37,8 cm³", "37.800 cm³"], correct: 0 },
+        { question: "Un gran tanque industrial almacena 4,2 m³ de aceite de cocina. ¿Cuál es su capacidad en litros (L)?", options: ["420 L", "4.200 L", "42.000 L", "42 L"], correct: 1 },
+        { question: "Un cartón de jugo tiene una capacidad de 250 mL. ¿Cuál es su volumen expresado en decímetros cúbicos (dm³)?", options: ["0,25 dm³", "2,5 dm³", "0,025 dm³", "25 dm³"], correct: 0 },
+        { question: "Un bloque cúbico hueco de plástico tiene un volumen de 64 dm³. ¿Cuántos litros (L) caben dentro?", options: ["6,4 L", "64 L", "640 L", "0,64 L"], correct: 1 },
+        { question: "Una taza de café estándar contiene 200 mL. ¿Cuál es su equivalencia exacta en centímetros cúbicos (cm³)?", options: ["20 cm³", "200 cm³", "2.000 cm³", "2 cm³"], correct: 1 },
+        { question: "Un tanque de reserva de una casa almacena 1.200 L de agua. ¿A cuántos metros cúbicos (m³) equivale?", options: ["12 m³", "1,2 m³", "120 m³", "0,12 m³"], correct: 1 },
+        { question: "Una ampolleta de laboratorio contiene 0,005 L de reactivo. ¿A cuántos centímetros cúbicos (cm³) equivale?", options: ["0,5 cm³", "5 cm³", "50 cm³", "0,05 cm³"], correct: 1 },
+        { question: "Un camión distribuidor lleva un tanque con 8 m³ de gas licuado. ¿Cuál es su capacidad en litros (L)?", options: ["800 L", "8.000 L", "80.000 L", "80 L"], correct: 1 },
+        { question: "Una botella de jarabe para la tos indica un volumen de 0,15 dm³. ¿Cuántos mililitros (mL) contiene?", options: ["15 mL", "150 mL", "1.500 mL", "1,5 mL"], correct: 1 },
+        { question: "Un estanque cilíndrico en una granja contiene 2.500 L de leche. ¿Cuál es su volumen en metros cúbicos (m³)?", options: ["25 m³", "2,5 m³", "250 m³", "0,25 m³"], correct: 1 },
+        { question: "Un bote dispensador de jabón líquido tiene una capacidad de 500 mL. ¿A cuántos decímetros cúbicos (dm³) equivale?", options: ["5 dm³", "0,5 dm³", "0,05 dm³", "50 dm³"], correct: 1 },
+        { question: "El volumen interior de un horno microondas grande es de 32 dm³. ¿Cuántos litros (L) de espacio libre tiene?", options: ["3,2 L", "32 L", "320 L", "0,32 L"], correct: 1 },
+        { question: "Un bebedero para mascotas contiene 3.500 cm³ de agua. ¿Cuál es su capacidad equivalente en litros (L)?", options: ["35 L", "3,5 L", "0,35 L", "350 L"], correct: 1 },
+        { question: "Un tanque de almacenamiento de gas propano tiene un volumen de 0,75 m³. ¿Cuántos litros (L) contiene?", options: ["75 L", "750 L", "7.500 L", "7,5 L"], correct: 1 },
+        { question: "Una botella de agua mineral individual tiene una capacidad de 600 mL. ¿A cuántos centímetros cúbicos (cm³) equivale?", options: ["60 cm³", "600 cm³", "6.000 cm³", "6 cm³"], correct: 1 },
+        { question: "El depósito de limpiaparabrisas de un camión tiene una capacidad de 4,5 L. ¿Cuál es su volumen en decímetros cúbicos (dm³)?", options: ["45 dm³", "4,5 dm³", "0,45 dm³", "450 dm³"], correct: 1 },
+        { question: "Una piscina municipal masiva contiene un volumen de 2.500 m³ de agua. ¿A cuántos litros (L) corresponde?", options: ["250.000 L", "2.500.000 L", "25.000 L", "25.000.000 L"], correct: 1 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedOptionIndex = null;
+
+    const questionText = document.getElementById("question-text");
+    const optionsContainer = document.getElementById("options-container");
+    const progressText = document.getElementById("progress-text");
+    const quizContent = document.getElementById("quiz-content");
+    const resultContainer = document.getElementById("result-container");
+
+    function loadQuestion() {
+        selectedOptionIndex = null;
+        const currentQuestion = quizData[currentQuestionIndex];
+        
+        progressText.innerText = `Pregunta ${currentQuestionIndex + 1} de ${quizData.length}`;
+        questionText.innerText = currentQuestion.question;
+        optionsContainer.innerHTML = "";
+        
+        currentQuestion.options.forEach((option, index) => {
+            const div = document.createElement("div");
+            div.classList.add("option");
+            div.innerText = option;
+            div.onclick = () => selectOption(index, div);
+            optionsContainer.appendChild(div);
+        });
+    }
+
+    function selectOption(index, element) {
+        const options = document.querySelectorAll(".option");
+        options.forEach(opt => opt.classList.remove("selected"));
+        element.classList.add("selected");
+        selectedOptionIndex = index;
+    }
+
+    function nextQuestion() {
+        if (selectedOptionIndex === null) {
+            alert("Por favor, selecciona una respuesta antes de continuar.");
+            return;
+        }
+
+        if (selectedOptionIndex === quizData[currentQuestionIndex].correct) {
+            score++;
+        }
+
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        quizContent.style.display = "none";
+        resultContainer.style.display = "block";
+        
+        // 🧮 Operación del porcentaje integrada
+        const porcentaje = Math.round((score / quizData.length) * 100);
+
+        let mensaje = "";
+        if(porcentaje === 100) {
+            mensaje = "¡Perfecto! Dominas las conversiones al 100%. 🏆";
+        } else if(porcentaje >= 70) {
+            mensaje = "¡Muy buen trabajo! Pasaste el examen. 👏";
+        } else {
+            mensaje = "¡A seguir practicando! Recuerden repasar las tablas de conversión. 📚";
+        }
+
+        resultContainer.innerHTML = `
+            <h2>¡Quiz Terminado!</h2>
+            <div class="score-box">
+                <p><strong>Aciertos:</strong> ${score} de ${quizData.length}</p>
+                <p style="font-size: 22px; color: #17a2b8; margin-top: 10px;"><strong>Nota Final: ${porcentaje}%</strong></p>
+            </div>
+            <p style="font-size: 16px; color: #555; margin-bottom: 20px;">${mensaje}</p>
+            <button onclick="location.reload()">Volver a Jugar</button>
+        `;
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
