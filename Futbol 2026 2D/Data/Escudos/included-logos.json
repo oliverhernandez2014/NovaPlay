@@ -1,0 +1,290 @@
+[
+  {
+    "slug": "mexico-national-team",
+    "name": "Mexico National Team",
+    "filename": "mexico-national-team-logo-footylogos.png",
+    "sha256": "d731265f4a61ae35904fb874a7b7b103b9fc41224af323f51e67900792ba3c00"
+  },
+  {
+    "slug": "south-korea-national-team",
+    "name": "South Korea",
+    "filename": "south-korea-national-team-logo-footylogos.png",
+    "sha256": "36f6d7da31db14d7ba8dbb34193d0126c024decde3b88cf2ae2dd96354734d00"
+  },
+  {
+    "slug": "czechia-national-team",
+    "name": "Czechia National Team (Czech Republic)",
+    "filename": "czechia-national-team-logo-footylogos.png",
+    "sha256": "3af51aff5fee306cb8e809d68974af5f0009407efb5ee1e892a3e8c432a080f3"
+  },
+  {
+    "slug": "south-africa-national-team",
+    "name": "South Africa National Team",
+    "filename": "south-africa-national-team-logo-footylogos.png",
+    "sha256": "1a8ca120611d9a55f9a7316d761bd6039cec057b09c0068afffa21117cec99b7"
+  },
+  {
+    "slug": "canada-national-team",
+    "name": "Canada National Team",
+    "filename": "canada-national-team-logo-footylogos.png",
+    "sha256": "454ec4a46a24198d8da7df4048a30cce7c96fce8da828f42fc007442b869c6d2"
+  },
+  {
+    "slug": "switzerland-national-team",
+    "name": "Switzerland National Team",
+    "filename": "switzerland-national-team-logo-footylogos.png",
+    "sha256": "d0b542df57a90202bdcf23bc5cb85c0f2ae1a86e9b3d9ed785769bdd9819501e"
+  },
+  {
+    "slug": "qatar-national-team",
+    "name": "Qatar National Team",
+    "filename": "qatar-national-team-logo-footylogos.png",
+    "sha256": "6079d99f139db3783d62f3720ec817ba350299962b669d9e8157d3cbd44cf124"
+  },
+  {
+    "slug": "bosnia-and-herzegovina-national-team",
+    "name": "Bosnia and Herzegovina National Team",
+    "filename": "bosnia-and-herzegovina-national-team-logo-footylogos.png",
+    "sha256": "5f9e04a3522b1c3abc42aabc79cadfea79c36535a1da12a5da462ac28c04c4ae"
+  },
+  {
+    "slug": "brazil-national-team",
+    "name": "Brazil National Team",
+    "filename": "brazil-national-team-logo-footylogos.png",
+    "sha256": "d7c85d1298297c72f110e72963d5f0460ccbdf896ddcf756d1f592363b3e69c8"
+  },
+  {
+    "slug": "morocco-national-team",
+    "name": "Morocco National Team",
+    "filename": "morocco-national-team-logo-footylogos.png",
+    "sha256": "735829bf2881356f26fb89941521544b9e2853fe1224e8090d5464b1dcbfbdbb"
+  },
+  {
+    "slug": "haiti-national-team",
+    "name": "Haiti National Team",
+    "filename": "haiti-national-team-logo-footylogos.png",
+    "sha256": "8d912b0096fd6d7a9dbb86c431cd903110d637f2f5de7f6f3114eb841688c887"
+  },
+  {
+    "slug": "scotland-national-team",
+    "name": "Scotland National Team",
+    "filename": "scotland-national-team-logo-footylogos.png",
+    "sha256": "fd68c09ee9eb3ab7e000465f397a88a6194a19e39f3e82a6bb80c7915e5da95d"
+  },
+  {
+    "slug": "usa-national-team",
+    "name": "USA National Team",
+    "filename": "usa-national-team-logo-footylogos.png",
+    "sha256": "00613534fe1000467bf39f7e9204abe9de27d9a1178dd7ac5098452778a96e66"
+  },
+  {
+    "slug": "paraguay-national-team",
+    "name": "Paraguay National Team",
+    "filename": "paraguay-national-team-logo-footylogos.png",
+    "sha256": "ade8417bd144c6cf48797e96808566887d977eef8f8812d1f33fb1e61e9041ce"
+  },
+  {
+    "slug": "australia-national-team",
+    "name": "Australia National Team",
+    "filename": "australia-national-team-logo-footylogos.png",
+    "sha256": "2ca213fbfb5650f760d5ca335fa6409d071de40badbf8ae8b0887e9abc3a226d"
+  },
+  {
+    "slug": "turkey-national-team",
+    "name": "Turkey National Team",
+    "filename": "turkey-national-team-logo-footylogos.png",
+    "sha256": "00e2017af651d843de275c143e6d0d9afe219fafce90a60ed987cce06d21421d"
+  },
+  {
+    "slug": "germany-national-team",
+    "name": "Germany National Team",
+    "filename": "germany-national-team-logo-footylogos.png",
+    "sha256": "13bd32fd44474d03930eb4989f00a81b21e4da6146bbb1b99635e2e9b46fc628"
+  },
+  {
+    "slug": "ecuador-national-team",
+    "name": "Ecuador National Team",
+    "filename": "ecuador-national-team-logo-footylogos.png",
+    "sha256": "0077c30055427c3494a0f8e5cc8d80485248a8fe13591d57a270704fcf063018"
+  },
+  {
+    "slug": "cote-d-ivoire-national-team",
+    "name": "Côte d’Ivoire National Team (Ivory Coast)",
+    "filename": "cote-d-ivoire-national-team-logo-footylogos.png",
+    "sha256": "737f5de7b14f098ec0d6f1fe44f95b21a7f2021c144d46bbbddb464a4078fe18"
+  },
+  {
+    "slug": "curacao-national-team",
+    "name": "Curaçao National Team",
+    "filename": "curacao-national-team-logo-footylogos.png",
+    "sha256": "8e3cd2c7c2e185ec0291069c78db9f0bcb4eeedf83f6fcf3e6fb9d0cee15ac51"
+  },
+  {
+    "slug": "netherlands-national-team-dutch",
+    "name": "Netherlands National Team (Dutch)",
+    "filename": "netherlands-national-team-dutch-logo-footylogos.png",
+    "sha256": "9d516182e55ce10d661f7326687f24856e9d39f2fe302930c67f42a587b27fd7"
+  },
+  {
+    "slug": "japan-national-team",
+    "name": "Japan National Team",
+    "filename": "japan-national-team-logo-footylogos.png",
+    "sha256": "009daed3e9ce0f2f5132f1d25ab23e1135b5b7b83574ad2064bd70a9136423e6"
+  },
+  {
+    "slug": "tunisia-national-team",
+    "name": "Tunisia National Team",
+    "filename": "tunisia-national-team-logo-footylogos.png",
+    "sha256": "5f9ee434ecb0c35e0713e88e59350f4834395ebe75df84df1bc47455504aa265"
+  },
+  {
+    "slug": "sweden-national-team",
+    "name": "Sweden National Team",
+    "filename": "sweden-national-team-logo-footylogos.png",
+    "sha256": "46044eb12749068b34fcca63ec0f221678678dd56a07a5f56adc2a6a75aec466"
+  },
+  {
+    "slug": "belgium-national-team",
+    "name": "Belgium National Team",
+    "filename": "belgium-national-team-logo-footylogos.png",
+    "sha256": "8e1275bbd3f72599d87d78b8cf9724549232b2712455d42900abd5ca5a007389"
+  },
+  {
+    "slug": "egypt-national-team",
+    "name": "Egypt National Team",
+    "filename": "egypt-national-team-logo-footylogos.png",
+    "sha256": "b1818ad8d6d76233e588b71b55d742fa33a8c3cb73c11fc8e9f493ea290dded7"
+  },
+  {
+    "slug": "iran-national-team",
+    "name": "Iran National Team",
+    "filename": "iran-national-team-logo-footylogos.png",
+    "sha256": "f4b9b152ebe479ea75da7440680c1a1c6a64d7fc20b64ddcd9a5d51fb873f2b0"
+  },
+  {
+    "slug": "new-zealand-national-team",
+    "name": "New Zealand National Team",
+    "filename": "new-zealand-national-team-logo-footylogos.png",
+    "sha256": "8ce49bbd3c80ccf672381fac2f59a3ccb8ccae7bff1e09a8b8d2f7e0d3baab2f"
+  },
+  {
+    "slug": "spain-national-team",
+    "name": "Spain National Team",
+    "filename": "spain-national-team-logo-footylogos.png",
+    "sha256": "1072f3dd1fc5f1f57d8af3e682546ebff7cb9f1aca520f45adba0b59529b9cbd"
+  },
+  {
+    "slug": "uruguay-national-team",
+    "name": "Uruguay National Team",
+    "filename": "uruguay-national-team-logo-footylogos.png",
+    "sha256": "28fbfcf422a5a62a13386c4aa31f1406f4932d231ec0004664701ebba1036d9b"
+  },
+  {
+    "slug": "saudi-arabia-national-team",
+    "name": "Saudi Arabia National Team",
+    "filename": "saudi-arabia-national-team-logo-footylogos.png",
+    "sha256": "64e2043bc13da487a92c6c45428a88f0002c23f9ab909ac09caf28b77b4a6df9"
+  },
+  {
+    "slug": "cabo-verde-national-team",
+    "name": "Cabo Verde National Team (Cape Verde)",
+    "filename": "cabo-verde-national-team-logo-footylogos.png",
+    "sha256": "940dc2d72af7f125e24f165df57d1f51da9d93ed3b712124ff27d9be81f87918"
+  },
+  {
+    "slug": "france-national-team",
+    "name": "France National Team",
+    "filename": "france-national-team-logo-footylogos.png",
+    "sha256": "93a63abb9a7e04a5d6bc5881ad516b6a29fcd43a8308fb66e1dce482c17f4daf"
+  },
+  {
+    "slug": "senegal-national-team",
+    "name": "Senegal National Team",
+    "filename": "senegal-national-team-logo-footylogos.png",
+    "sha256": "94fc3b2cd9efccd1e963dbf58356a362527d74c69e61ff9fc57251a98e9ccd42"
+  },
+  {
+    "slug": "norway-national-team",
+    "name": "Norway National Team",
+    "filename": "norway-national-team-logo-footylogos.png",
+    "sha256": "d406331c572e917f19fee09d4a2b47c10ba28bccf6de02cff704e89d1d90e2c6"
+  },
+  {
+    "slug": "iraq-national-team",
+    "name": "Iraq National Team",
+    "filename": "iraq-national-team-logo-footylogos.png",
+    "sha256": "698627b7ca98bcceb872d4ada2d61cacb56ea793488bbc483e34f6d9f1732060"
+  },
+  {
+    "slug": "argentina-national-team",
+    "name": "Argentina National Team",
+    "filename": "argentina-national-team-logo-footylogos.png",
+    "sha256": "e60d5998219e276cb81d456525568cc2aeff6398e68a4e7d634d05e8c00ffafa"
+  },
+  {
+    "slug": "algeria-national-team",
+    "name": "Algeria National Team",
+    "filename": "algeria-national-team-logo-footylogos.png",
+    "sha256": "fdd09763eec3ee8f5ed27b89bea40b0aad2db8958fc5371e60e4c8bdd54c86c1"
+  },
+  {
+    "slug": "austria-national-team",
+    "name": "Austria National Team",
+    "filename": "austria-national-team-logo-footylogos.png",
+    "sha256": "84d94228716b5ed349ac903f93f2b905347c3b697ab17be34f3a3bf8690b1aec"
+  },
+  {
+    "slug": "jordan-national-team",
+    "name": "Jordan National Team",
+    "filename": "jordan-national-team-logo-footylogos.png",
+    "sha256": "095eee994991e978338e00752a0e8415902e2438c4d9f30ab36584b1c56eff81"
+  },
+  {
+    "slug": "portugal-national-team",
+    "name": "Portugal National Team",
+    "filename": "portugal-national-team-logo-footylogos.png",
+    "sha256": "abd2e8f91d257d5e163f3613eb26c11b94a92ea905cd91a66fb1ac240dcfdb0c"
+  },
+  {
+    "slug": "colombia-national-team",
+    "name": "Colombia National Team",
+    "filename": "colombia-national-team-logo-footylogos.png",
+    "sha256": "5fafdbf6f646708243eb6ecf0223525d6771279120d30037d87523e9186351ca"
+  },
+  {
+    "slug": "uzbekistan-national-team",
+    "name": "Uzbekistan National Team",
+    "filename": "uzbekistan-national-team-logo-footylogos.png",
+    "sha256": "204c8f3af891d3716c5a162d96b7712c339d8c01b455e009f593e26af30bc481"
+  },
+  {
+    "slug": "dr-congo-national-team",
+    "name": "DR Congo National Team",
+    "filename": "dr-congo-national-team-logo-footylogos.png",
+    "sha256": "b640cb0f8c178808de2c7f68d79d2558cb8030d4f2f431b5666b74dd71f0ede4"
+  },
+  {
+    "slug": "england-national-team",
+    "name": "England National Team",
+    "filename": "england-national-team-logo-footylogos.png",
+    "sha256": "5a175ed9f24fa7cd7bde05aafa55105776e666a0b7330c903792e859c8b9aede"
+  },
+  {
+    "slug": "croatia-national-team",
+    "name": "Croatia National Team",
+    "filename": "croatia-national-team-logo-footylogos.png",
+    "sha256": "9f21263055e388292441f6fe1c2dd25c911365f4a9f5e8730c8496d7ad9947bf"
+  },
+  {
+    "slug": "ghana-national-team",
+    "name": "Ghana National Team",
+    "filename": "ghana-national-team-logo-footylogos.png",
+    "sha256": "cb8d2b75172e4c6b3aaf4e896c1796ddfbd4af20d2fab32dc03c7ddd24a6493e"
+  },
+  {
+    "slug": "panama-national-team",
+    "name": "Panama National Team",
+    "filename": "panama-national-team-logo-footylogos.png",
+    "sha256": "081d521df75881184f36c6727b840d8ce88b16266d171bd385e0c58145c14d07"
+  }
+]
