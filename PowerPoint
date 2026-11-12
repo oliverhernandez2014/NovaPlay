@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerPoint OS Edition - Presentaciones Dinámicas</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            background-color: #f3f2f1;
+            display: grid;
+            grid-template-rows: 40px 90px 1fr 25px;
+            overflow: hidden;
+            color: #323130;
+        }
+
+        /* --- 1. HEADER SUPERIOR --- */
+        .top-header {
+            background-color: #b7472a;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            font-size: 13px;
+        }
+
+        .doc-title {
+            background: transparent;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+
+        /* --- 2. CINTA DE OPCIONES (RIBBON) --- */
+        .ribbon {
+            background: #ffffff;
+            border-bottom: 1px solid #edebe9;
+            display: flex;
+            flex-direction: column;
+            padding: 5px 20px;
+            gap: 5px;
+        }
+
+        .ribbon-tabs {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #605e5c;
+            font-weight: 500;
+            padding-bottom: 4px;
+        }
+
+        .tab.active {
+            color: #b7472a;
+            font-weight: 600;
+            border-bottom: 2px solid #b7472a;
+        }
+
+        .ribbon-tools {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border-right: 1px solid #edebe9;
+            padding-right: 10px;
+        }
+
+        .btn-tool {
+            background: #f3f2f1;
+            border: 1px solid #ced4da;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-tool:hover { background: #edebe9; }
+
+        .btn-accent { background: #b7472a; color: white; border: none; }
+        .btn-accent:hover { background: #963a22; }
+
+        .btn-play { background: #2b579a; color: white; border: none; }
+
+        /* --- 3. ÁREA DE TRABAJO (SIDEBAR + EDITOR) --- */
+        .workspace {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            overflow: hidden;
+        }
+
+        /* Sidebar de miniaturas */
+        .slides-sidebar {
+            background: #ffffff;
+            border-right: 1px solid #edebe9;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .thumb-container {
+            position: relative;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+        .thumb-container.active {
+            border-color: #b7472a;
+            box-shadow: 0 0 8px rgba(183, 71, 42, 0.3);
+        }
+
+        .thumb-label {
+            font-size: 10px;
+            color: #605e5c;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .slide-thumb {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: white;
+            border: 1px solid #d2d0ce;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 6px;
+            padding: 10px;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* Editor de Diapositiva Principal */
+        .editor-view {
+            background: #e1dfdd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            overflow: auto;
+        }
+
+        .main-slide {
+            width: 960px;
+            height: 540px; /* Proporción 16:9 */
+            background: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            padding: 60px;
+            position: relative;
+            outline: none;
+            transition: transform 0.3s;
+        }
+
+        .main-slide h1 {
+            font-size: 48px;
+            color: #b7472a;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed #ced4da;
+            outline: none;
+        }
+
+        .main-slide p {
+            font-size: 24px;
+            color: #323130;
+            outline: none;
+        }
+
+        /* --- 4. MODO PRESENTACIÓN (FULLSCREEN OVERLAY) --- */
+        #presentation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: none;
+        }
+
+        .present-content {
+            width: 100vw;
+            height: 56.25vw; /* 16:9 */
+            max-height: 100vh;
+            max-width: 177.78vh; /* 16:9 */
+            background: white;
+            display: flex;
+            flex-direction: column;
+            padding: 5%;
+        }
+
+        /* --- 5. STATUS BAR --- */
+        .statusbar {
+            background: #b7472a;
+            color: white;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-header">
+        <div><span style="font-weight: bold; font-size:15px;">🖼️ P</span> <input type="text" class="doc-title" id="pptTitle" value="Presentación_Final.pptx"></div>
+        <div>Usuario en Línea</div>
+    </div>
+
+    <div class="ribbon">
+        <div class="ribbon-tabs">
+            <div class="tab active">Inicio</div>
+            <div class="tab">Insertar</div>
+            <div class="tab">Diseño</div>
+            <div class="tab">Transiciones</div>
+        </div>
+        
+        <div class="ribbon-tools">
+            <div class="tool-group">
+                <button class="btn-tool btn-accent" onclick="addSlide()">➕ Nueva Diapositiva</button>
+                <button class="btn-tool" onclick="deleteCurrentSlide()" title="Eliminar diapositiva actual">🗑️ Borrar</button>
+            </div>
+            <div class="tool-group">
+                <button class="btn-tool btn-play" onclick="startPresentation()">▶️ Presentar (F5)</button>
+            </div>
+            <div class="tool-group">
+                <button class="btn-tool" style="background:#0078d4; color:white; border:none;" onclick="downloadPPT()">💾 Guardar HTML</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="workspace">
+        <div class="slides-sidebar" id="sidebar">
+            </div>
+
+        <div class="editor-view">
+            <div class="main-slide" contenteditable="true" id="activeEditor" oninput="syncThumb()">
+                </div>
+        </div>
+    </div>
+
+    <div class="statusbar">
+        <div id="slideCounter">Diapositiva 1 de 1</div>
+        <div>Modo Edición - Panorámica (16:9)</div>
+    </div>
+
+    <div id="presentation-overlay" onclick="nextSlide()">
+        <div class="present-content" id="presentCanvas"></div>
+        <div style="position:absolute; bottom:20px; right:20px; color:#888; font-size:12px; cursor:pointer;" onclick="exitPresentation(event)">Presiona 'ESC' para salir</div>
+    </div>
+
+    <script>
+        let slides = [
+            { id: 1, content: "<h1>Título del Proyecto</h1><p>Haz clic aquí para añadir subtítulo o descripción de la presentación.</p>" }
+        ];
+        let currentSlideIndex = 0;
+
+        function initApp() {
+            renderSidebar();
+            loadSlide(0);
+        }
+
+        // Cargar una diapositiva en el editor
+        function loadSlide(index) {
+            currentSlideIndex = index;
+            const editor = document.getElementById('activeEditor');
+            editor.innerHTML = slides[index].content;
+            
+            // Actualizar contador y miniaturas
+            document.getElementById('slideCounter').textContent = `Diapositiva ${index + 1} de ${slides.length}`;
+            renderSidebar();
+        }
+
+        // Sincronizar texto del editor con el objeto de datos y la miniatura
+        function syncThumb() {
+            slides[currentSlideIndex].content = document.getElementById('activeEditor').innerHTML;
+            const thumb = document.querySelector(`.thumb-container[data-index="${currentSlideIndex}"] .slide-thumb`);
+            if (thumb) thumb.innerHTML = slides[currentSlideIndex].content;
+        }
+
+        // Crear una nueva diapositiva
+        function addSlide() {
+            const newSlide = {
+                id: Date.now(),
+                content: "<h1>Nueva Diapositiva</h1><p>Introduce tu contenido aquí...</p>"
+            };
+            slides.splice(currentSlideIndex + 1, 0, newSlide);
+            loadSlide(currentSlideIndex + 1);
+        }
+
+        // Borrar diapositiva
+        function deleteCurrentSlide() {
+            if (slides.length <= 1) return;
+            slides.splice(currentSlideIndex, 1);
+            let nextIdx = Math.max(0, currentSlideIndex - 1);
+            loadSlide(nextIdx);
+        }
+
+        // Dibujar Sidebar
+        function renderSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.innerHTML = "";
+            
+            slides.forEach((slide, index) => {
+                const container = document.createElement('div');
+                container.className = `thumb-container ${index === currentSlideIndex ? 'active' : ''}`;
+                container.setAttribute('data-index', index);
+                container.onclick = () => loadSlide(index);
+                
+                container.innerHTML = `
+                    <span class="thumb-label">${index + 1}</span>
+                    <div class="slide-thumb">${slide.content}</div>
+                `;
+                sidebar.appendChild(container);
+            });
+        }
+
+        // --- MODO PRESENTACIÓN ---
+        function startPresentation() {
+            const overlay = document.getElementById('presentation-overlay');
+            overlay.style.display = 'flex';
+            updatePresentContent();
+            
+            // Listener para teclado
+            window.addEventListener('keydown', handleKeys);
+        }
+
+        function updatePresentContent() {
+            const canvas = document.getElementById('presentCanvas');
+            canvas.innerHTML = slides[currentSlideIndex].content;
+            // Eliminar bordes de edición en modo presentación
+            canvas.querySelectorAll('*').forEach(el => el.style.border = 'none');
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                updatePresentContent();
+            } else {
+                exitPresentation();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                updatePresentContent();
+            }
+        }
+
+        function exitPresentation(e) {
+            if(e) e.stopPropagation();
+            document.getElementById('presentation-overlay').style.display = 'none';
+            window.removeEventListener('keydown', handleKeys);
+            loadSlide(currentSlideIndex);
+        }
+
+        function handleKeys(e) {
+            if (e.key === "ArrowRight" || e.key === " ") nextSlide();
+            if (e.key === "ArrowLeft") prevSlide();
+            if (e.key === "Escape") exitPresentation();
+        }
+
+        // --- DESCARGAR ARCHIVO ---
+        function downloadPPT() {
+            // Actualizar atributo value en el HTML por si se editó el título
+            document.getElementById('pptTitle').setAttribute('value', document.getElementById('pptTitle').value);
+            
+            // Generar el contenido completo
+            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'PowerPoint_App.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
