@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traductor Inglés - Español</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            resize: none;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        button {
+            width: 100%;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .resultado {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            min-height: 50px;
+            border-left: 5px solid #007BFF;
+            font-size: 16px;
+            color: #495057;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Traductor Inglés ➔ Español</h2>
+    
+    <label for="textoIngles"><strong>Inglés:</strong></label>
+    <textarea id="textoIngles" placeholder="Type something in English here..."></textarea>
+    
+    <button onclick="traducir()">Traducir</button>
+    
+    <p><strong>Español:</strong></p>
+    <div id="textoEspanol" class="resultado">La traducción aparecerá aquí...</div>
+</div>
+
+<script>
+    async function traducir() {
+        const texto = document.getElementById('textoIngles').value;
+        const contenedorResultado = document.getElementById('textoEspanol');
+        
+        if (!texto.trim()) {
+            contenedorResultado.innerText = "Por favor, escribe algo primero.";
+            return;
+        }
+
+        contenedorResultado.innerText = "Traduciendo...";
+
+        try {
+            // Usamos una API pública y gratuita de MyMemory para hacer la traducción directamente desde el navegador
+            const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=en|es`;
+            
+            const respuesta = await fetch(url);
+            const datos = await respuesta.json();
+            
+            if(datos.responseData) {
+                contenedorResultado.innerText = datos.responseData.translatedText;
+            } else {
+                contenedorResultado.innerText = "Error al obtener la traducción.";
+            }
+        } catch (error) {
+            contenedorResultado.innerText = "Error de conexión con el servidor de traducción.";
+            console.error(error);
+        }
+    }
+</script>
+
+</body>
+</html>
