@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navegador Web Avanzado</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            background-color: #202124;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* --- 1. BARRA DE PESTAÑAS --- */
+        .tab-bar {
+            background-color: #1f1f1f;
+            display: flex;
+            align-items: flex-end;
+            padding: 8px 8px 0 8px;
+            gap: 4px;
+            border-bottom: 1px solid #3c4043;
+        }
+
+        .tab {
+            background-color: #2d2e31;
+            color: #aaa;
+            padding: 8px 16px;
+            border-radius: 8px 8px 0 0;
+            font-size: 12px;
+            max-width: 180px;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab.active {
+            background-color: #35363a;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .tab:hover:not(.active) {
+            background-color: #3c4043;
+        }
+
+        .tab .close-tab {
+            margin-left: 8px;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: background 0.2s;
+        }
+
+        .tab .close-tab:hover {
+            background-color: #5f6368;
+            color: #fff;
+        }
+
+        .new-tab-btn {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            font-size: 18px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 4px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .new-tab-btn:hover {
+            background-color: #3c4043;
+            color: #fff;
+        }
+
+        /* --- 2. BARRA DE HERRAMIENTAS & DIRECCIONES --- */
+        .nav-bar {
+            background-color: #35363a;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #202124;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: #4a4b50;
+        }
+
+        .nav-btn:disabled {
+            color: #5f6368;
+            cursor: not-allowed;
+            background: transparent;
+        }
+
+        .address-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .address-bar {
+            width: 100%;
+            background-color: #202124;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 6px 40px 6px 16px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: background 0.2s, border 0.2s;
+        }
+
+        .address-bar:focus {
+            background-color: #171719;
+            border-color: #8ab4f8;
+        }
+
+        .bookmark-toggle {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #9aa0a6;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .bookmark-toggle.active {
+            color: #fdd663;
+        }
+
+        /* --- 3. BARRA DE MARCADORES --- */
+        .bookmarks-bar {
+            background-color: #35363a;
+            padding: 4px 16px;
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            border-bottom: 1px solid #202124;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        .bookmark-item {
+            color: #e8eaed;
+            text-decoration: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .bookmark-item:hover {
+            background-color: #4a4b50;
+        }
+
+        /* --- 4. ÁREA DE CONTENIDO (VIEWPORT) --- */
+        .viewport {
+            flex: 1;
+            background-color: #fff;
+            position: relative;
+        }
+
+        .tab-content {
+            width: 100%;
+            height: 100%;
+            display: none;
+            border: none;
+            background-color: #fff;
+            color: #000;
+            overflow: auto;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* --- ENTORNO RETROALIMENTADO INTERNO (Simulación de Páginas) --- */
+        .internal-page {
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Página de inicio predeterminada */
+        .home-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background-color: #202124;
+            color: white;
+            text-align: center;
+        }
+
+        .logo-web {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 24px;
+            background: linear-gradient(45deg, #4285f4, #ea4335, #fbbc05, #34a853);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-mock {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            background: #fff;
+            border-radius: 24px;
+            padding: 8px 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .search-mock input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .search-mock button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .system-panel {
+            margin-top: 30px;
+            background: #2d2e31;
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            text-align: left;
+            border: 1px solid #3c4043;
+        }
+
+        .system-panel h3 { color: #8ab4f8; margin-bottom: 10px; font-size: 14px;}
+        .system-panel p { color: #aaa; font-size: 13px; line-height: 1.5; margin-bottom: 8px;}
+        .system-panel textarea { width: 100%; height: 80px; background: #1f1f1f; color: #fff; border: 1px solid #5f6368; border-radius: 6px; padding: 8px; font-family: monospace; font-size: 12px; resize: none; margin-top: 5px;}
+        .system-panel button { background: #8ab4f8; color: #202124; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 8px; font-size: 12px;}
+        .system-panel button:hover { background: #aecbfa; }
+    </style>
+</head>
+<body>
+
+    <div class="tab-bar" id="tabBar">
+        <button class="new-tab-btn" onclick="createNewTab()">+</button>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-buttons">
+            <button class="nav-btn" id="btnBack" onclick="navigateBack()" title="Atrás">◀</button>
+            <button class="nav-btn" id="btnForward" onclick="navigateForward()" title="Adelante">▶</button>
+            <button class="nav-btn" id="btnReload" onclick="reloadTab()" title="Volver a cargar esta página">🔄</button>
+            <button class="nav-btn" onclick="goToHome()" title="Página de inicio">🏠</button>
+        </div>
+        <div class="address-container">
+            <input type="text" class="address-bar" id="addressBar" onkeydown="handleAddressKey(event)" placeholder="Escribe una URL o busca en la red...">
+            <button class="bookmark-toggle" id="btnBookmark" onclick="toggleBookmark()" title="Añadir a marcadores">⭐</button>
+        </div>
+    </div>
+
+    <div class="bookmarks-bar" id="bookmarksBar">
+        <span style="color: #70757a; margin-right: 4px;">Marcadores:</span>
+        </div>
+
+    <div class="viewport" id="viewport">
+        </div>
+
+    <script>
+        let tabs = [];
+        let activeTabId = null;
+        let tabCounter = 0;
+        let bookmarks = [
+            { name: "Google", url: "https://www.google.com" },
+            { name: "Wikipedia", url: "https://es.wikipedia.org" },
+            { name: "GitHub", url: "https://github.com" }
+        ];
+
+        // Servidor de Base de Datos Interno para simular navegación web real sin bloqueos de iframe CORS
+        const mockWebserver = {
+            "https://www.google.com": `
+                <div class="internal-page" style="text-align:center; padding-top:100px;">
+                    <h1 style="font-size: 60px; font-family: 'Arial';"><span style="color:#4285f4">G</span><span style="color:#ea4335">o</span><span style="color:#fbbc05">o</span><span style="color:#4285f4">g</span><span style="color:#34a853">l</span><span style="color:#ea4335">e</span></h1>
+                    <div style="margin: 20px auto; max-width:500px; display:flex; border:1px solid #ccc; padding:10px 15px; border-radius:24px; box-shadow: 0 1px 6px rgba(32,33,36,0.28);">
+                        <input type="text" style="flex:1; border:none; outline:none; font-size:16px;" placeholder="Buscar en Google o escribir una URL...">
+                    </div>
+                    <button style="padding:10px 20px; background:#f8f9fa; border:1px solid #f8f9fa; border-radius:4px; cursor:pointer; margin:5px;">Buscar con Google</button>
+                    <button style="padding:10px 20px; background:#f8f9fa; border:1px solid #f8f9fa; border-radius:4px; cursor:pointer; margin:5px;">Voy a tener suerte</button>
+                </div>`,
+            "https://es.wikipedia.org": `
+                <div class="internal-page">
+                    <div style="display:flex; align-items:center; gap:20px; border-bottom:1px solid #a2a9b1; padding-bottom:10px;">
+                        <span style="font-size:40px;">🌐</span>
+                        <div>
+                            <h1 style="font-family:'Georgia',serif; font-weight:normal;">Wikipedia</h1>
+                            <p style="font-size:13px; color:#555;">La enciclopedia libre</p>
+                        </div>
+                    </div>
+                    <h2 style="margin-top:20px; font-family:'Georgia',serif; font-weight:normal;">Bienvenidos a Wikipedia</h2>
+                    <p style="margin-top:10px; line-height:1.6;">Esta es una simulación fluida de la enciclopedia libre, un proyecto para crear un entorno de conocimiento global de código abierto multilingüe.</p>
+                    <hr style="margin:20px 0; border:0; border-top:1px solid #a2a9b1;">
+                    <h3>Artículo destacado del día</h3>
+                    <p style="color:#333; line-height:1.5;"><b>El hipertexto:</b> Sistema de organización y consulta de información basado en la interconexión de documentos de texto o gráficos a través de enlaces (vínculos o hipervínculos) lógicos de forma no secuencial.</p>
+                </div>`,
+            "https://github.com": `
+                <div class="internal-page" style="background:#0d1117; color:#c9d1d9; height:100%; min-height:100vh; margin:0; max-width:none; padding:40px;">
+                    <div style="max-width:800px; margin:0 auto;">
+                        <h1 style="color:#f0f6fc; font-size:32px;">Let's build from here</h1>
+                        <p style="color:#8b949e; font-size:18px; margin-top:10px;">The world's leading AI-powered developer platform.</p>
+                        <div style="margin-top:30px; background:#161b22; padding:20px; border-radius:6px; border:1px solid #30363d;">
+                            <h3 style="color:#f0f6fc;">repositorio-local / mi-navegador-web</h3>
+                            <p style="font-size:13px; margin-top:5px; color:#8b949e;">HTML de un solo archivo que emula un sistema operativo y sandbox de navegación.</p>
+                            <span style="display:inline-block; background:#21262d; padding:4px 8px; border-radius:12px; font-size:12px; margin-top:10px; color:#58a6ff;">● HTML / JavaScript</span>
+                        </div>
+                    </div>
+                </div>`
+        };
+
+        // Inicializar Navegador
+        function initBrowser() {
+            renderBookmarks();
+            createNewTab();
+        }
+
+        // --- GESTIÓN DE PESTAÑAS ---
+        function createNewTab(url = "home") {
+            tabCounter++;
+            let id = `tab-${tabCounter}`;
+            
+            let newTab = {
+                id: id,
+                title: "Nueva pestaña",
+                url: url,
+                history: [url],
+                historyIndex: 0
+            };
+            
+            tabs.push(newTab);
+            
+            // Crear elemento iframe/div del viewport
+            let viewport = document.getElementById('viewport');
+            let contentDiv = document.createElement('div');
+            contentDiv.id = `content-${id}`;
+            contentDiv.className = 'tab-content';
+            viewport.appendChild(contentDiv);
+
+            switchTab(id);
+            loadURL(url, false);
+            renderTabs();
+        }
+
+        function switchTab(id) {
+            activeTabId = id;
+            
+            // Alternar clases activas en pestañas
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            let currentTabEl = document.getElementById(`tabElement-${id}`);
+            if(currentTabEl) currentTabEl.classList.add('active');
+
+            // Alternar contenido en Viewport
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            let activeContent = document.getElementById(`content-${id}`);
+            if(activeContent) activeContent.classList.add('active');
+
+            // Actualizar barra de navegación externa
+            let tab = tabs.find(t => t.id === id);
+            if(tab) {
+                let addressBar = document.getElementById('addressBar');
+                addressBar.value = tab.url === "home" ? "" : tab.url;
+                updateNavButtons();
+            }
+        }
+
+        function closeTab(id, event) {
+            if(event) event.stopPropagation();
+            if(tabs.length === 1) return; // No cerrar si es la única
+
+            let index = tabs.findIndex(t => t.id === id);
+            tabs = tabs.filter(t => t.id !== id);
+            
+            document.getElementById(`content-${id}`).remove();
+            
+            if(activeTabId === id) {
+                // Cambiar a una pestaña vecina
+                let nextActiveIndex = index > 0 ? index - 1 : 0;
+                switchTab(tabs[nextActiveIndex].id);
+            }
+            
+            renderTabs();
+        }
+
+        function renderTabs() {
+            let tabBar = document.getElementById('tabBar');
+            // Limpiar pestañas anteriores reteniendo el botón "+"
+            document.querySelectorAll('.tab').forEach(t => t.remove());
+            
+            tabs.forEach(t => {
+                let tabEl = document.createElement('div');
+                tabEl.className = `tab ${t.id === activeTabId ? 'active' : ''}`;
+                tabEl.id = `tabElement-${t.id}`;
+                tabEl.setAttribute('onclick', `switchTab('${t.id}')`);
+                
+                let titleSpan = document.createElement('span');
+                titleSpan.textContent = t.title;
+                titleSpan.style.overflow = "hidden";
+                titleSpan.style.textOverflow = "ellipsis";
+                
+                let closeBtn = document.createElement('span');
+                closeBtn.className = 'close-tab';
+                closeBtn.innerHTML = '✕';
+                closeBtn.setAttribute('onclick', `closeTab('${t.id}', event)`);
+                
+                tabEl.appendChild(titleSpan);
+                tabEl.appendChild(closeBtn);
+                tabBar.insertBefore(tabEl, tabBar.lastElementChild);
+            });
+        }
+
+        // --- LÓGICA DE CARGA Y RENDERIZADO ---
+        function loadURL(url, appendHistory = true) {
+            let tab = tabs.find(t => t.id === activeTabId);
+            if(!tab) return;
+
+            // Formatear la entrada URL inteligentemente
+            if(url !== "home" && !url.startsWith("http://") && !url.startsWith("https://")) {
+                if(url.includes(".") && !url.includes(" ")) {
+                    url = "https://" + url;
+                } else {
+                    // Si no es URL válida, simula una búsqueda
+                    url = "https://www.google.com";
+                }
+            }
+
+            tab.url = url;
+            document.getElementById('addressBar').value = url === "home" ? "" : url;
+
+            if(appendHistory) {
+                // Cortar historial si estábamos en medio de un back
+                tab.history = tab.history.slice(0, tab.historyIndex + 1);
+                tab.history.push(url);
+                tab.historyIndex++;
+            }
+
+            let container = document.getElementById(`content-${tab.id}`);
+            
+            if(url === "home") {
+                tab.title = "Nueva Pestaña";
+                container.innerHTML = getHomeHTML(tab.id);
+            } else if(mockWebserver[url]) {
+                // Servir página simulada limpia sin problemas de seguridad
+                tab.title = url.replace("https://www.", "").replace("https://", "");
+                container.innerHTML = mockWebserver[url];
+            } else {
+                // Forzar visualización de Iframe de Terceros (Sujeto a restricciones CORS del sitio remoto)
+                tab.title = url.replace("https://www.", "").replace("https://", "");
+                container.innerHTML = `
+                    <div style="background:#fff3cd; color:#856404; padding:8px 16px; font-size:12px; text-align:center; border-bottom:1px solid #ffeeba;">
+                        ⚠️ Nota: Algunos sitios bloquean la carga embebida (CORS/X-Frame-Options). Pruebe con los Marcadores preestablecidos.
+                    </div>
+                    <iframe src="${url}" style="width:100%; height:calc(100% - 33px); border:none;"></iframe>
+                `;
+            }
+
+            // Actualizar interfaz visual
+            renderTabs();
+            updateNavButtons();
+        }
+
+        function handleAddressKey(e) {
+            if(e.key === 'Enter') {
+                loadURL(e.target.value);
+            }
+        }
+
+        // --- PANEL DE DESARROLLADOR: INYECTAR TU PROPIO HTML ---
+        function injectCustomHTML(tabId) {
+            let code = document.getElementById(`code-${tabId}`).value;
+            let container = document.getElementById(`content-${tabId}`);
+            
+            let tab = tabs.find(t => t.id === tabId);
+            tab.title = "Página Personalizada";
+            tab.url = "custom://sandbox-html";
+            
+            document.getElementById('addressBar').value = tab.url;
+            container.innerHTML = `
+                <div style="padding:10px; background:#f1f3f4; border-bottom:1px solid #dadce0; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:12px; color:#5f6368; font-weight:bold;">🛠️ Sandbox Render Local Activo</span>
+                    <button onclick="loadURL('home', false)" style="padding:4px 8px; font-size:11px; cursor:pointer;">Volver al Inicio</button>
+                </div>
+                <div style="padding:20px; color:#000; background:#fff; height:100%; overflow:auto;">
+                    ${code}
+                </div>
+            `;
+            renderTabs();
+        }
+
+        // --- BOTONES DE NAVEGACIÓN (HISTORIAL) ---
+        function navigateBack() {
+            let tab = tabs.find(t => t.id === activeTabId);
+            if(tab && tab.historyIndex > 0) {
+                tab.historyIndex--;
+                loadURL(tab.history[tab.historyIndex], false);
+            }
+        }
+
+        function navigateForward() {
+            let tab = tabs.find(t => t.id === activeTabId);
+            if(tab && tab.historyIndex < tab.history.length - 1) {
+                tab.historyIndex++;
+                loadURL(tab.history[tab.historyIndex], false);
+            }
+        }
+
+        function reloadTab() {
+            let tab = tabs.find(t => t.id === activeTabId);
+            if(tab) loadURL(tab.url, false);
+        }
+
+        function goToHome() {
+            loadURL("home");
+        }
+
+        function updateNavButtons() {
+            let tab = tabs.find(t => t.id === activeTabId);
+            if(tab) {
+                document.getElementById('btnBack').disabled = tab.historyIndex === 0;
+                document.getElementById('btnForward').disabled = tab.historyIndex === tab.history.length - 1;
+                
+                // Actualizar estrella de marcador según URL
+                let isBookmarked = bookmarks.some(b => b.url === tab.url);
+                document.getElementById('btnBookmark').className = `bookmark-toggle ${isBookmarked ? 'active' : ''}`;
+            }
+        }
+
+        // --- SISTEMA DE MARCADORES (FAVORITOS) ---
+        function toggleBookmark() {
+            let tab = tabs.find(t => t.id === activeTabId);
+            if(!tab || tab.url === "home") return;
+
+            let index = bookmarks.findIndex(b => b.url === tab.url);
+            if(index > -1) {
+                bookmarks.splice(index, 1);
+            } else {
+                bookmarks.push({ name: tab.title, url: tab.url });
+            }
+            renderBookmarks();
+            updateNavButtons();
+        }
+
+        function renderBookmarks() {
+            let bar = document.getElementById('bookmarksBar');
+            bar.innerHTML = '<span style="color: #9aa0a6; margin-right: 4px;">Marcadores:</span>';
+            bookmarks.forEach(b => {
+                let a = document.createElement('a');
+                a.className = 'bookmark-item';
+                a.innerHTML = `🔖 ${b.name}`;
+                a.onclick = () => loadURL(b.url);
+                bar.appendChild(a);
+            });
+        }
+
+        // Template HTML para la página de inicio interna del navegador
+        function getHomeHTML(tabId) {
+            return `
+                <div class="home-screen">
+                    <div class="logo-web">Gemini Chrome</div>
+                    <div class="search-mock">
+                        <input type="text" placeholder="Busca en la red o introduce una dirección..." onkeydown="if(event.key==='Enter') loadURL(this.value)">
+                        <button>🔍</button>
+                    </div>
+                    
+                    <div class="system-panel">
+                        <h3>🛠️ Servidor Web Integrado & Sandbox</h3>
+                        <p>Los sitios web con configuraciones rígidas de seguridad prohíben su visualización en cuadros embebidos convencionales externos. Utiliza los <b>Marcadores de la barra superior</b> para probar páginas simuladas localmente.</p>
+                        
+                        <p><b>Escribe código HTML propio abajo para procesarlo en tiempo real dentro del motor del navegador:</b></p>
+                        <textarea id="code-${tabId}" placeholder="<h1>Hola Mundo</h1>\n<p>Este es mi propio sitio web local interactivo.</p>"><h1>Sitio de Pruebas</h1>\n<p>¡Creado en mi propio navegador web!</p>\n<button onclick="alert('Código funcionando')">Probar Interactividad</button></textarea>
+                        <button onclick="injectCustomHTML('${tabId}')">Ejecutar Código en Pestaña</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Iniciar en la carga del script
+        window.onload = initBrowser;
+    </script>
+</body>
+</html>
