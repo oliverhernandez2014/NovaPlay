@@ -249,7 +249,7 @@
             🔍
           </div>
           <h4 class="text-sm font-bold text-white mb-1">Sin resultados</h4>
-          <p class="text-xs text-slate-400">Prueba con otra palabra clave o categoría.</p>
+          <p class="text-xs text-slate-400">Prueba con otra palabra clave o categoría, o marca tus favoritos con estrellas ⭐.</p>
         </div>
       </section>
 
@@ -261,7 +261,7 @@
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
       <div>
         <p id="footer-titulo" class="font-bold text-white mb-0.5">NovaPlay Portal</p>
-        <p class="opacity-75">Interfaz con colores sólidos independientes por sección.</p>
+        <p class="opacity-75">Interfaz con sistema de estrellas (Favoritos) y corazones (Me gusta).</p>
       </div>
       <div>
         <p class="font-medium text-emerald-400">Estado: Activo 🟢</p>
@@ -270,18 +270,12 @@
   </footer>
 
   <script>
-    // Asignación estricta por niveles:
-    // primario = Principal (Barra superior y Footer)
-    // secundario = Secundario (Fondo general y Banner)
-    // terciario = Terciario (Cuadro de juegos / Tarjetas)
-    // cuaternario = Cuaternario (Botones de acceso)
     const TEMAS_DISENOS = {
       institucional: { nombre: "Institucional", tipoFuente: "font-bold text-xl text-white", badge: "Institucional", primario: "#0f172a", secundario: "#1e293b", terciario: "#111827", cuaternario: "#3b82f6" },
       futurista: { nombre: "Futurista", tipoFuente: "font-arcade text-lg text-cyan-400 tracking-wider", badge: "Futurista", primario: "#090b10", secundario: "#131722", terciario: "#0f131d", cuaternario: "#06b6d4" },
       blanco: { nombre: "Modo Blanco", tipoFuente: "font-bold text-xl text-slate-900", badge: "Modo Blanco", primario: "#ffffff", secundario: "#f1f5f9", terciario: "#ffffff", cuaternario: "#0f172a" },
       negro: { nombre: "Modo Negro", tipoFuente: "font-bold text-xl text-white", badge: "Modo Negro", primario: "#000000", secundario: "#111827", terciario: "#050505", cuaternario: "#38bdf8" },
 
-      // Mundiales (1930 - 2026) configurados estrictamente con los colores correspondientes
       '2026': { nombre: "USA/MX/CN 2026", tipoFuente: "font-bold text-xl", badge: "Mundial USA/MX/CN 2026", primario: "#003DA5", secundario: "#BF0A30", terciario: "#006847", cuaternario: "#FFFFFF" },
       '2022': { nombre: "Qatar 2022", tipoFuente: "font-bold text-xl", badge: "Mundial Qatar 2022", primario: "#8A1538", secundario: "#C8A45D", terciario: "#F5EBDD", cuaternario: "#171717" },
       '2018': { nombre: "Rusia 2018", tipoFuente: "font-bold text-xl", badge: "Mundial Rusia 2018", primario: "#FFFFFF", secundario: "#0039A6", terciario: "#D52B1E", cuaternario: "#D4AF37" },
@@ -329,6 +323,31 @@
     let categoriaActiva = 'Todos';
     let proyectoActual = null;
 
+    let favoritos = JSON.parse(localStorage.getItem('novaplay_favoritos')) || [];
+    let meGustas = JSON.parse(localStorage.getItem('novaplay_megustas')) || [];
+
+    function toggleFavorito(id, event) {
+      event.stopPropagation();
+      if (favoritos.includes(id)) {
+        favoritos = favoritos.filter(favId => favId !== id);
+      } else {
+        favoritos.push(id);
+      }
+      localStorage.setItem('novaplay_favoritos', JSON.stringify(favoritos));
+      renderizarProyectos();
+    }
+
+    function toggleMeGusta(id, event) {
+      event.stopPropagation();
+      if (meGustas.includes(id)) {
+        meGustas = meGustas.filter(mgId => mgId !== id);
+      } else {
+        meGustas.push(id);
+      }
+      localStorage.setItem('novaplay_megustas', JSON.stringify(meGustas));
+      renderizarProyectos();
+    }
+
     function inicializar() {
       const listaMundiales = document.getElementById('lista-mundiales-dropdown');
       const keysMundiales = ['2026','2022','2018','2014','2010','2006','2002','1998','1994','1990','1986','1982','1978','1974','1970','1966','1962','1958','1954','1950','1938','1934','1930'];
@@ -373,23 +392,18 @@
         document.getElementById('footer-principal').style = `background-color: #ffffff; color: #0f172a; border-top: 1px solid #e2e8f0;`;
         document.getElementById('banner-principal').querySelectorAll('h2, p').forEach(el => el.style.color = '#0f172a');
       } else {
-        // Aplicación estricta de colores sólidos según jerarquía solicitada
-        document.body.style.backgroundColor = tema.secundario; // Secundario = Fondo general
+        document.body.style.backgroundColor = tema.secundario;
         document.body.style.color = '#f8fafc';
         
-        // 1. Principal = Barra superior
         document.getElementById('barra-superior').style = `background-color: ${tema.primario}; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.15);`;
         document.getElementById('logo-header-box').style = `background-color: ${tema.cuaternario}; color: ${tema.primario};`;
         
-        // 2. Secundario = Banner principal
         document.getElementById('banner-principal').style = `background-color: ${tema.secundario}; border-bottom: 1px solid rgba(255,255,255,0.15);`;
         document.getElementById('banner-badge').style = `background-color: ${tema.cuaternario}; color: #0f172a;`;
         document.getElementById('banner-badge').textContent = tema.badge;
         
-        // 3. Principal = Footer
         document.getElementById('footer-principal').style = `background-color: ${tema.primario}; border-top: 1px solid rgba(255,255,255,0.15); color: #cbd5e1;`;
         
-        // Ajustar color de textos del banner según contraste del secundario
         const esSecundarioClaro = (tema.secundario.toLowerCase() === '#ffffff' || tema.secundario.toLowerCase() === '#f1f5f9' || tema.secundario.toLowerCase() === '#ffdf00' || tema.secundario.toLowerCase() === '#fecc00' || tema.secundario.toLowerCase() === '#f1bf00' || tema.secundario.toLowerCase() === '#f5ebdd');
         document.getElementById('banner-principal').querySelectorAll('h2, p').forEach(el => {
           el.style.color = esSecundarioClaro ? '#0f172a' : '#ffffff';
@@ -417,7 +431,7 @@
 
     function renderizarCategorias() {
       const barra = document.getElementById('barra-categorias');
-      const categorias = ['Todos', ...new Set(LISTA_PROYECTOS.map(p => p.category).filter(Boolean))];
+      const categorias = ['Todos', '⭐ Favoritos', ...new Set(LISTA_PROYECTOS.map(p => p.category).filter(Boolean))];
       const tema = TEMAS_DISENOS[temaActual];
 
       barra.innerHTML = categorias.map(cat => {
@@ -452,15 +466,21 @@
       const tema = TEMAS_DISENOS[temaActual];
       const esBlanco = temaActual === 'blanco';
 
-      contador.textContent = `${LISTA_PROYECTOS.length} ${LISTA_PROYECTOS.length === 1 ? 'proyecto' : 'proyectos'}`;
-
       const filtrados = LISTA_PROYECTOS.filter(proj => {
-        const coincideCategoria = categoriaActiva === 'Todos' || proj.category === categoriaActiva;
+        let coincideCategoria = true;
+        if (categoriaActiva === '⭐ Favoritos') {
+          coincideCategoria = favoritos.includes(proj.id);
+        } else if (categoriaActiva !== 'Todos') {
+          coincideCategoria = proj.category === categoriaActiva;
+        }
+
         const coincideTexto =
           proj.title.toLowerCase().includes(textoBusqueda) ||
           (proj.description && proj.description.toLowerCase().includes(textoBusqueda));
         return coincideCategoria && coincideTexto;
       });
+
+      contador.textContent = `${filtrados.length} ${filtrados.length === 1 ? 'proyecto' : 'proyectos'}`;
 
       if (filtrados.length === 0) {
         grid.innerHTML = '';
@@ -476,24 +496,36 @@
           : `<span>${proj.icon || '🚀'}</span>`;
 
         const delay = index * 0.05;
+        const esFavorito = favoritos.includes(proj.id);
+        const tieneMeGusta = meGustas.includes(proj.id);
 
-        // Terciario = Cuadro de los juegos (Tarjetas)
-        // Cuaternario = Botones de acceso
         const cardStyle = esBlanco ? 'background-color: #ffffff; border: 1px solid #cbd5e1;' : `background-color: ${tema.terciario}; border: 1px solid rgba(255,255,255,0.12);`;
         const btnStyle = esBlanco ? 'background-color: #0f172a; color: #ffffff;' : `background-color: ${tema.cuaternario}; color: #0f172a;`;
 
-        // Determinar si el color terciario es claro para ajustar textos de la tarjeta automáticamente
         const esTerciarioClaro = (tema.terciario && (tema.terciario.toLowerCase() === '#ffffff' || tema.terciario.toLowerCase() === '#f5ebdd' || tema.terciario.toLowerCase() === '#ffce00'));
         const textColorTitle = esBlanco || esTerciarioClaro ? 'text-slate-900' : 'text-white';
         const textColorDesc = esBlanco || esTerciarioClaro ? 'text-slate-700' : 'text-slate-300';
 
         return `
-          <article class="app-card rounded-2xl p-4 flex flex-col justify-between shadow-lg group animate-entry" style="${cardStyle} animation-delay: ${delay}s;">
+          <article class="app-card rounded-2xl p-4 flex flex-col justify-between shadow-lg group animate-entry relative" style="${cardStyle} animation-delay: ${delay}s;">
             <div>
               <div class="flex items-start justify-between gap-3 mb-3">
-                <div class="w-11 h-11 rounded-xl ${esBlanco ? 'bg-slate-100 border-slate-200' : 'bg-slate-950 border-slate-800'} border flex items-center justify-center text-xl shadow-inner overflow-hidden p-1 transition-transform duration-300 group-hover:scale-110">
-                  ${iconoHtml}
+                <div class="flex items-center gap-2">
+                  <div class="w-11 h-11 rounded-xl ${esBlanco ? 'bg-slate-100 border-slate-200' : 'bg-slate-950 border-slate-800'} border flex items-center justify-center text-xl shadow-inner overflow-hidden p-1 transition-transform duration-300 group-hover:scale-110">
+                    ${iconoHtml}
+                  </div>
+                  
+                  <!-- Botón de Estrella (⭐ Favorito) -->
+                  <button onclick="toggleFavorito('${proj.id}', event)" title="Marcar como favorito (Estrella)" class="w-9 h-9 rounded-xl ${esBlanco ? 'bg-slate-100 hover:bg-slate-200 border-slate-300' : 'bg-slate-900 hover:bg-slate-800 border-slate-700'} border flex items-center justify-center text-sm transition-transform active:scale-90 shadow-sm">
+                    ${esFavorito ? '⭐' : '☆'}
+                  </button>
+
+                  <!-- Botón de Corazón (❤️ Me gusta) -->
+                  <button onclick="toggleMeGusta('${proj.id}', event)" title="Dar 'Me gusta' (Corazón)" class="w-9 h-9 rounded-xl ${esBlanco ? 'bg-slate-100 hover:bg-slate-200 border-slate-300' : 'bg-slate-900 hover:bg-slate-800 border-slate-700'} border flex items-center justify-center text-sm transition-transform active:scale-90 shadow-sm">
+                    ${tieneMeGusta ? '❤️' : '🤍'}
+                  </button>
                 </div>
+
                 <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${esBlanco ? 'bg-slate-100 text-slate-700 border-slate-300' : 'bg-slate-950 text-slate-300 border-slate-800'}">
                   ${proj.category || 'General'}
                 </span>
