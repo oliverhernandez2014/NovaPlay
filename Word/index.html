@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documento - Microsoft Word</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconos de Office -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mammoth.js para importar archivos .docx -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f3f3;
+            color: #333;
+            user-select: none;
+        }
+
+        /* Animaciones fluidas y transiciones modernas */
+        .ribbon-tab {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ribbon-tab.active {
+            background-color: white;
+            color: #2b579a;
+            border-bottom: 2px solid #2b579a;
+            transform: translateY(-1px);
+        }
+
+        /* Animaciones para modales */
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-animate {
+            animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Animación para notificaciones flotantes (Toasts) */
+        @keyframes toastSlideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .toast-animate {
+            animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Micro-interacciones en botones */
+        button, select {
+            transition: all 0.2s ease;
+        }
+        button:active {
+            transform: scale(0.96);
+        }
+
+        /* Hoja de papel estilo Word A4 con transición suave */
+        .word-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 25mm 20mm;
+            margin: 1.5rem auto;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+            outline: none;
+            box-sizing: border-box;
+            caret-color: black;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+        .word-page:focus {
+            box-shadow: 0 6px 25px rgba(43, 87, 154, 0.18), 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 850px) {
+            .word-page {
+                width: 100%;
+                min-height: 100vh;
+                padding: 15mm 10mm;
+                margin: 0;
+                box-shadow: none;
+            }
+        }
+
+        /* Regla de Word */
+        .word-ruler {
+            width: 210mm;
+            height: 24px;
+            background: #f1f1f1;
+            margin: 0 auto;
+            border-left: 1px solid #dcdcdc;
+            border-right: 1px solid #dcdcdc;
+            border-bottom: 1px solid #c8c8c8;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 850px) {
+            .word-ruler {
+                display: none;
+            }
+        }
+
+        /* Elementos dentro del editor */
+        .word-page table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+        }
+        .word-page table, .word-page th, .word-page td {
+            border: 1px solid #b5b5b5;
+        }
+        .word-page th, .word-page td {
+            padding: 6px 10px;
+            text-align: left;
+        }
+        .word-page th {
+            background-color: #f2f2f2;
+        }
+        .word-page img {
+            max-width: 100%;
+            height: auto;
+            margin: 0.5rem 0;
+        }
+
+        /* Scroll personalizado */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Tooltip de Office */
+        .office-tooltip {
+            position: relative;
+        }
+        .office-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 3px 8px;
+            font-size: 11px;
+            border-radius: 3px;
+            white-space: nowrap;
+            z-index: 60;
+            pointer-events: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Barra de Título Superior estilo Word -->
+    <header class="bg-[#2b579a] text-white flex items-center justify-between px-3 py-1.5 select-none shrink-0 shadow">
+        <div class="flex items-center space-x-3">
+            <div class="bg-white text-[#2b579a] p-1 rounded font-bold flex items-center justify-center w-7 h-7 shadow">
+                <i class="fa-solid fa-file-word text-base"></i>
+            </div>
+            <div class="flex items-center space-x-2 text-sm">
+                <span class="text-white/70 hover:text-white cursor-pointer"><i class="fa-solid fa-floppy-disk"></i></span>
+                <span class="text-white/70 hover:text-white cursor-pointer"><i class="fa-solid fa-rotate-left"></i></span>
+                <span class="text-white/70 hover:text-white cursor-pointer"><i class="fa-solid fa-rotate-right"></i></span>
+            </div>
+            <div class="h-4 w-[1px] bg-white/30 mx-1"></div>
+            <div class="flex items-center space-x-1">
+                <input type="text" id="doc-title" value="Documento1 - Word" 
+                       class="bg-transparent text-white font-medium text-sm border border-transparent hover:border-white/40 focus:border-white focus:bg-black/10 focus:outline-none px-2 py-0.5 rounded transition w-64">
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4 text-xs text-white/90">
+            <span class="hidden md:inline bg-[#1d3d6f] px-2 py-1 rounded"><i class="fa-solid fa-cloud text-green-400 mr-1.5"></i> Guardado automático</span>
+            <div class="flex items-center space-x-2">
+                <button onclick="minimizeWindow()" class="hover:bg-white/20 px-2.5 py-1 rounded transition"><i class="fa-solid fa-window-minimize"></i></button>
+                <button onclick="maximizeWindow()" class="hover:bg-white/20 px-2.5 py-1 rounded transition"><i class="fa-solid fa-window-maximize"></i></button>
+                <button onclick="closeWindow()" class="hover:bg-red-600 px-2.5 py-1 rounded transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Cinta de Opciones (Ribbon Tabs) -->
+    <nav class="bg-[#f3f3f3] border-b border-gray-300 text-xs font-medium text-gray-700 flex items-center px-3 space-x-1 select-none shrink-0">
+        <button onclick="switchTab('file')" class="px-3 py-1.5 bg-[#2b579a] text-white hover:bg-[#1d3d6f] rounded-t font-semibold transition">Archivo</button>
+        <button onclick="switchTab('home')" id="tab-home" class="ribbon-tab active px-3 py-1.5 hover:bg-gray-200 rounded-t">Inicio</button>
+        <button onclick="switchTab('insert')" id="tab-insert" class="ribbon-tab px-3 py-1.5 hover:bg-gray-200 rounded-t">Insertar</button>
+        <button onclick="switchTab('layout')" id="tab-layout" class="ribbon-tab px-3 py-1.5 hover:bg-gray-200 rounded-t">Disposición</button>
+        <button onclick="switchTab('references')" id="tab-references" class="ribbon-tab px-3 py-1.5 hover:bg-gray-200 rounded-t">Referencias</button>
+        <button onclick="switchTab('review')" id="tab-review" class="ribbon-tab px-3 py-1.5 hover:bg-gray-200 rounded-t">Revisar</button>
+        <button onclick="switchTab('view')" id="tab-view" class="ribbon-tab px-3 py-1.5 hover:bg-gray-200 rounded-t">Vista</button>
+    </nav>
+
+    <!-- Ribbon Content / Panels -->
+    <div id="ribbon-content" class="bg-white border-b border-gray-300 px-3 py-2 flex items-center space-x-4 select-none shrink-0 min-h-[92px] overflow-x-auto">
+        
+        <!-- PESTAÑA INICIO (HOME) -->
+        <div id="panel-home" class="flex items-center space-x-3 h-full">
+            <!-- Portapapeles -->
+            <div class="flex flex-col justify-between h-full border-r border-gray-200 pr-3">
+                <div class="flex items-center space-x-1 mb-1">
+                    <button onclick="formatDoc('cut')" class="flex items-center space-x-1 px-2 py-1 hover:bg-gray-100 rounded text-gray-700 office-tooltip" data-tooltip="Cortar (Ctrl+X)"><i class="fa-solid fa-scissors text-blue-600"></i></button>
+                    <button onclick="formatDoc('copy')" class="flex items-center space-x-1 px-2 py-1 hover:bg-gray-100 rounded text-gray-700 office-tooltip" data-tooltip="Copiar (Ctrl+C)"><i class="fa-solid fa-copy text-blue-600"></i></button>
+                    <button onclick="pasteContent()" class="flex items-center space-x-1 px-2 py-1 hover:bg-gray-100 rounded text-gray-700 office-tooltip" data-tooltip="Pegar (Ctrl+V)"><i class="fa-solid fa-paste text-blue-600"></i></button>
+                </div>
+                <span class="text-[10px] text-gray-500 text-center font-semibold">Portapapeles</span>
+            </div>
+
+            <!-- Fuente -->
+            <div class="flex flex-col justify-between h-full border-r border-gray-200 pr-3">
+                <div class="flex items-center space-x-1 mb-1">
+                    <select onchange="formatDoc('fontName', this.value)" class="border border-gray-300 rounded text-xs px-2 py-1 bg-white focus:outline-none w-28">
+                        <option value="Calibri" selected>Calibri</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Segoe UI">Segoe UI</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                    </select>
+                    <select onchange="formatDoc('fontSize', this.value)" class="border border-gray-300 rounded text-xs px-2 py-1 bg-white focus:outline-none w-14">
+                        <option value="1">8</option>
+                        <option value="2">10</option>
+                        <option value="3" selected>11</option>
+                        <option value="4">12</option>
+                        <option value="5">14</option>
+                        <option value="6">18</option>
+                        <option value="7">24</option>
+                    </select>
+                    <button onclick="formatDoc('fontSize', '4')" class="p-1 hover:bg-gray-100 rounded office-tooltip" data-tooltip="Agrandar fuente"><i class="fa-solid fa-chevron-up text-xs"></i></button>
+                    <button onclick="formatDoc('fontSize', '2')" class="p-1 hover:bg-gray-100 rounded office-tooltip" data-tooltip="Encoger fuente"><i class="fa-solid fa-chevron-down text-xs"></i></button>
+                </div>
+                <div class="flex items-center space-x-1">
+                    <button onclick="formatDoc('bold')" class="p-1.5 hover:bg-gray-100 rounded font-bold w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Negrita (Ctrl+B)"><i class="fa-solid fa-bold"></i></button>
+                    <button onclick="formatDoc('italic')" class="p-1.5 hover:bg-gray-100 rounded italic w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Cursiva (Ctrl+I)"><i class="fa-solid fa-italic"></i></button>
+                    <button onclick="formatDoc('underline')" class="p-1.5 hover:bg-gray-100 rounded underline w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Subrayado (Ctrl+U)"><i class="fa-solid fa-underline"></i></button>
+                    <button onclick="formatDoc('strikeThrough')" class="p-1.5 hover:bg-gray-100 rounded w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Tachado"><i class="fa-solid fa-strikethrough"></i></button>
+                    <div class="h-4 w-[1px] bg-gray-300 mx-1"></div>
+                    <div class="flex items-center space-x-1 office-tooltip" data-tooltip="Color de fuente">
+                        <i class="fa-solid fa-font text-xs"></i>
+                        <input type="color" onchange="formatDoc('foreColor', this.value)" value="#000000" class="w-5 h-5 border-0 cursor-pointer bg-transparent">
+                    </div>
+                    <div class="flex items-center space-x-1 office-tooltip" data-tooltip="Color de resaltado">
+                        <i class="fa-solid fa-highlighter text-xs"></i>
+                        <input type="color" onchange="formatDoc('hiliteColor', this.value)" value="#ffff00" class="w-5 h-5 border-0 cursor-pointer bg-transparent">
+                    </div>
+                </div>
+                <span class="text-[10px] text-gray-500 text-center font-semibold">Fuente</span>
+            </div>
+
+            <!-- Párrafo -->
+            <div class="flex flex-col justify-between h-full border-r border-gray-200 pr-3">
+                <div class="flex items-center space-x-1 mb-1">
+                    <button onclick="formatDoc('insertUnorderedList')" class="p-1.5 hover:bg-gray-100 rounded w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Viñetas"><i class="fa-solid fa-list-ul"></i></button>
+                    <button onclick="formatDoc('insertOrderedList')" class="p-1.5 hover:bg-gray-100 rounded w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Numeración"><i class="fa-solid fa-list-ol"></i></button>
+                    <button onclick="formatDoc('outdent')" class="p-1.5 hover:bg-gray-100 rounded w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Disminuir sangría"><i class="fa-solid fa-outdent"></i></button>
+                    <button onclick="formatDoc('indent')" class="p-1.5 hover:bg-gray-100 rounded w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Aumentar sangría"><i class="fa-solid fa-indent"></i></button>
+                </div>
+                <div class="flex items-center space-x-1">
+                    <button onclick="formatDoc('justifyLeft')" class="p-1.5 hover:bg-gray-100 rounded w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Alinear a la izquierda"><i class="fa-solid fa-align-left"></i></button>
+                    <button onclick="formatDoc('justifyCenter')" class="p-1.5 hover:bg-gray-100 rounded w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Centrar"><i class="fa-solid fa-align-center"></i></button>
+                    <button onclick="formatDoc('justifyRight')" class="p-1.5 hover:bg-gray-100 rounded w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Alinear a la derecha"><i class="fa-solid fa-align-right"></i></button>
+                    <button onclick="formatDoc('justifyFull')" class="p-1.5 hover:bg-gray-100 rounded w-7 h-6 flex items-center justify-center office-tooltip" data-tooltip="Justificar"><i class="fa-solid fa-align-justify"></i></button>
+                </div>
+                <span class="text-[10px] text-gray-500 text-center font-semibold">Párrafo</span>
+            </div>
+
+            <!-- Estilos -->
+            <div class="flex flex-col justify-between h-full border-r border-gray-200 pr-3">
+                <div class="flex items-center space-x-2">
+                    <button onclick="formatDoc('formatBlock', 'p')" class="px-2 py-1 border border-gray-200 hover:bg-gray-100 rounded text-xs">Normal</button>
+                    <button onclick="formatDoc('formatBlock', 'h1')" class="px-2 py-1 border border-gray-200 hover:bg-gray-100 rounded text-xs font-bold">Título 1</button>
+                    <button onclick="formatDoc('formatBlock', 'h2')" class="px-2 py-1 border border-gray-200 hover:bg-gray-100 rounded text-xs font-semibold">Título 2</button>
+                </div>
+                <span class="text-[10px] text-gray-500 text-center font-semibold mt-2">Estilos</span>
+            </div>
+
+            <!-- Edición -->
+            <div class="flex flex-col justify-between h-full">
+                <div class="flex items-center space-x-2">
+                    <button onclick="openFindModal()" class="flex items-center space-x-1 px-2 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded text-xs">
+                        <i class="fa-solid fa-magnifying-glass text-blue-600"></i>
+                        <span>Buscar</span>
+                    </button>
+                </div>
+                <span class="text-[10px] text-gray-500 text-center font-semibold mt-2">Edición</span>
+            </div>
+        </div>
+
+        <!-- PESTAÑA INSERTAR (INSERT) -->
+        <div id="panel-insert" class="hidden flex items-center space-x-4 h-full">
+            <div class="flex flex-col items-center justify-between h-full border-r border-gray-200 pr-4">
+                <button onclick="openTableModal()" class="flex flex-col items-center p-1 hover:bg-gray-100 rounded text-gray-700">
+                    <i class="fa-solid fa-table text-blue-600 text-xl mb-1"></i>
+                    <span class="text-[11px]">Tabla</span>
+                </button>
+            </div>
+            <div class="flex flex-col items-center justify-between h-full border-r border-gray-200 pr-4">
+                <button onclick="openImageModal()" class="flex flex-col items-center p-1 hover:bg-gray-100 rounded text-gray-700">
+                    <i class="fa-solid fa-image text-blue-600 text-xl mb-1"></i>
+                    <span class="text-[11px]">Imagen</span>
+                </button>
+            </div>
+            <div class="flex flex-col items-center justify-between h-full">
+                <button onclick="formatDoc('insertHorizontalRule')" class="flex flex-col items-center p-1 hover:bg-gray-100 rounded text-gray-700">
+                    <i class="fa-solid fa-minus text-blue-600 text-xl mb-1"></i>
+                    <span class="text-[11px]">Línea horizontal</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- PESTAÑA DISPOSICIÓN (LAYOUT) -->
+        <div id="panel-layout" class="hidden flex items-center space-x-4 h-full text-xs">
+            <div class="flex flex-col justify-between h-full border-r border-gray-200 pr-4">
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-600 font-medium">Márgenes:</span>
+                    <select class="border border-gray-300 rounded px-2 py-1 bg-white">
+                        <option>Normal (2.5 cm)</option>
+                        <option>Estrecho (1.27 cm)</option>
+                        <option>Moderado (1.9 cm)</option>
+                    </select>
+                </div>
+                <span class="text-[10px] text-gray-500 font-semibold">Configurar Página</span>
+            </div>
+        </div>
+
+        <!-- PESTAÑA REFERENCIAS (REFERENCES) -->
+        <div id="panel-references" class="hidden flex items-center space-x-4 h-full text-xs">
+            <div class="flex flex-col justify-between h-full">
+                <button onclick="insertFootnote()" class="flex items-center space-x-1 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded font-medium">
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Insertar Nota al Pie</span>
+                </button>
+                <span class="text-[10px] text-gray-500 font-semibold">Notas y Citas</span>
+            </div>
+        </div>
+
+        <!-- PESTAÑA REVISAR (REVIEW) -->
+        <div id="panel-review" class="hidden flex items-center space-x-4 h-full text-xs">
+            <div class="flex flex-col justify-between h-full">
+                <button onclick="checkSpelling()" class="flex items-center space-x-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded font-medium">
+                    <i class="fa-solid fa-spell-check text-blue-600"></i>
+                    <span>Ortografía y Gramática</span>
+                </button>
+                <span class="text-[10px] text-gray-500 font-semibold">Corrección</span>
+            </div>
+        </div>
+
+        <!-- PESTAÑA VISTA (VIEW) -->
+        <div id="panel-view" class="hidden flex items-center space-x-4 h-full text-xs">
+            <div class="flex flex-col justify-between h-full border-r border-gray-200 pr-4">
+                <div class="flex items-center space-x-1">
+                    <button onclick="toggleRuler()" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded">Mostrar/Ocultar Regla</button>
+                </div>
+                <span class="text-[10px] text-gray-500 font-semibold">Vistas</span>
+            </div>
+        </div>
+
+        <!-- PANEL ARCHIVO (FILE MENU OVERLAY) -->
+        <div id="panel-file" class="hidden absolute top-[78px] left-0 bg-white w-72 shadow-2xl border border-gray-200 z-50 p-2 flex flex-col space-y-1 modal-animate">
+            <div class="text-xs font-bold text-gray-400 px-3 py-1">Archivo Word</div>
+            <label class="flex items-center space-x-3 px-3 py-2 hover:bg-blue-50 hover:text-blue-700 rounded text-left text-sm font-medium cursor-pointer transition">
+                <i class="fa-solid fa-folder-open w-5 text-blue-600"></i>
+                <span>Abrir archivo .docx</span>
+                <input type="file" id="docx-file-input" accept=".docx" class="hidden" onchange="importDocx(event)">
+            </label>
+            <div class="border-t border-gray-200 my-1"></div>
+            <button onclick="exportWord()" class="flex items-center space-x-3 px-3 py-2 hover:bg-blue-50 hover:text-blue-700 rounded text-left text-sm font-medium transition"><i class="fa-solid fa-download w-5 text-blue-600"></i><span>Descargar como .doc</span></button>
+            <button onclick="exportHTML()" class="flex items-center space-x-3 px-3 py-2 hover:bg-blue-50 hover:text-blue-700 rounded text-left text-sm font-medium transition"><i class="fa-solid fa-code w-5 text-blue-600"></i><span>Exportar como HTML</span></button>
+            <button onclick="window.print()" class="flex items-center space-x-3 px-3 py-2 hover:bg-blue-50 hover:text-blue-700 rounded text-left text-sm font-medium transition"><i class="fa-solid fa-print w-5 text-blue-600"></i><span>Imprimir documento</span></button>
+            <div class="border-t border-gray-200 my-1"></div>
+            <button onclick="closeFileMenu()" class="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 rounded text-left text-sm text-gray-600"><i class="fa-solid fa-arrow-left w-5"></i><span>Volver al documento</span></button>
+        </div>
+
+    </div>
+
+    <!-- Regla Horizontal Superior -->
+    <div id="ruler-container" class="word-ruler flex items-center px-4 select-none shrink-0">
+        <div class="absolute left-4 top-1 cursor-pointer text-blue-600 text-xs" title="Sangría de primera línea" style="left: 40px;"><i class="fa-solid fa-caret-down"></i></div>
+        <div class="absolute left-6 top-3 cursor-pointer text-blue-600 text-xs" title="Sangría izquierda" style="left: 40px;"><i class="fa-solid fa-caret-up"></i></div>
+        <div class="w-full flex justify-between text-[9px] text-gray-400 px-2">
+            <span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span><span>12</span><span>14</span><span>16</span>
+        </div>
+    </div>
+
+    <!-- Área de Trabajo / Contenedor Principal del Documento -->
+    <main class="flex-grow overflow-y-auto bg-[#f3f3f3] py-4 px-2">
+        <div id="editor" class="word-page shadow-2xl rounded-sm focus:outline-none" contenteditable="true" spellcheck="true">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4 font-sans">Documento oficial de Microsoft Word</h1>
+            <p class="text-gray-700 mb-3 font-sans">Este es un clon exacto e interactivo de Microsoft Word en un entorno web. Todas tus modificaciones, formatos de texto, tablas e imágenes se guardan automáticamente en tu navegador gracias a <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">localStorage</code>.</p>
+            <p class="text-gray-700 mb-3 font-sans">Prueba escribir texto libremente, ajustar estilos con la cinta superior o insertar nuevas tablas y elementos multimedia.</p>
+            <hr class="my-4">
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">Sección de prueba</h2>
+            <p class="text-gray-700 mb-2">Puedes cerrar la pestaña, recargar la página o volver más tarde y tu documento estará exactamente igual como lo dejaste.</p>
+        </div>
+    </main>
+
+    <!-- Barra de Estado Inferior estilo Word -->
+    <footer class="bg-white border-t border-gray-300 py-1 px-4 flex items-center justify-between text-xs text-gray-600 select-none shrink-0">
+        <div class="flex items-center space-x-6">
+            <span id="page-count">Página 1 de 1</span>
+            <span id="word-count">Palabras: 0</span>
+            <span class="hidden md:inline"><i class="fa-solid fa-check text-green-600 mr-1"></i> Español (España)</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="hover:bg-gray-100 px-2 py-0.5 rounded cursor-pointer">Modo de lectura</span>
+            <span class="hover:bg-gray-100 px-2 py-0.5 rounded cursor-pointer">Diseño de impresión</span>
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-minus cursor-pointer" onclick="adjustZoom(-10)"></i>
+                <input type="range" min="50" max="150" value="100" class="w-20 accent-[#2b579a]" oninput="changeZoom(this.value)">
+                <span id="zoom-level">100%</span>
+                <i class="fa-solid fa-plus cursor-pointer" onclick="adjustZoom(10)"></i>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal para Insertar Tabla -->
+    <div id="table-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-sm mx-4 modal-animate">
+            <h3 class="text-base font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                <i class="fa-solid fa-table text-[#2b579a]"></i>
+                <span>Insertar Tabla</span>
+            </h3>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-gray-600 mb-1">Número de filas:</label>
+                    <input type="number" id="table-rows" value="3" min="1" max="20" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-[#2b579a]">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-600 mb-1">Número de columnas:</label>
+                    <input type="number" id="table-cols" value="3" min="1" max="10" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-[#2b579a]">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 mt-6">
+                <button onclick="closeTableModal()" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded transition">Cancelar</button>
+                <button onclick="confirmInsertTable()" class="px-4 py-1.5 bg-[#2b579a] hover:bg-[#1d3d6f] text-white text-xs font-medium rounded transition">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Insertar Imagen -->
+    <div id="image-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-md mx-4 modal-animate">
+            <h3 class="text-base font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                <i class="fa-solid fa-image text-[#2b579a]"></i>
+                <span>Insertar Imagen</span>
+            </h3>
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-gray-600 mb-1">Cargar desde archivo local</label>
+                    <input type="file" id="local-image-file" accept="image/*" class="w-full text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div class="text-center text-gray-400 font-medium">- O -</div>
+                <div>
+                    <label class="block font-semibold text-gray-600 mb-1">URL de la imagen</label>
+                    <input type="url" id="image-url-input" placeholder="https://ejemplo.com/imagen.jpg" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-[#2b579a]">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 mt-6">
+                <button onclick="closeImageModal()" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded transition">Cancelar</button>
+                <button onclick="confirmInsertImage()" class="px-4 py-1.5 bg-[#2b579a] hover:bg-[#1d3d6f] text-white text-xs font-medium rounded transition">Insertar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cuadro de Mensajes Estilo Office (Reemplazo de alert) -->
+    <div id="office-msg-box" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-sm mx-4 text-center modal-animate">
+            <div id="msg-icon" class="text-3xl text-[#2b579a] mb-3"><i class="fa-solid fa-circle-info"></i></div>
+            <h4 id="msg-title" class="text-base font-bold text-gray-800 mb-1">Aviso</h4>
+            <p id="msg-text" class="text-xs text-gray-600 mb-5">Mensaje descriptivo aquí.</p>
+            <button onclick="closeOfficeMsg()" class="w-full py-2 bg-[#2b579a] hover:bg-[#1d3d6f] text-white text-xs font-semibold rounded transition">Aceptar</button>
+        </div>
+    </div>
+
+    <!-- Notificación Flotante Animada (Toast) -->
+    <div id="toast-notification" class="fixed bottom-12 right-6 bg-gray-900 text-white text-xs px-4 py-2.5 rounded-lg shadow-2xl z-50 hidden flex items-center space-x-2 toast-animate">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-green-400"></i>
+        <span id="toast-text">Acción completada con éxito</span>
+    </div>
+
+    <!-- Lógica JavaScript Principal -->
+    <script>
+        const editor = document.getElementById('editor');
+        const docTitleInput = document.getElementById('doc-title');
+
+        // Pestañas de la Cinta de Opciones con transición
+        function switchTab(tabName) {
+            const fileMenu = document.getElementById('panel-file');
+            if (tabName === 'file') {
+                fileMenu.classList.toggle('hidden');
+                return;
+            } else {
+                fileMenu.classList.add('hidden');
+            }
+
+            // Ocultar todos los paneles
+            ['home', 'insert', 'layout', 'references', 'review', 'view'].forEach(t => {
+                const panel = document.getElementById(`panel-${t}`);
+                panel.classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active', 'bg-white', 'text-[#2b579a]');
+            });
+
+            // Mostrar el panel activo con efecto suave
+            const activePanel = document.getElementById(`panel-${tabName}`);
+            activePanel.classList.remove('hidden');
+            activePanel.classList.add('modal-animate');
+            document.getElementById(`tab-${tabName}`).classList.add('active', 'bg-white', 'text-[#2b579a]');
+        }
+
+        function closeFileMenu() {
+            document.getElementById('panel-file').classList.add('hidden');
+        }
+
+        // Formato Enriquecido
+        function formatDoc(command, value = null) {
+            document.execCommand(command, false, value);
+            editor.focus();
+            updateStats();
+        }
+
+        function pasteContent() {
+            navigator.clipboard.readText().then(text => {
+                document.execCommand('insertText', false, text);
+            }).catch(() => {
+                showOfficeMsg('Portapapeles', 'Presiona Ctrl+V para pegar en el documento.', 'info');
+            });
+        }
+
+        // Estadísticas y Contadores
+        function updateStats() {
+            const text = editor.innerText || editor.textContent || "";
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            document.getElementById('word-count').innerText = `Palabras: ${words}`;
+        }
+
+        // Persistencia Automática exacta con LocalStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedContent = localStorage.getItem('word_clone_content');
+            const savedTitle = localStorage.getItem('word_clone_title');
+
+            if (savedContent !== null && savedContent.trim() !== '') {
+                editor.innerHTML = savedContent;
+            }
+            if (savedTitle !== null && savedTitle.trim() !== '') {
+                docTitleInput.value = savedTitle;
+            }
+            updateStats();
+        });
+
+        editor.addEventListener('input', () => {
+            localStorage.setItem('word_clone_content', editor.innerHTML);
+            updateStats();
+        });
+
+        docTitleInput.addEventListener('input', () => {
+            localStorage.setItem('word_clone_title', docTitleInput.value);
+        });
+
+        // Modales y Cuadros de Diálogo
+        function openTableModal() { document.getElementById('table-modal').classList.remove('hidden'); }
+        function closeTableModal() { document.getElementById('table-modal').classList.add('hidden'); }
+        function confirmInsertTable() {
+            const rows = parseInt(document.getElementById('table-rows').value) || 3;
+            const cols = parseInt(document.getElementById('table-cols').value) || 3;
+            let html = '<table class="border-collapse w-full my-4"><tbody>';
+            for (let i = 0; i < rows; i++) {
+                html += '<tr>';
+                for (let j = 0; j < cols; j++) {
+                    if (i === 0) {
+                        html += '<th class="border border-gray-400 p-2 bg-gray-100 font-semibold">Cabecera</th>';
+                    } else {
+                        html += '<td class="border border-gray-400 p-2">Celda</td>';
+                    }
+                }
+                html += '</tr>';
+            }
+            html += '</tbody></table><p><br></p>';
+            document.execCommand('insertHTML', false, html);
+            closeTableModal();
+            updateStats();
+        }
+
+        function openImageModal() { document.getElementById('image-modal').classList.remove('hidden'); }
+        function closeImageModal() { document.getElementById('image-modal').classList.add('hidden'); }
+        function confirmInsertImage() {
+            const url = document.getElementById('image-url-input').value;
+            const file = document.getElementById('local-image-file').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    formatDoc('insertImage', e.target.result);
+                    closeImageModal();
+                };
+                reader.readAsDataURL(file);
+            } else if (url) {
+                formatDoc('insertImage', url);
+                closeImageModal();
+            } else {
+                showOfficeMsg('Aviso', 'Selecciona un archivo o introduce una URL.', 'info');
+            }
+        }
+
+        function openFindModal() {
+            const term = prompt('Buscar texto en el documento:');
+            if (term) {
+                window.find(term);
+            }
+        }
+
+        function insertFootnote() {
+            const note = prompt('Texto de la nota al pie:');
+            if (note) {
+                document.execCommand('insertHTML', false, `<sup>*</sup><small class="text-gray-500">(${note})</small>`);
+            }
+        }
+
+        function checkSpelling() {
+            showOfficeMsg('Ortografía', 'La revisión ortográfica está activa en este documento.', 'info');
+        }
+
+        function toggleRuler() {
+            const ruler = document.getElementById('ruler-container');
+            ruler.style.display = ruler.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        let currentZoom = 100;
+        function changeZoom(val) {
+            currentZoom = val;
+            document.getElementById('zoom-level').innerText = `${val}%`;
+            editor.style.transform = `scale(${val / 100})`;
+            editor.style.transformOrigin = 'top center';
+        }
+        function adjustZoom(amount) {
+            currentZoom = Math.min(150, Math.max(50, currentZoom + amount));
+            document.querySelector('input[type="range"]').value = currentZoom;
+            changeZoom(currentZoom);
+        }
+
+        // Función para importar y convertir archivos .docx usando mammoth.js con animación de carga
+        function importDocx(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showToast('Cargando y convirtiendo archivo .docx...', 'info');
+
+            const fileName = file.name.replace(/\.[^/.]+$/, "");
+            docTitleInput.value = fileName;
+            localStorage.setItem('word_clone_title', fileName);
+
+            const reader = new FileReader();
+            reader.onload = function(loadEvent) {
+                const arrayBuffer = loadEvent.target.result;
+                mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
+                    .then(function(result) {
+                        editor.innerHTML = result.value;
+                        localStorage.setItem('word_clone_content', editor.innerHTML);
+                        updateStats();
+                        closeFileMenu();
+                        showToast('¡Archivo .docx importado con éxito!', 'success');
+                    })
+                    .catch(function(err) {
+                        showOfficeMsg('Error de importación', 'No se pudo leer el archivo .docx. Asegúrate de que sea un archivo válido.', 'info');
+                        console.error(err);
+                    });
+            };
+            reader.readAsArrayBuffer(file);
+            event.target.value = '';
+        }
+
+        function exportWord() {
+            const title = docTitleInput.value.trim() || 'Documento';
+            const content = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${title}</title></head><body>${editor.innerHTML}</body></html>`;
+            const blob = new Blob(['\ufeff' + content], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title}.doc`;
+            a.click();
+            URL.revokeObjectURL(url);
+            closeFileMenu();
+        }
+
+        function exportHTML() {
+            const title = docTitleInput.value.trim() || 'Documento';
+            const content = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${title}</title></head><body style="font-family: Calibri, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px;">${editor.innerHTML}</body></html>`;
+            const blob = new Blob([content], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+            closeFileMenu();
+        }
+
+        function showOfficeMsg(title, text, type) {
+            document.getElementById('msg-title').innerText = title;
+            document.getElementById('msg-text').innerText = text;
+            document.getElementById('office-msg-box').classList.remove('hidden');
+        }
+        function closeOfficeMsg() {
+            document.getElementById('office-msg-box').classList.add('hidden');
+        }
+
+        // Sistema de Notificaciones Flotantes (Toasts animados)
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast-notification');
+            const toastText = document.getElementById('toast-text');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastText.innerText = message;
+            if (type === 'success') {
+                toastIcon.className = 'fa-solid fa-circle-check text-green-400';
+            } else if (type === 'info') {
+                toastIcon.className = 'fa-solid fa-spinner fa-spin text-blue-400';
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        function minimizeWindow() { showOfficeMsg('Microsoft Word', 'Ventana minimizada.', 'info'); }
+        function maximizeWindow() { showOfficeMsg('Microsoft Word', 'Ventana maximizada en pantalla.', 'info'); }
+        function closeWindow() { if(confirm('¿Desea cerrar el documento?')) { editor.innerHTML = ''; localStorage.removeItem('word_clone_content'); updateStats(); } }
+    </script>
+</body>
+</html>
