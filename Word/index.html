@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word OS Edition - Procesador de Textos</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            background-color: #f3f2f1;
+            display: grid;
+            grid-template-rows: 40px 90px 1fr;
+            overflow: hidden;
+            color: #323130;
+        }
+
+        /* --- 1. BARRA DE TÍTULO SUPERIOR --- */
+        .top-header {
+            background-color: #1055a4;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            font-size: 13px;
+        }
+
+        .doc-title-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .word-icon {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .doc-title {
+            background: transparent;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .doc-title:focus {
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+
+        /* --- 2. CINTA DE OPCIONES (RIBBON) --- */
+        .ribbon {
+            background-color: #ffffff;
+            border-bottom: 1px solid #edebe9;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 5px 20px;
+            gap: 5px;
+        }
+
+        .ribbon-tabs {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #605e5c;
+            font-weight: 500;
+            padding-bottom: 4px;
+        }
+
+        .tab.active {
+            color: #1055a4;
+            font-weight: 600;
+            border-bottom: 2px solid #1055a4;
+            cursor: default;
+        }
+
+        .ribbon-tools {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            background: #f3f2f1;
+            padding: 2px;
+            border-radius: 4px;
+            gap: 2px;
+        }
+
+        .btn-tool {
+            background: transparent;
+            border: none;
+            padding: 6px 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 3px;
+            color: #323130;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 30px;
+        }
+
+        .btn-tool:hover {
+            background: #edebe9;
+        }
+
+        .btn-tool.active {
+            background: #0078d4;
+            color: white;
+        }
+
+        select.tool-select {
+            background: transparent;
+            border: none;
+            padding: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        input[type="color"] {
+            border: none;
+            width: 24px;
+            height: 24px;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        /* --- 3. ÁREA TRABAJO PRINCIPAL (HÍBRIDA CON COPILOT) --- */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Contenedor del Folio / Página A4 */
+        .editor-container {
+            overflow-y: auto;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            background: #f3f2f1;
+        }
+
+        .page-a4 {
+            width: 815px;
+            min-height: 1050px;
+            height: max-content;
+            background: white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            padding: 80px; /* Márgenes de página estándar */
+            outline: none;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #000000;
+            word-wrap: break-word;
+        }
+
+        /* --- 4. ASISTENTE SIDEBAR (COPILOT INTERACTIVO) --- */
+        .ai-sidebar {
+            background: #ffffff;
+            border-left: 1px solid #edebe9;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            justify-content: space-between;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: #1055a4;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .ai-chat-history {
+            flex-grow: 1;
+            overflow-y: auto;
+            font-size: 12px;
+            color: #605e5c;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 5px;
+        }
+
+        .ai-bubble {
+            background: #f3f2f1;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #1055a4;
+            line-height: 1.4;
+        }
+
+        .ai-input-zone {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .ai-textarea {
+            width: 100%;
+            height: 60px;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            resize: none;
+            font-size: 12px;
+        }
+
+        .ai-textarea:focus {
+            outline: 1px solid #1055a4;
+        }
+
+        .btn-ai-send {
+            width: 100%;
+            padding: 8px;
+            background: #1055a4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-ai-send:hover {
+            background: #0b3c75;
+        }
+
+        /* Utilidades estadísticas básicas inferiores */
+        .statusbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: calc(100% - 300px);
+            height: 22px;
+            background: #1055a4;
+            color: white;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-header">
+        <div class="doc-title-container">
+            <span class="word-icon">📄 W</span>
+            <input type="text" class="doc-title" value="Documento_Sin_Titulo.docx">
+        </div>
+        <div>Usuario Local</div>
+    </div>
+
+    <div class="ribbon">
+        <div class="ribbon-tabs">
+            <div class="tab active">Inicio</div>
+            <div class="tab" style="cursor:pointer;" onclick="alert('Funciones de impresión y exportación en desarrollo.')">Archivo</div>
+            <div class="tab" style="cursor:pointer;" onclick="alert('Herramienta de inserción de tablas e imágenes en cola.')">Insertar</div>
+        </div>
+        
+        <div class="ribbon-tools">
+            <div class="tool-group">
+                <select class="tool-select" onchange="execCmd('fontName', this.value)">
+                    <option value="Segoe UI">Segoe UI</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                </select>
+                <select class="tool-select" onchange="execCmd('fontSize', this.value)">
+                    <option value="3">12pt</option>
+                    <option value="4" selected>14pt</option>
+                    <option value="5">18pt</option>
+                    <option value="6">24pt</option>
+                    <option value="7">36pt</option>
+                </select>
+            </div>
+
+            <div class="tool-group">
+                <button class="btn-tool" onclick="execCmd('bold')" title="Negrita"><b>N</b></button>
+                <button class="btn-tool" onclick="execCmd('italic')" title="Cursiva"><i>K</i></button>
+                <button class="btn-tool" onclick="execCmd('underline')" title="Subrayado"><u>S</u></button>
+            </div>
+
+            <div class="tool-group">
+                <button class="btn-tool" onclick="execCmd('justifyLeft')" title="Alinear izquierda">|==</button>
+                <button class="btn-tool" onclick="execCmd('justifyCenter')" title="Centrar">=|=</button>
+                <button class="btn-tool" onclick="execCmd('justifyRight')" title="Alinear derecha">==|</button>
+                <button class="btn-tool" onclick="execCmd('justifyFull')" title="Justificar">===</button>
+            </div>
+
+            <div class="tool-group">
+                <button class="btn-tool" onclick="execCmd('insertUnorderedList')" title="Viñetas">•=</button>
+                <button class="btn-tool" onclick="execCmd('insertOrderedList')" title="Numeración">1=</button>
+            </div>
+
+            <div class="tool-group" style="padding: 0 5px;">
+                <span style="font-size:11px; color:#605e5c; padding-right:4px;">Color:</span>
+                <input type="color" onchange="execCmd('foreColor', this.value)" title="Color de Fuente">
+            </div>
+        </div>
+    </div>
+
+    <div class="workspace">
+        
+        <div class="editor-container">
+            <div class="page-a4" contenteditable="true" id="editor" oninput="updateStats()">
+                <h1>¡Bienvenido a Word OS Edition!</h1>
+                <p>Este es un procesador de texto interactivo nativo montado en tu entorno local. Puedes borrar este texto completamente, escribir tus reportes, cambiar los formatos usando la cinta superior o solicitarle ayuda técnica a la inteligencia artificial integrada en el panel derecho.</p>
+            </div>
+        </div>
+
+        <div class="ai-sidebar">
+            <div>
+                <div class="ai-header">
+                    <span>✨</span> Copilot Workspace Assistant
+                </div>
+                <div class="ai-chat-history" id="chatHistory">
+                    <div class="ai-bubble">
+                        ¡Hola! Soy tu asistente de redacción. Escribe un comando o una idea abajo (por ejemplo: <i>"Escribe una plantilla de carta formal"</i> o <i>"Crea un contrato de ejemplo"</i>) y lo inyectaré directamente en tu documento activo.
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-input-zone">
+                <textarea class="ai-textarea" id="aiPrompt" placeholder="Pídele algo a la IA para el documento..."></textarea>
+                <button class="btn-ai-send" onclick="askAI()">Generar e Insertar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="statusbar">
+        <div id="wordCount">Palabras: 48</div>
+        <div>Modo Local Nativo (A4)</div>
+    </div>
+
+    <script>
+        // Función nativa para inyectar formatos Rich Text en el div editable
+        function execCmd(command, value = null) {
+            document.execCommand(command, false, value);
+            document.getElementById('editor').focus();
+            updateStats();
+        }
+
+        // Contador de palabras básico en tiempo real
+        function updateStats() {
+            const text = document.getElementById('editor').innerText.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            document.getElementById('wordCount').textContent = `Palabras: ${words}`;
+        }
+
+        // Lógica de simulación inteligente del Copilot
+        function askAI() {
+            const promptInput = document.getElementById('aiPrompt');
+            const history = document.getElementById('chatHistory');
+            const editor = document.getElementById('editor');
+            const prompt = promptInput.value.trim().toLowerCase();
+
+            if (!prompt) return;
+
+            // Añadir burbuja de petición al minichat
+            const userBubble = document.createElement('div');
+            userBubble.className = "ai-bubble";
+            userBubble.style.borderLeftColor = "#605e5c";
+            userBubble.style.background = "#faf9f8";
+            userBubble.innerHTML = `<b>Tú:</b> ${promptInput.value}`;
+            history.appendChild(userBubble);
+
+            // Respuesta simulada inteligente dependiendo de palabras clave
+            setTimeout(() => {
+                const aiBubble = document.createElement('div');
+                aiBubble.className = "ai-bubble";
+                
+                let generatedHTML = "";
+
+                if (prompt.includes('carta') || prompt.includes('formal')) {
+                    generatedHTML = `
+                        <p><b>Asunto:</b> Presentación de Propuesta de Servicios Tecnológicos</p>
+                        <p>Estimado Director Ejecutivo,</p>
+                        <p>Por medio de la presente, me dirijo a usted con el propósito de formalizar nuestra propuesta de optimización de infraestructura digital. Nuestro equipo ha desarrollado un entorno integrado de simuladores web de alto rendimiento capaces de ejecutarse de forma aislada y nativa.</p>
+                        <p>Quedamos a su entera disposición para coordinar una reunión de demostración técnica.</p>
+                        <p>Atentamente,<br><b>El Equipo de Ingeniería de Software</b></p>
+                    `;
+                    aiBubble.innerHTML = `<b>Copilot:</b> He redactado e insertado una plantilla de <b>Carta Formal</b> al final de tu hoja.`;
+                } else if (prompt.includes('contrato') || prompt.includes('acuerdo')) {
+                    generatedHTML = `
+                        <h2 style="text-align:center;">CONTRATO DE CONFIDENCIALIDAD (NDA)</h2>
+                        <p><b>PRIMERA:</b> Las partes firmantes acuerdan que toda la información relativa al desarrollo del proyecto de hipervisores y lanzadores de archivos HTML locales compartida es estrictamente secreta.</p>
+                        <p><b>SEGUNDA:</b> El incumplimiento de esta confidencialidad conllevará las penalizaciones legales preestablecidas bajo el marco de simulación avanzada.</p>
+                    `;
+                    aiBubble.innerHTML = `<b>Copilot:</b> He estructurado un borrador de <b>Contrato de Confidencialidad</b> de manera automática en la página.`;
+                } else {
+                    generatedHTML = `
+                        <p style="color: #0078d4;"><b>[Bloque generado por IA]:</b> El usuario solicitó expandir el concepto: "${promptInput.value}". Este ecosistema modular representa el futuro del desarrollo front-end unificado.</p>
+                    `;
+                    aiBubble.innerHTML = `<b>Copilot:</b> He añadido un bloque de texto expandido basado en tus directrices.`;
+                }
+
+                // Inyectar el texto generado al final del documento de Word
+                editor.innerHTML += "<br>" + generatedHTML;
+                history.appendChild(aiBubble);
+                
+                // Limpiar campos y hacer scroll automático
+                promptInput.value = "";
+                history.scrollTop = history.scrollHeight;
+                updateStats();
+            }, 800);
+        }
+    </script>
+</body>
+</html>
