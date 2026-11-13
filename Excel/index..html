@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Online - Microsoft 365</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS para leer y exportar archivos Excel/CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .excel-grid input:focus {
+            outline: 2px solid #107c41;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col select-none overflow-hidden font-sans text-xs">
+
+    <!-- Cabecera Office -->
+    <header class="bg-[#107c41] text-white flex items-center justify-between px-3 h-10 shadow-md">
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-1 cursor-pointer hover:bg-[#0e6b37] px-2 py-1 rounded transition">
+                <i class="fa-solid fa-file-excel text-lg"></i>
+                <span class="font-semibold text-sm">Libro1 - Excel</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-1 bg-[#0e6b37] px-2 py-1 rounded text-xs">
+                <i class="fa-solid fa-cloud text-green-300"></i>
+                <span>Guardado automático</span>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button onclick="exportExcel()" class="bg-[#0e6b37] hover:bg-[#0c592e] px-3 py-1.5 rounded transition flex items-center space-x-1.5 shadow-sm">
+                <i class="fa-solid fa-download"></i>
+                <span>Exportar Excel</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Cinta de Opciones (Ribbon) -->
+    <nav class="bg-white border-b border-gray-300 shadow-sm">
+        <div class="flex px-2 space-x-4 border-b border-gray-200 text-gray-600 font-medium">
+            <button onclick="switchTab('inicio')" id="tab-inicio" class="py-1.5 px-3 border-b-2 border-[#107c41] text-[#107c41]">Inicio</button>
+            <button onclick="switchTab('archivo')" id="tab-archivo" class="py-1.5 px-3 hover:text-gray-900 transition font-semibold text-[#107c41]">Archivo</button>
+            <button onclick="switchTab('insertar')" id="tab-insertar" class="py-1.5 px-3 hover:text-gray-900 transition">Insertar</button>
+            <button onclick="switchTab('formulas')" id="tab-formulas" class="py-1.5 px-3 hover:text-gray-900 transition">Fórmulas</button>
+            <button onclick="switchTab('datos')" id="tab-datos" class="py-1.5 px-3 hover:text-gray-900 transition">Datos</button>
+        </div>
+
+        <!-- Menú Archivo (Oculto por defecto) -->
+        <div id="menu-archivo" class="hidden bg-white border-b border-gray-300 p-3 flex space-x-4 items-center">
+            <label class="cursor-pointer bg-[#107c41] hover:bg-[#0c592e] text-white px-3 py-2 rounded shadow-sm flex items-center space-x-2 transition">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>Abrir Archivo (.xlsx, .csv)</span>
+                <input type="file" id="file-input" accept=".xlsx, .xls, .csv, .html" class="hidden" onchange="openFile(event)">
+            </label>
+            <button onclick="clearWorkbook()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded shadow-sm flex items-center space-x-2 transition">
+                <i class="fa-solid fa-trash"></i>
+                <span>Nuevo / Limpiar Libro</span>
+            </button>
+        </div>
+
+        <!-- Herramientas rápidas -->
+        <div class="flex items-center px-3 py-1.5 space-x-3 bg-gray-50 text-gray-700">
+            <div class="flex items-center space-x-1 border-r pr-3 border-gray-300">
+                <button onclick="document.execCommand('bold')" class="p-1.5 hover:bg-gray-200 rounded transition" title="Negrita"><i class="fa-solid fa-bold"></i></button>
+                <button onclick="document.execCommand('italic')" class="p-1.5 hover:bg-gray-200 rounded transition" title="Cursiva"><i class="fa-solid fa-italic"></i></button>
+                <button onclick="document.execCommand('underline')" class="p-1.5 hover:bg-gray-200 rounded transition" title="Subrayado"><i class="fa-solid fa-underline"></i></button>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="text-gray-500 font-mono">Celda Activa:</span>
+                <span id="active-cell-indicator" class="font-bold font-mono bg-white px-2 py-0.5 border border-gray-300 rounded">A1</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Barra de Fórmulas fx -->
+    <div class="flex items-center bg-white px-2 py-1 border-b border-gray-300 space-x-2">
+        <span class="font-serif italic font-bold text-gray-500 text-sm px-2">fx</span>
+        <input id="formula-bar" type="text" placeholder="Escribe un valor o fórmula..." class="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:border-[#107c41] text-xs font-mono">
+    </div>
+
+    <!-- Área de la Hoja de Cálculo (Grid) -->
+    <div class="flex-1 overflow-auto bg-gray-200 relative">
+        <table id="excel-table" class="border-collapse bg-white text-xs w-full">
+            <thead>
+                <tr id="header-row" class="bg-gray-100 text-gray-600 font-semibold select-none">
+                    <th class="w-12 h-6 border border-gray-300 bg-gray-200 sticky left-0 z-20"></th>
+                </tr>
+            </thead>
+            <tbody id="grid-body">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Barra de Estado Inferior -->
+    <footer class="bg-gray-100 border-t border-gray-300 px-3 py-1 flex items-center justify-between text-gray-600 text-xs">
+        <div class="flex items-center space-x-4">
+            <span class="bg-white px-2 py-0.5 border border-gray-300 rounded shadow-inner font-semibold text-[#107c41]">Hoja 1</span>
+            <span>Listo</span>
+        </div>
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-magnifying-glass cursor-pointer hover:text-black"></i>
+            <input type="range" min="50" max="150" value="100" class="w-24 accent-[#107c41] cursor-pointer" oninput="zoomGrid(this.value)">
+            <span id="zoom-val">100%</span>
+        </div>
+    </footer>
+
+    <!-- Script de Construcción e Interactividad -->
+    <script>
+        const cols = 26; // A hasta Z
+        const rows = 100;
+        const headerRow = document.getElementById('header-row');
+        const gridBody = document.getElementById('grid-body');
+        const formulaBar = document.getElementById('formula-bar');
+        const activeIndicator = document.getElementById('active-cell-indicator');
+
+        let selectedCell = null;
+
+        // Generar cabeceras de columnas (A, B, C...)
+        for (let i = 0; i < cols; i++) {
+            let th = document.createElement('th');
+            th.className = "border border-gray-300 text-center font-normal px-2 py-1 bg-gray-100 min-w-[90px]";
+            th.innerText = String.fromCharCode(65 + i);
+            headerRow.appendChild(th);
+        }
+
+        // Generar filas y celdas
+        for (let r = 1; r <= rows; r++) {
+            let tr = document.createElement('tr');
+            
+            let thRow = document.createElement('th');
+            thRow.className = "border border-gray-300 text-center font-normal bg-gray-100 text-gray-500 w-12 sticky left-0 z-10 select-none";
+            thRow.innerText = r;
+            tr.appendChild(thRow);
+
+            for (let c = 0; c < cols; c++) {
+                let td = document.createElement('td');
+                td.className = "border border-gray-200 p-0 m-0 relative h-6";
+                
+                let input = document.createElement('input');
+                input.type = "text";
+                const cellId = `${String.fromCharCode(65 + c)}${r}`;
+                input.id = cellId;
+                input.className = "w-full h-full px-1.5 py-0.5 bg-transparent border-none focus:outline-none focus:bg-white text-xs font-mono";
+                
+                if (localStorage.getItem(cellId)) {
+                    input.value = localStorage.getItem(cellId);
+                }
+
+                input.addEventListener('focus', () => {
+                    selectedCell = input;
+                    activeIndicator.innerText = cellId;
+                    formulaBar.value = input.value;
+                });
+
+                input.addEventListener('input', () => {
+                    localStorage.setItem(cellId, input.value);
+                    formulaBar.value = input.value;
+                });
+
+                td.appendChild(input);
+                tr.appendChild(td);
+            }
+            gridBody.appendChild(tr);
+        }
+
+        formulaBar.addEventListener('input', () => {
+            if (selectedCell) {
+                selectedCell.value = formulaBar.value;
+                localStorage.setItem(selectedCell.id, formulaBar.value);
+            }
+        });
+
+        function switchTab(tab) {
+            const menuArchivo = document.getElementById('menu-archivo');
+            if (tab === 'archivo') {
+                menuArchivo.classList.toggle('hidden');
+            } else {
+                menuArchivo.classList.add('hidden');
+            }
+        }
+
+        function zoomGrid(val) {
+            document.getElementById('excel-table').style.transform = `scale(${val / 100})`;
+            document.getElementById('excel-table').style.transformOrigin = 'top left';
+            document.getElementById('zoom-val').innerText = `${val}%`;
+        }
+
+        // Abrir archivos Excel, CSV o HTML
+        function openFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                // Limpiar celdas actuales
+                for (let r = 1; r <= rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const cellId = `${String.fromCharCode(65 + c)}${r}`;
+                        localStorage.removeItem(cellId);
+                        const input = document.getElementById(cellId);
+                        if (input) input.value = '';
+                    }
+                }
+
+                // Cargar datos del archivo en la cuadrícula
+                json.forEach((row, rIndex) => {
+                    if (rIndex >= rows) return;
+                    row.forEach((val, cIndex) => {
+                        if (cIndex >= cols) return;
+                        const cellId = `${String.fromCharCode(65 + cIndex)}${rIndex + 1}`;
+                        const input = document.getElementById(cellId);
+                        if (input && val !== undefined && val !== null) {
+                            input.value = val;
+                            localStorage.setItem(cellId, val);
+                        }
+                    });
+                });
+                alert('¡Archivo cargado exitosamente!');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Exportar a archivo real de Excel (.xlsx)
+        function exportExcel() {
+            let data = [];
+            for (let r = 1; r <= rows; r++) {
+                let rowData = [];
+                let hasData = false;
+                for (let c = 0; c < cols; c++) {
+                    const cellId = `${String.fromCharCode(65 + c)}${r}`;
+                    const val = localStorage.getItem(cellId) || '';
+                    rowData.push(val);
+                    if (val !== '') hasData = true;
+                }
+                if (hasData) data.push(rowData);
+            }
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Hoja1");
+            XLSX.writeFile(wb, "Libro1_Excel.xlsx");
+        }
+
+        function clearWorkbook() {
+            if (confirm('¿Estás seguro de limpiar todo el libro?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
