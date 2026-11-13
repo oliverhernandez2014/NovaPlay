@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angry Birds - HTML5 Physics Edition</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            border: 4px solid #f39c12;
+            border-radius: 6px;
+            background: #74b9ff; /* Cielo azul brillante */
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* HUD Superior */
+        .hud {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 2px 2px 0px #000;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Pantallas de fin de partida (Victoria/Derrota) */
+        .screen-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            display: none;
+            z-index: 20;
+            text-align: center;
+        }
+
+        .screen-overlay h1 {
+            font-size: 45px;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 0px #000;
+        }
+
+        .screen-overlay p {
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: #bdc3c7;
+        }
+
+        .btn-action {
+            padding: 12px 28px;
+            background: #e67e22;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            box-shadow: 0 4px 0 #d35400;
+            transition: transform 0.1s;
+        }
+
+        .btn-action:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .hint {
+            margin-top: 15px;
+            color: #a4b0be;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div class="hud">
+            <div>PUNTUACIÓN: <span id="score-val">0</span></div>
+            <div>CERDOS: <span id="pigs-val">3</span></div>
+        </div>
+
+        <div class="screen-overlay" id="endScreen">
+            <h1 id="endTitle">¡VICTORIA!</h1>
+            <p id="endDesc">Has derribado todas las defensas enemigas.</p>
+            <button class="btn-action" onclick="restartGame()">Jugar de Nuevo</button>
+        </div>
+
+        <canvas id="gameCanvas" width="950" height="480"></canvas>
+    </div>
+
+    <div class="hint">
+        Instrucciones: <b>Arrastra el pájaro rojo</b> hacia atrás desde la resortera elástica y <b>suéltalo</b> para disparar.
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreVal = document.getElementById('score-val');
+        const pigsVal = document.getElementById('pigs-val');
+        const endScreen = document.getElementById('endScreen');
+        const endTitle = document.getElementById('endTitle');
+        const endDesc = document.getElementById('endDesc');
+
+        // Configuración física global
+        const gravity = 0.25;
+        const groundY = 410;
+        let score = 0;
+        let gameOver = false;
+
+        // Centro y punto de anclaje de la resortera
+        const slingX = 150;
+        const slingY = 320;
+
+        // Entidades del juego
+        let bird;
+        let blocks = [];
+        let pigs = [];
+        let particles = [];
+
+        // --- CLASE PÁJARO (FÍSICAS VECTORIALES) ---
+        class Bird {
+            constructor() {
+                this.resetPosition();
+                this.radius = 16;
+                this.isDragging = false;
+                this.isFlying = false;
+                this.trail = [];
+            }
+
+            resetPosition() {
+                this.x = slingX;
+                this.y = slingY;
+                this.vx = 0;
+                this.vy = 0;
+                this.isDragging = false;
+                this.isFlying = false;
+                this.trail = [];
+            }
+
+            update() {
+                if (this.isFlying) {
+                    this.vy += gravity; // Aplicar gravedad en el aire
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // Dejar rastro de humo/puntos en el aire
+                    if (Math.random() < 0.4) {
+                        this.trail.push({ x: this.x, y: this.y, alpha: 1.0 });
+                    }
+
+                    // Reducir transparencia del rastro
+                    this.trail.forEach(t => t.alpha -= 0.02);
+                    this.trail = this.trail.filter(t => t.alpha > 0);
+
+                    // Rebotar o frenar levemente al tocar el suelo
+                    if (this.y + this.radius >= groundY) {
+                        this.y = groundY - this.radius;
+                        this.vx *= 0.6; // Fricción
+                        this.vy *= -0.3; // Elasticidad
+                        if (Math.abs(this.vx) < 0.2) this.vx = 0;
+                    }
+                }
+            }
+
+            draw() {
+                // Dibujar rastro
+                this.trail.forEach(t => {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${t.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(t.x, t.y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Cuerpo del pájaro (Red)
+                ctx.fillStyle = '#e74c3c';
+                ctx.strokeStyle = '#c0392b';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Detalles de la cara (Enojo clásico)
+                ctx.fillStyle = '#000';
+                ctx.fillRect(this.x + 2, this.y - 6, 6, 3); // Ojo derecho
+                ctx.fillStyle = '#f1c40f'; // Pico
+                ctx.beginPath();
+                ctx.moveTo(this.x + 10, this.y - 2);
+                ctx.lineTo(this.x + 22, this.y + 2);
+                ctx.lineTo(this.x + 10, this.y + 6);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        // --- CLASE BLOQUES DE MADERA (DESTRUCTIBLES) ---
+        class Block {
+            constructor(x, y, w, h) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+                this.vx = 0;
+                this.vy = 0;
+                this.weight = 1;
+            }
+
+            update() {
+                this.vy += gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Fricción ambiental
+                this.vx *= 0.98;
+
+                // Colisión con el suelo
+                if (this.y + this.h >= groundY) {
+                    this.y = groundY - this.h;
+                    this.vy = 0;
+                    this.vx *= 0.8; // Fricción con la tierra
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = '#d35400'; // Color madera
+                ctx.strokeStyle = '#ba4a00';
+                ctx.lineWidth = 2;
+                ctx.fillRect(this.x, this.y, this.w, this.h);
+                ctx.strokeRect(this.x, this.y, this.w, this.h);
+                
+                // Detalle de vetas de madera
+                ctx.fillStyle = 'rgba(0,0,0,0.05)';
+                ctx.fillRect(this.x + 4, this.y + 4, this.w - 8, this.h - 8);
+            }
+        }
+
+        // --- CLASE CERDOS ENEMIGOS (PIGS) ---
+        class Pig {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 18;
+                this.vx = 0;
+                this.vy = 0;
+                this.alive = true;
+            }
+
+            update() {
+                if (!this.alive) return;
+                this.vy += gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                this.vx *= 0.98;
+
+                if (this.y + this.radius >= groundY) {
+                    this.y = groundY - this.radius;
+                    this.vy = 0;
+                    this.vx *= 0.8;
+                }
+            }
+
+            draw() {
+                if (!this.alive) return;
+                // Cuerpo verde brillante
+                ctx.fillStyle = '#2ecc71';
+                ctx.strokeStyle = '#27ae60';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Hocico redondo
+                ctx.fillStyle = '#58d68d';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y + 3, 7, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Ojos saltones
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(this.x - 5, this.y - 4, 3, 0, Math.PI * 2);
+                ctx.arc(this.x + 5, this.y - 4, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(this.x - 5, this.y - 4, 1.2, 0, Math.PI * 2);
+                ctx.arc(this.x + 5, this.y - 4, 1.2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // --- EFECTOS DE PARTÍCULAS POR PLUMAS/POLVO ---
+        function createPlumes(x, y, color) {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    radius: Math.random() * 5 + 2,
+                    life: 25,
+                    color: color
+                });
+            }
+        }
+
+        // --- SISTEMA DE INICIALIZACIÓN / ESTRUCTURA DE TORRE ---
+        function initGame() {
+            bird = new Bird();
+            blocks = [];
+            pigs = [];
+            particles = [];
+            score = 0;
+            gameOver = false;
+            scoreVal.textContent = score;
+            endScreen.style.display = 'none';
+
+            // Armar una fortaleza modular de bloques (X, Y inicial de capas)
+            const targetX = 680;
+
+            // Fila Inferior
+            blocks.push(new Block(targetX, groundY - 80, 25, 80));
+            blocks.push(new Block(targetX + 95, groundY - 80, 25, 80));
+            // Techo de la fila inferior
+            blocks.push(new Block(targetX - 10, groundY - 100, 140, 20));
+
+            // Fila Media
+            blocks.push(new Block(targetX + 15, groundY - 180, 20, 80));
+            blocks.push(new Block(targetX + 75, groundY - 180, 20, 80));
+            // Techo intermedio
+            blocks.push(new Block(targetX, groundY - 200, 110, 20));
+
+            // Cúspide / Techo final
+            blocks.push(new Block(targetX + 40, groundY - 260, 25, 60));
+
+            // Colocar cerdos estratégicamente adentro de la estructura
+            pigs.push(new Pig(targetX + 60, groundY - 20)); // Planta baja
+            pigs.push(new Pig(targetX + 57, groundY - 135)); // Piso intermedio
+            pigs.push(new Pig(targetX + 52, groundY - 290)); // En el techo superior
+
+            pigsVal.textContent = pigs.length;
+        }
+
+        // --- DETECTOR DE COLISIONES DE CAJAS Y CÍRCULOS (AABB & DISTANCIA) ---
+        function checkCollisions() {
+            // 1. Colisión de Pájaro contra Bloques
+            blocks.forEach(block => {
+                let closestX = Math.max(block.x, Math.min(bird.x, block.x + block.w));
+                let closestY = Math.max(block.y, Math.min(bird.y, block.y + block.h));
+                let distX = bird.x - closestX;
+                let distY = bird.y - closestY;
+                let distance = Math.sqrt(distX * distX + distY * distY);
+
+                if (distance < bird.radius && bird.isFlying) {
+                    // Transmitir energía cinética (Inercia de golpe)
+                    block.vx = bird.vx * 0.65;
+                    block.vy = bird.vy * 0.4;
+                    bird.vx *= -0.2; // El ave rebota un poco
+                    score += 15;
+                    scoreVal.textContent = score;
+                }
+            });
+
+            // 2. Colisiones entre Bloques y Bloques (Empuje en cadena)
+            for (let i = 0; i < blocks.length; i++) {
+                for (let j = i + 1; j < blocks.length; j++) {
+                    let b1 = blocks[i];
+                    let b2 = blocks[j];
+
+                    if (b1.x < b2.x + b2.w && b1.x + b1.w > b2.x &&
+                        b1.y < b2.y + b2.h && b1.y + b1.h > b2.y) {
+                        // Empujar ligeramente según vector de movimiento
+                        let tempVx = b1.vx;
+                        b1.vx = b2.vx * 0.5;
+                        b2.vx = tempVx * 0.5 + 0.5;
+                    }
+                }
+            }
+
+            // 3. Colisión de Pájaro o Bloques contra los Cerdos
+            pigs.forEach(pig => {
+                if (!pig.alive) return;
+
+                // Contra el Pájaro directamente
+                let dBX = bird.x - pig.x;
+                let dBY = bird.y - pig.y;
+                let distBird = Math.sqrt(dBX * dBX + dBY * dBY);
+
+                if (distBird < bird.radius + pig.radius && bird.isFlying) {
+                    pig.alive = false;
+                    createPlumes(pig.x, pig.y, '#2ecc71');
+                    score += 500;
+                }
+
+                // Contra los bloques pesados cayendo o moviéndose
+                blocks.forEach(block => {
+                    let closestX = Math.max(block.x, Math.min(pig.x, block.x + block.w));
+                    let closestY = Math.max(block.y, Math.min(pig.y, block.y + block.h));
+                    let distX = pig.x - closestX;
+                    let distY = pig.y - closestY;
+                    let distance = Math.sqrt(distX * distX + distY * distY);
+
+                    // Si un bloque se mueve rápido o cae con fuerza sobre el cerdo
+                    if (distance < pig.radius && (Math.abs(block.vx) > 0.5 || Math.abs(block.vy) > 0.5)) {
+                        pig.alive = false;
+                        createPlumes(pig.x, pig.y, '#2ecc71');
+                        score += 500;
+                    }
+                });
+            });
+
+            // Actualizar HUD de sobrevivientes
+            let activePigs = pigs.filter(p => p.alive).length;
+            pigsVal.textContent = activePigs;
+
+            // Verificar condición de victoria
+            if (activePigs === 0 && !gameOver) {
+                endGame(true);
+            }
+        }
+
+        // --- GESTIÓN DE TIROS Y CONTROL MOUSE/TOUCH ---
+        let mouseX = 0, mouseY = 0;
+
+        window.addEventListener('mousedown', (e) => {
+            if (gameOver) return;
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+
+            // Hacer click cerca del pájaro listo en la resortera
+            let dist = Math.sqrt((mouseX - bird.x) ** 2 + (mouseY - bird.y) ** 2);
+            if (dist < bird.radius + 15 && !bird.isFlying) {
+                bird.isDragging = true;
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+
+            if (bird.isDragging) {
+                // Calcular distancia elástica desde el pivote de la resortera
+                let dx = mouseX - slingX;
+                let dy = mouseY - slingY;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                const maxStretch = 85;
+
+                // Limitar la longitud de arrastre de la goma
+                if (dist > maxStretch) {
+                    bird.x = slingX + (dx / dist) * maxStretch;
+                    bird.y = slingY + (dy / dist) * maxStretch;
+                } else {
+                    bird.x = mouseX;
+                    bird.y = mouseY;
+                }
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (bird.isDragging) {
+                bird.isDragging = false;
+
+                // La fuerza de eyección es proporcional e inversa al arrastre del elástico
+                let dx = slingX - bird.x;
+                let dy = slingY - bird.y;
+
+                bird.vx = dx * 0.15; // Coeficiente multiplicador de impulso
+                bird.vy = dy * 0.15;
+                bird.isFlying = true;
+
+                // Relanzar un nuevo pájaro automáticamente si este se detiene o se sale del lienzo sin ganar
+                setTimeout(() => {
+                    if (!gameOver && pigs.filter(p => p.alive).length > 0) {
+                        bird.resetPosition();
+                    }
+                }, 5000); // 5 segundos para intentar por tiro
+            }
+        });
+
+        // --- BUCLE DE RENDERIZADO Y ACTUALIZACIÓN ---
+        function update() {
+            bird.update();
+            blocks.forEach(b => b.update());
+            pigs.forEach(p => p.update());
+
+            // Ciclo de vida de las partículas
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.life--;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+
+            checkCollisions();
+        }
+
+        function draw() {
+            // Limpiar lienzo
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar Colinas/Fondo de decoración
+            ctx.fillStyle = '#2ecc71';
+            ctx.beginPath(); ctx.arc(200, 530, 200, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(700, 560, 250, 0, Math.PI * 2); ctx.fill();
+
+            // Suelo firme marrón
+            ctx.fillStyle = '#7ed6df';
+            ctx.fillStyle = '#95a5a6'; // Piedra/Suelo base
+            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+            ctx.fillStyle = '#27ae60'; // Césped superior
+            ctx.fillRect(0, groundY, canvas.width, 8);
+
+            // Dibujar la Goma Elástica de la resortera trasera al estirar
+            if (bird.isDragging) {
+                ctx.strokeStyle = '#34495e';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(slingX - 10, slingY - 30);
+                ctx.lineTo(bird.x, bird.y);
+                ctx.stroke();
+            }
+
+            // Dibujar Entidades
+            bird.draw();
+            blocks.forEach(b => b.draw());
+            pigs.forEach(p => p.draw());
+
+            // Dibujar la Horquilla/Soporte de Madera de la Resortera delantera
+            ctx.fillStyle = '#8e44ad';
+            ctx.fillStyle = '#a0522d';
+            ctx.fillRect(slingX - 6, slingY - 30, 12, 120); // Poste central
+            ctx.fillRect(slingX - 15, slingY - 35, 30, 10); // Travesaño
+
+            // Dibujar partículas
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life / 25;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        function endGame(victory) {
+            gameOver = true;
+            endScreen.style.display = 'flex';
+            if (victory) {
+                endTitle.textContent = "¡NIVEL COMPLETADO! 🌟";
+                endDesc.textContent = `Puntuación Total Excelente: ${score} pts`;
+            }
+        }
+
+        function restartGame() {
+            initGame();
+        }
+
+        // Ejecutar juego
+        initGame();
+        loop();
+    </script>
+</body>
+</html>
