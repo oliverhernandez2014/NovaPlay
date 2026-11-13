@@ -1,0 +1,522 @@
+<!DOCTYPE html><html lang="es"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerPoint Online - Microsoft 365</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f3f3;
+            color: #333;
+            user-select: none;
+        }
+        .ribbon-tab {
+            transition: all 0.2s ease;
+        }
+        .ribbon-tab.active {
+            background-color: white;
+            color: #b7472a;
+            border-bottom: 2px solid #b7472a;
+        }
+        /* Lienzo de diapositiva estilo 16:9 */
+        .slide-canvas {
+            width: 960px;
+            height: 540px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: relative;
+            outline: none;
+            box-sizing: border-box;
+            transform-origin: center;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .thumbnail-card {
+            transition: all 0.2s ease;
+        }
+        .thumbnail-card.active {
+            border: 2px solid #b7472a !important;
+            box-shadow: 0 4px 12px rgba(183, 71, 42, 0.2);
+            transform: scale(1.02);
+        }
+        @keyframes animFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes animSlide {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes animZoom {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .transition-fade { animation: animFade 0.4s ease forwards; }
+        .transition-slide { animation: animSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .transition-zoom { animation: animZoom 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Cabecera Office PowerPoint (Naranja) -->
+    <header class="bg-[#b7472a] text-white flex items-center justify-between px-3 py-1.5 select-none shrink-0 shadow">
+        <div class="flex items-center space-x-3">
+            <div class="bg-white text-[#b7472a] p-1 rounded font-bold flex items-center justify-center w-7 h-7 shadow">
+                <i class="fa-solid fa-file-powerpoint text-base"></i>
+            </div>
+            <div class="flex items-center space-x-2 text-sm">
+                <input type="text" id="doc-title" value="Presentación sin título" class="bg-transparent text-white font-medium text-sm border border-transparent hover:border-white/40 focus:border-white focus:bg-black/10 focus:outline-none px-2 py-0.5 rounded transition w-64">
+            </div>
+        </div>
+        <div class="flex items-center space-x-3 text-xs text-white/90">
+            <span class="bg-[#993b22] px-2.5 py-1 rounded hidden md:inline"><i class="fa-solid fa-cloud text-green-300 mr-1.5"></i> Guardado automático</span>
+            <button onclick="exportPresentation()" class="bg-white text-[#b7472a] hover:bg-orange-50 font-semibold px-3 py-1 rounded transition shadow-sm flex items-center space-x-1.5">
+                <i class="fa-solid fa-download"></i>
+                <span>Descargar / Exportar</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Cinta de Opciones (Ribbon Tabs) -->
+    <nav class="bg-[#f3f3f3] border-b border-gray-300 text-xs font-medium text-gray-700 flex items-center px-3 space-x-1 select-none shrink-0">
+        <button onclick="switchTab('archivo')" id="tab-archivo" class="ribbon-tab px-3 py-1.5 hover:bg-gray-200 rounded-t">Archivo</button>
+        <button onclick="switchTab('inicio')" id="tab-inicio" class="ribbon-tab active px-3 py-1.5 bg-white text-[#b7472a] rounded-t font-semibold">Inicio</button>
+        <button onclick="switchTab('insertar')" id="tab-insertar" class="ribbon-tab px-3 py-1.5 hover:bg-gray-200 rounded-t">Insertar</button>
+        <button onclick="switchTab('transiciones')" id="tab-transiciones" class="ribbon-tab px-3 py-1.5 hover:bg-gray-200 rounded-t transition-all">Transiciones</button>
+        <button onclick="switchTab('presentacion')" id="tab-presentacion" class="ribbon-tab px-3 py-1.5 hover:bg-gray-200 rounded-t transition-all">Presentación con diapositivas</button>
+    </nav>
+
+    <!-- Ribbon Content Panels -->
+    <div id="ribbon-content" class="bg-white border-b border-gray-300 px-3 py-2 flex items-center space-x-4 select-none shrink-0 min-h-[92px]">
+        
+        <!-- PESTAÑA INICIO -->
+        <div id="panel-inicio" class="flex items-center space-x-3 h-full">
+            <div class="flex flex-col justify-between h-full border-r border-gray-200 pr-3">
+                <div class="flex items-center space-x-1 mb-1">
+                    <button onclick="addNewSlide()" class="flex flex-col items-center px-3 py-1 bg-orange-50 hover:bg-orange-100 text-[#b7472a] rounded text-xs font-semibold">
+                        <i class="fa-solid fa-plus text-base mb-1"></i>
+                        <span>Nueva diapositiva</span>
+                    </button>
+                    <button onclick="deleteCurrentSlide()" class="flex flex-col items-center px-3 py-1 hover:bg-gray-100 text-gray-700 rounded text-xs">
+                        <i class="fa-solid fa-trash text-base mb-1"></i>
+                        <span>Eliminar</span>
+                    </button>
+                </div>
+                <span class="text-[10px] text-gray-500 text-center font-semibold">Diapositivas</span>
+            </div>
+
+            <!-- Formato de Texto -->
+            <div class="flex flex-col justify-between h-full border-r border-gray-200 pr-3">
+                <div class="flex items-center space-x-1 mb-1">
+                    <select onchange="formatText('fontName', this.value)" class="border border-gray-300 rounded text-xs px-2 py-1 bg-white focus:outline-none w-28">
+                        <option value="Segoe UI" selected>Segoe UI</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Calibri">Calibri</option>
+                        <option value="Georgia">Georgia</option>
+                    </select>
+                    <select onchange="formatText('fontSize', this.value)" class="border border-gray-300 rounded text-xs px-2 py-1 bg-white focus:outline-none w-14">
+                        <option value="3">16px</option>
+                        <option value="4" selected>24px</option>
+                        <option value="5">32px</option>
+                        <option value="6">48px</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-1">
+                    <button onclick="formatText('bold')" class="p-1.5 hover:bg-gray-100 rounded font-bold w-7 h-6 flex items-center justify-center"><i class="fa-solid fa-bold"></i></button>
+                    <button onclick="formatText('italic')" class="p-1.5 hover:bg-gray-100 rounded italic w-7 h-6 flex items-center justify-center"><i class="fa-solid fa-italic"></i></button>
+                    <button onclick="formatText('underline')" class="p-1.5 hover:bg-gray-100 rounded underline w-7 h-6 flex items-center justify-center"><i class="fa-solid fa-underline"></i></button>
+                    <div class="h-4 w-[1px] bg-gray-300 mx-1"></div>
+                    <div class="flex items-center space-x-1">
+                        <i class="fa-solid fa-font text-xs"></i>
+                        <input type="color" onchange="formatText('foreColor', this.value)" value="#000000" class="w-5 h-5 border-0 cursor-pointer bg-transparent">
+                    </div>
+                </div>
+                <span class="text-[10px] text-gray-500 text-center font-semibold">Fuente</span>
+            </div>
+
+            <!-- Diseños Rápidos -->
+            <div class="flex flex-col justify-between h-full">
+                <div class="flex items-center space-x-2">
+                    <button onclick="setSlideLayout('title')" class="px-3 py-1.5 border border-gray-300 hover:bg-gray-100 rounded text-xs">Portada</button>
+                    <button onclick="setSlideLayout('content')" class="px-3 py-1.5 border border-gray-300 hover:bg-gray-100 rounded text-xs">Título y Objeto</button>
+                    <button onclick="setSlideLayout('blank')" class="px-3 py-1.5 border border-gray-300 hover:bg-gray-100 rounded text-xs">En blanco</button>
+                </div>
+                <span class="text-[10px] text-gray-500 text-center font-semibold mt-2">Diseño de Diapositiva</span>
+            </div>
+        </div>
+
+        <!-- PESTAÑA INSERTAR -->
+        <div id="panel-insertar" class="hidden flex items-center space-x-4 h-full">
+            <button onclick="insertImage()" class="flex flex-col items-center p-2 hover:bg-gray-100 rounded text-gray-700">
+                <i class="fa-solid fa-image text-[#b7472a] text-xl mb-1"></i>
+                <span class="text-[11px]">Imagen por URL</span>
+            </button>
+            <button onclick="insertTextBox()" class="flex flex-col items-center p-2 hover:bg-gray-100 rounded text-gray-700">
+                <i class="fa-solid fa-font text-[#b7472a] text-xl mb-1"></i>
+                <span class="text-[11px]">Cuadro de Texto</span>
+            </button>
+        </div>
+
+        <!-- PESTAÑA TRANSICIONES -->
+        <div id="panel-transiciones" class="hidden flex items-center space-x-4 h-full text-xs">
+            <div class="flex flex-col justify-between h-full">
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-600 font-medium">Efecto de transición:</span>
+                    <button onclick="setTransition('fade')" class="px-3 py-1.5 border border-gray-300 hover:bg-gray-100 rounded">Desvanecer</button>
+                    <button onclick="setTransition('slide')" class="px-3 py-1.5 border border-gray-300 hover:bg-gray-100 rounded">Desplazar</button>
+                    <button onclick="setTransition('zoom')" class="px-3 py-1.5 border border-gray-300 hover:bg-gray-100 rounded">Zoom</button>
+                </div>
+                <span class="text-[10px] text-gray-500 font-semibold">Transición de diapositivas</span>
+            </div>
+        </div>
+
+        <!-- PESTAÑA PRESENTACIÓN -->
+        <div id="panel-presentacion" class="hidden flex items-center space-x-4 h-full text-xs">
+            <button onclick="startSlideShow()" class="flex items-center space-x-2 px-4 py-2 bg-[#b7472a] hover:bg-[#993b22] text-white rounded font-bold shadow transition">
+                <i class="fa-solid fa-play text-sm"></i>
+                <span>Desde el principio (Pantalla Completa)</span>
+            </button>
+        </div>
+
+        <!-- PESTAÑA ARCHIVO (MENÚ) -->
+        <div id="panel-archivo" class="hidden flex items-center space-x-4 h-full text-xs">
+            <label class="cursor-pointer bg-[#b7472a] hover:bg-[#993b22] text-white px-3 py-2 rounded shadow-sm flex items-center space-x-2 transition font-medium">
+                <i class="fa-solid fa-folder-open text-sm"></i>
+                <span>Abrir presentación (.html)</span>
+                <input type="file" id="ppt-file-input" accept=".html" class="hidden" onchange="openPresentationFile(event)">
+            </label>
+        </div>
+    </div>
+
+    <!-- Área de Trabajo Principal (Sidebar de Miniaturas + Lienzo Central) -->
+    <div class="flex-1 flex overflow-hidden bg-[#e6e6e6]">
+        
+        <!-- Barra Lateral de Miniaturas -->
+        <aside class="w-64 bg-white border-r border-gray-300 flex flex-col p-3 overflow-y-auto space-y-3 shrink-0" id="thumbnails-container">
+            <!-- Se generan dinámicamente con JavaScript -->
+        </aside>
+
+        <!-- Lienzo Principal de Edición -->
+        <main class="flex-1 flex items-center justify-center p-6 overflow-auto relative">
+            <div id="active-slide" class="slide-canvas animate-slide rounded shadow-2xl p-8 flex flex-col justify-center items-center text-center focus:outline-none" contenteditable="true" spellcheck="true">
+                <h1 class="text-4xl font-bold mb-4 outline-none" style="color: inherit;">Haz clic para agregar título</h1>
+                <p class="text-xl opacity-80 outline-none" style="color: inherit;">Haz clic para agregar subtítulo</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Barra de Estado Inferior -->
+    <footer class="bg-white border-t border-gray-300 py-1.5 px-4 flex items-center justify-between text-xs text-gray-600 select-none shrink-0">
+        <div class="flex items-center space-x-4">
+            <span id="slide-position-indicator">Diapositiva 1 de 1</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="hover:bg-gray-100 px-2 py-0.5 rounded cursor-pointer" onclick="startSlideShow()"><i class="fa-solid fa-desktop mr-1"></i> Presentación</span>
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-minus cursor-pointer" onclick="adjustZoom(-10)"></i>
+                <input type="range" min="50" max="150" value="100" class="w-20 accent-[#b7472a]" oninput="changeZoom(this.value)">
+                <span id="zoom-level">100%</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Lógica JavaScript Principal -->
+    <script>
+        let slides = JSON.parse(localStorage.getItem('ppt_slides')) || [
+            {
+                title: "Título de la presentación",
+                subtitle: "Subtítulo o autor",
+                theme: "white",
+                transition: "fade",
+                html: '<h1 class="text-4xl font-bold mb-4 outline-none">Título de la presentación</h1><p class="text-xl opacity-80 outline-none">Subtítulo o autor</p>'
+            }
+        ];
+        let currentSlideIndex = 0;
+
+        const activeSlide = document.getElementById('active-slide');
+        const thumbnailsContainer = document.getElementById('thumbnails-container');
+        const docTitleInput = document.getElementById('doc-title');
+
+        if (localStorage.getItem('ppt_title')) {
+            docTitleInput.value = localStorage.getItem('ppt_title');
+        }
+
+        docTitleInput.addEventListener('input', () => {
+            localStorage.setItem('ppt_title', docTitleInput.value);
+        });
+
+        function switchTab(tabName) {
+            ['archivo', 'inicio', 'insertar', 'transiciones', 'presentacion'].forEach(t => {
+                const panel = document.getElementById(`panel-${t}`);
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tabName) {
+                    panel.classList.remove('hidden');
+                    btn.classList.add('active', 'bg-white', 'text-[#b7472a]', 'font-semibold');
+                    btn.classList.remove('hover:bg-gray-200');
+                } else {
+                    panel.classList.add('hidden');
+                    btn.classList.remove('active', 'bg-white', 'text-[#b7472a]', 'font-semibold');
+                    btn.classList.add('hover:bg-gray-200');
+                }
+            });
+        }
+
+        function openPresentationFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const htmlContent = e.target.result;
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlContent, 'text/html');
+                const slideDivs = doc.querySelectorAll('body > div');
+
+                if (slideDivs && slideDivs.length > 0) {
+                    slides = [];
+                    slideDivs.forEach(div => {
+                        let theme = 'white';
+                        if (div.classList.contains('bg-gray-900')) theme = 'dark';
+                        else if (div.classList.contains('bg-orange-600')) theme = 'orange';
+                        else if (div.classList.contains('bg-blue-900')) theme = 'blue';
+
+                        div.className = '';
+                        slides.push({
+                            theme: theme,
+                            html: div.innerHTML
+                        });
+                    });
+                    currentSlideIndex = 0;
+                    docTitleInput.value = file.name.replace(/\.[^/.]+$/, "");
+                    localStorage.setItem('ppt_title', docTitleInput.value);
+                    renderApp();
+                    switchTab('inicio');
+                    alert('¡Presentación abierta exitosamente!');
+                } else {
+                    alert('No se pudieron encontrar diapositivas válidas en el archivo seleccionado.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function renderApp() {
+            renderThumbnails();
+            loadSlideToCanvas(currentSlideIndex);
+            saveToLocalStorage();
+        }
+
+        function renderThumbnails() {
+            thumbnailsContainer.innerHTML = '';
+            slides.forEach((slide, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = `thumbnail-card bg-white border border-gray-300 rounded p-3 h-28 cursor-pointer flex flex-col justify-between relative overflow-hidden ${index === currentSlideIndex ? 'active' : ''}`;
+                thumb.onclick = () => {
+                    saveCurrentSlideContent();
+                    currentSlideIndex = index;
+                    renderApp();
+                };
+
+                applyThemeStylesToElement(thumb, slide.theme);
+
+                thumb.innerHTML = `
+                    <div class="flex justify-between items-center text-[10px] opacity-70">
+                        <span>${index + 1}</span>
+                    </div>
+                    <div class="text-xs font-semibold truncate px-1">${extractTitleText(slide.html)}</div>
+                    <div class="text-[9px] opacity-60 truncate">PowerPoint 365</div>
+                `;
+                thumbnailsContainer.appendChild(thumb);
+            });
+            document.getElementById('slide-position-indicator').innerText = `Diapositiva ${currentSlideIndex + 1} de ${slides.length}`;
+        }
+
+        function loadSlideToCanvas(index) {
+            const slide = slides[index];
+            activeSlide.innerHTML = slide.html;
+            applyThemeStylesToElement(activeSlide, slide.theme);
+            
+            const animClass = `transition-${slide.transition || 'fade'}`;
+            activeSlide.className = `slide-canvas rounded shadow-2xl p-8 flex flex-col justify-center items-center text-center focus:outline-none ${activeSlide.className.split(' ').filter(c => !c.startsWith('bg-') && !c.startsWith('text-') && !c.startsWith('transition-')).join(' ')} ${animClass}`;
+        }
+
+        function setTransition(type) {
+            slides[currentSlideIndex].transition = type;
+            loadSlideToCanvas(currentSlideIndex);
+            saveToLocalStorage();
+        }
+
+        function saveCurrentSlideContent() {
+            slides[currentSlideIndex].html = activeSlide.innerHTML;
+        }
+
+        activeSlide.addEventListener('input', () => {
+            saveCurrentSlideContent();
+            saveToLocalStorage();
+            renderThumbnails();
+        });
+
+        function addNewSlide() {
+            saveCurrentSlideContent();
+            slides.push({
+                title: "Nueva diapositiva",
+                subtitle: "Contenido aquí",
+                theme: "white",
+                transition: "fade",
+                html: '<h2 class="text-3xl font-bold mb-4 outline-none">Nueva diapositiva</h2><p class="text-lg opacity-80 outline-none">Agrega tu contenido aquí</p>'
+            });
+            currentSlideIndex = slides.length - 1;
+            renderApp();
+        }
+
+        function deleteCurrentSlide() {
+            if (slides.length <= 1) {
+                alert('La presentación debe tener al menos una diapositiva.');
+                return;
+            }
+            slides.splice(currentSlideIndex, 1);
+            if (currentSlideIndex >= slides.length) {
+                currentSlideIndex = slides.length - 1;
+            }
+            renderApp();
+        }
+
+        function setSlideLayout(type) {
+            if (type === 'title') {
+                activeSlide.innerHTML = '<h1 class="text-4xl font-bold mb-4 outline-none">Título de la presentación</h1><p class="text-xl opacity-80 outline-none">Subtítulo o autor</p>';
+            } else if (type === 'content') {
+                activeSlide.innerHTML = '<h2 class="text-3xl font-bold mb-4 outline-none">Título de la diapositiva</h2><ul class="text-left text-lg list-disc pl-6 space-y-2 outline-none"><li>Punto clave número uno</li><li>Punto clave número dos</li></ul>';
+            } else {
+                activeSlide.innerHTML = '<div class="text-xl opacity-60 outline-none">Diapositiva en blanco</div>';
+            }
+            saveCurrentSlideContent();
+            renderApp();
+        }
+
+        function applyThemeStylesToElement(el, theme) {
+            el.classList.remove('bg-white', 'bg-gray-900', 'bg-orange-600', 'bg-blue-900', 'text-white', 'text-gray-900');
+            if (theme === 'dark') {
+                el.classList.add('bg-gray-900', 'text-white');
+            } else if (theme === 'orange') {
+                el.classList.add('bg-orange-600', 'text-white');
+            } else if (theme === 'blue') {
+                el.classList.add('bg-blue-900', 'text-white');
+            } else {
+                el.classList.add('bg-white', 'text-gray-900');
+            }
+        }
+
+        function extractTitleText(html) {
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            const h = temp.querySelector('h1, h2, div');
+            return h ? h.innerText : 'Diapositiva';
+        }
+
+        function formatText(command, value = null) {
+            document.execCommand(command, false, value);
+            activeSlide.focus();
+            saveCurrentSlideContent();
+        }
+
+        function insertImage() {
+            const url = prompt('Introduce la URL de la imagen:');
+            if (url) {
+                const imgHTML = `<img src="${url}" class="max-h-64 mx-auto rounded shadow my-2" alt="Imagen insertada">`;
+                document.execCommand('insertHTML', false, imgHTML);
+                saveCurrentSlideContent();
+            }
+        }
+
+        function insertTextBox() {
+            const textHTML = `<div class="border border-dashed border-gray-400 p-3 my-2 outline-none" contenteditable="true">Cuadro de texto libre</div>`;
+            document.execCommand('insertHTML', false, textHTML);
+            saveCurrentSlideContent();
+        }
+
+        let currentZoom = 100;
+        function changeZoom(val) {
+            currentZoom = val;
+            document.getElementById('zoom-level').innerText = `${val}%`;
+            activeSlide.style.transform = `scale(${val / 100})`;
+        }
+        function adjustZoom(amount) {
+            currentZoom = Math.min(150, Math.max(50, currentZoom + amount));
+            document.querySelector('input[type="range"]').value = currentZoom;
+            changeZoom(currentZoom);
+        }
+
+        function startSlideShow() {
+            saveCurrentSlideContent();
+            let showIndex = currentSlideIndex;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'slideshow-overlay';
+            overlay.className = 'fixed inset-0 bg-black z-50 flex items-center justify-center';
+
+            function renderShowSlide() {
+                const s = slides[showIndex];
+                const animClass = `transition-${s.transition || 'fade'}`;
+                overlay.innerHTML = `
+                    <div class="w-[960px] h-[540px] rounded shadow-2xl p-12 flex flex-col justify-center items-center text-center relative ${animClass} ${s.theme === 'dark' ? 'bg-gray-900 text-white' : s.theme === 'orange' ? 'bg-orange-600 text-white' : s.theme === 'blue' ? 'bg-blue-900 text-white' : 'bg-white text-gray-900'}">
+                        <div class="absolute bottom-4 right-6 text-xs opacity-50">${showIndex + 1} / ${slides.length}</div>
+                        ${s.html}
+                    </div>
+                `;
+            }
+
+            renderShowSlide();
+            document.body.appendChild(overlay);
+
+            const handleKeyDown = (e) => {
+                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                    if (showIndex < slides.length - 1) {
+                        showIndex++;
+                        renderShowSlide();
+                    } else {
+                        closeShow();
+                    }
+                } else if (e.key === 'ArrowLeft') {
+                    if (showIndex > 0) {
+                        showIndex--;
+                        renderShowSlide();
+                    }
+                } else if (e.key === 'Escape') {
+                    closeShow();
+                }
+            };
+
+            function closeShow() {
+                window.removeEventListener('keydown', handleKeyDown);
+                overlay.remove();
+            }
+
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('ppt_slides', JSON.stringify(slides));
+        }
+
+        function exportPresentation() {
+            const title = docTitleInput.value.trim() || 'Presentacion';
+            let htmlContent = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${title}</title><script src="https://cdn.tailwindcss.com"><\/script></head><body class="bg-gray-100 p-8 space-y-8 flex flex-col items-center">`;
+            slides.forEach((s) => {
+                htmlContent += `<div class="w-[960px] h-[540px] rounded shadow-2xl p-12 flex flex-col justify-center items-center text-center ${s.theme === 'dark' ? 'bg-gray-900 text-white' : s.theme === 'orange' ? 'bg-orange-600 text-white' : s.theme === 'blue' ? 'bg-blue-900 text-white' : 'bg-white text-gray-900'}">${s.html}</div>`;
+            });
+            htmlContent += `</body></html>`;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        renderApp();
+    </script>
+</body>
+</html>
