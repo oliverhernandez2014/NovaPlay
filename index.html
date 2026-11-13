@@ -91,7 +91,7 @@
 
   <div class="flex-1 flex flex-col">
     
-    <!-- BARRA SUPERIOR ESTILO GLASSMORPHISM -->
+    <!-- BARRA SUPERIOR -->
     <header id="barra-superior" class="py-4 px-6 sm:px-10 shadow-2xl transition-all duration-500 sticky top-0 z-50 bg-slate-950/80 backdrop-blur-2xl border-b border-slate-800/80">
       <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
         
@@ -280,34 +280,34 @@
 
   <script>
     const TEMAS_DISENOS = {
-      institucional: { nombre: "Institucional", tipoFuente: "font-bold text-xl text-[#0d1b2a]", badge: "🏛️ Institucional", primario: "#0f172a", secundario: "#1e293b", acento: "#3b82f6" },
-      futurista: { nombre: "Futurista", tipoFuente: "font-arcade text-lg text-cyan-400 tracking-wider", badge: "⚡ Futurista", primario: "#090b10", secundario: "#1e1b4b", acento: "#06b6d4" },
-      blanco: { nombre: "Modo Blanco", tipoFuente: "font-bold text-xl text-slate-900", badge: "⬜ Blanco", primario: "#ffffff", secundario: "#f1f5f9", acento: "#0f172a" },
-      negro: { nombre: "Modo Negro", tipoFuente: "font-bold text-xl text-white", badge: "⬛ Negro", primario: "#000000", secundario: "#111827", acento: "#38bdf8" },
+      institucional: { nombre: "Institucional", tipoFuente: "font-bold text-xl text-[#0d1b2a]", badge: "Institucional", primario: "#0f172a", secundario: "#1e293b", acento: "#3b82f6" },
+      futurista: { nombre: "Futurista", tipoFuente: "font-arcade text-lg text-cyan-400 tracking-wider", badge: "Futurista", primario: "#090b10", secundario: "#1e1b4b", acento: "#06b6d4" },
+      blanco: { nombre: "Modo Blanco", tipoFuente: "font-bold text-xl text-slate-900", badge: "Modo Blanco", primario: "#ffffff", secundario: "#f1f5f9", acento: "#0f172a" },
+      negro: { nombre: "Modo Negro", tipoFuente: "font-bold text-xl text-white", badge: "Modo Negro", primario: "#000000", secundario: "#111827", acento: "#38bdf8" },
 
-      '2026': { nombre: "USA/MX/CN 2026", tipoFuente: "font-bold text-xl", badge: "🏆 USA/MX/CN 2026", primario: "#041E42", secundario: "#C8102E", acento: "#FFB81C" },
-      '2022': { nombre: "Qatar 2022", tipoFuente: "font-bold text-xl", badge: "🇶🇦 Qatar 2022", primario: "#9A1032", secundario: "#003768", acento: "#FCBF0D" },
-      '2018': { nombre: "Rusia 2018", tipoFuente: "font-bold text-xl", badge: "🇷🇺 Rusia 2018", primario: "#D20A11", secundario: "#1D1D1B", acento: "#E4C484" },
-      '2014': { nombre: "Brasil 2014", tipoFuente: "font-custom-style text-3xl text-[#387121]", badge: "🇧🇷 Brasil 2014", primario: "#387121", secundario: "#003768", acento: "#FCBF0D" },
-      '2010': { nombre: "Sudáfrica 2010", tipoFuente: "font-bold text-xl", badge: "🇿🇦 Sudáfrica 2010", primario: "#0055A5", secundario: "#D21034", acento: "#FFB81C" },
-      '2006': { nombre: "Alemania 2006", tipoFuente: "font-bold text-xl", badge: "🇩🇪 Alemania 2006", primario: "#1e293b", secundario: "#0f172a", acento: "#FFCC00" },
-      '2002': { nombre: "Corea-Japón 2002", tipoFuente: "font-bold text-xl", badge: "🇰🇷🇯🇵 Corea-Japón 2002", primario: "#002B49", secundario: "#C60C30", acento: "#FFD100" },
-      '1998': { nombre: "Francia 1998", tipoFuente: "font-bold text-xl", badge: "🇫🇷 Francia 1998", primario: "#002395", secundario: "#ED2939", acento: "#FFFFFF" },
-      '1994': { nombre: "Estados Unidos 1994", tipoFuente: "font-bold text-xl", badge: "🇺🇸 Estados Unidos 1994", primario: "#002868", secundario: "#BF0A30", acento: "#FFFFFF" },
-      '1990': { nombre: "Italia 1990", tipoFuente: "font-bold text-xl", badge: "🇮🇹 Italia 1990", primario: "#006400", secundario: "#CC0000", acento: "#FFFFFF" },
-      '1986': { nombre: "México 1986", tipoFuente: "font-bold text-xl", badge: "🇲🇽 México 1986", primario: "#006847", secundario: "#CE1126", acento: "#FFD100" },
-      '1982': { nombre: "España 1982", tipoFuente: "font-bold text-xl", badge: "🇪🇸 España 1982", primario: "#AA151B", secundario: "#F1BF00", acento: "#000000" },
-      '1978': { nombre: "Argentina 1978", tipoFuente: "font-bold text-xl", badge: "🇦🇷 Argentina 1978", primario: "#75AADB", secundario: "#1e293b", acento: "#FCBF0D" },
-      '1974': { nombre: "Alemania 1974", tipoFuente: "font-bold text-xl", badge: "🇩🇪 Alemania 1974", primario: "#1C1C1C", secundario: "#DD382C", acento: "#FFCC00" },
-      '1970': { nombre: "México 1970", tipoFuente: "font-bold text-xl", badge: "🇲🇽 México 1970", primario: "#006847", secundario: "#CE1126", acento: "#FFFFFF" },
-      '1966': { nombre: "Inglaterra 1966", tipoFuente: "font-bold text-xl", badge: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra 1966", primario: "#CE1126", secundario: "#00247D", acento: "#FFFFFF" },
-      '1962': { nombre: "Chile 1962", tipoFuente: "font-bold text-xl", badge: "🇨🇱 Chile 1962", primario: "#0033A0", secundario: "#DA291C", acento: "#FFFFFF" },
-      '1958': { nombre: "Suecia 1958", tipoFuente: "font-bold text-xl", badge: "🇸🇪 Suecia 1958", primario: "#006AA7", secundario: "#FECC00", acento: "#FFFFFF" },
-      '1954': { nombre: "Suiza 1954", tipoFuente: "font-bold text-xl", badge: "🇨🇭 Suiza 1954", primario: "#DA291C", secundario: "#1e293b", acento: "#FFFFFF" },
-      '1950': { nombre: "Brasil 1950", tipoFuente: "font-bold text-xl", badge: "🇧🇷 Brasil 1950", primario: "#009C3B", secundario: "#FFDF00", acento: "#002776" },
-      '1938': { nombre: "Francia 1938", tipoFuente: "font-bold text-xl", badge: "🇫🇷 Francia 1938", primario: "#002395", secundario: "#ED2939", acento: "#FFFFFF" },
-      '1934': { nombre: "Italia 1934", tipoFuente: "font-bold text-xl", badge: "🇮🇹 Italia 1934", primario: "#006400", secundario: "#CC0000", acento: "#FFFFFF" },
-      '1930': { nombre: "Uruguay 1930", tipoFuente: "font-bold text-xl", badge: "🇺🇾 Uruguay 1930", primario: "#0038A8", secundario: "#1e293b", acento: "#FDDA24" }
+      '2026': { nombre: "USA/MX/CN 2026", tipoFuente: "font-bold text-xl", badge: "Mundial USA/MX/CN 2026", primario: "#041E42", secundario: "#C8102E", acento: "#FFB81C" },
+      '2022': { nombre: "Qatar 2022", tipoFuente: "font-bold text-xl", badge: "Mundial Qatar 2022", primario: "#9A1032", secundario: "#003768", acento: "#FCBF0D" },
+      '2018': { nombre: "Rusia 2018", tipoFuente: "font-bold text-xl", badge: "Mundial Rusia 2018", primario: "#D20A11", secundario: "#1D1D1B", acento: "#E4C484" },
+      '2014': { nombre: "Brasil 2014", tipoFuente: "font-custom-style text-3xl text-[#387121]", badge: "Mundial Brasil 2014", primario: "#387121", secundario: "#003768", acento: "#FCBF0D" },
+      '2010': { nombre: "Sudafrica 2010", tipoFuente: "font-bold text-xl", badge: "Mundial Sudafrica 2010", primario: "#0055A5", secundario: "#D21034", acento: "#FFB81C" },
+      '2006': { nombre: "Alemania 2006", tipoFuente: "font-bold text-xl", badge: "Mundial Alemania 2006", primario: "#1e293b", secundario: "#0f172a", acento: "#FFCC00" },
+      '2002': { nombre: "Corea-Japon 2002", tipoFuente: "font-bold text-xl", badge: "Mundial Corea-Japon 2002", primario: "#002B49", secundario: "#C60C30", acento: "#FFD100" },
+      '1998': { nombre: "Francia 1998", tipoFuente: "font-bold text-xl", badge: "Mundial Francia 1998", primario: "#002395", secundario: "#ED2939", acento: "#FFFFFF" },
+      '1994': { nombre: "Estados Unidos 1994", tipoFuente: "font-bold text-xl", badge: "Mundial USA 1994", primario: "#002868", secundario: "#BF0A30", acento: "#FFFFFF" },
+      '1990': { nombre: "Italia 1990", tipoFuente: "font-bold text-xl", badge: "Mundial Italia 1990", primario: "#006400", secundario: "#CC0000", acento: "#FFFFFF" },
+      '1986': { nombre: "Mexico 1986", tipoFuente: "font-bold text-xl", badge: "Mundial Mexico 1986", primario: "#006847", secundario: "#CE1126", acento: "#FFD100" },
+      '1982': { nombre: "Espana 1982", tipoFuente: "font-bold text-xl", badge: "Mundial Espana 1982", primario: "#AA151B", secundario: "#F1BF00", acento: "#000000" },
+      '1978': { nombre: "Argentina 1978", tipoFuente: "font-bold text-xl", badge: "Mundial Argentina 1978", primario: "#75AADB", secundario: "#1e293b", acento: "#FCBF0D" },
+      '1974': { nombre: "Alemania 1974", tipoFuente: "font-bold text-xl", badge: "Mundial Alemania 1974", primario: "#1C1C1C", secundario: "#DD382C", acento: "#FFCC00" },
+      '1970': { nombre: "Mexico 1970", tipoFuente: "font-bold text-xl", badge: "Mundial Mexico 1970", primario: "#006847", secundario: "#CE1126", acento: "#FFFFFF" },
+      '1966': { nombre: "Inglaterra 1966", tipoFuente: "font-bold text-xl", badge: "Mundial Inglaterra 1966", primario: "#CE1126", secundario: "#00247D", acento: "#FFFFFF" },
+      '1962': { nombre: "Chile 1962", tipoFuente: "font-bold text-xl", badge: "Mundial Chile 1962", primario: "#0033A0", secundario: "#DA291C", acento: "#FFFFFF" },
+      '1958': { nombre: "Suecia 1958", tipoFuente: "font-bold text-xl", badge: "Mundial Suecia 1958", primario: "#006AA7", secundario: "#FECC00", acento: "#FFFFFF" },
+      '1954': { nombre: "Suiza 1954", tipoFuente: "font-bold text-xl", badge: "Mundial Suiza 1954", primario: "#DA291C", secundario: "#1e293b", acento: "#FFFFFF" },
+      '1950': { nombre: "Brasil 1950", tipoFuente: "font-bold text-xl", badge: "Mundial Brasil 1950", primario: "#009C3B", secundario: "#FFDF00", acento: "#002776" },
+      '1938': { nombre: "Francia 1938", tipoFuente: "font-bold text-xl", badge: "Mundial Francia 1938", primario: "#002395", secundario: "#ED2939", acento: "#FFFFFF" },
+      '1934': { nombre: "Italia 1934", tipoFuente: "font-bold text-xl", badge: "Mundial Italia 1934", primario: "#006400", secundario: "#CC0000", acento: "#FFFFFF" },
+      '1930': { nombre: "Uruguay 1930", tipoFuente: "font-bold text-xl", badge: "Mundial Uruguay 1930", primario: "#0038A8", secundario: "#1e293b", acento: "#FDDA24" }
     };
 
     let temaActual = 'institucional';
