@@ -2,307 +2,264 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NovaPlay | Cyber Dashboard Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>NovaPlay | Clean Interactive & Animated Cards Edition</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Orbitron:wght@600;800;900&family=Playfair+Display:ital,wght@1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Russo+One&family=Teko:wght@600&family=Cinzel:wght@700&family=Montserrat:ital,wght@1,900&family=Shrikhand&family=Caveat:wght@700&family=Comfortaa:wght@700&family=Quicksand:wght@700&family=Archivo+Black&family=Pacifico&family=Fredoka:wght@700&family=Abril+Fatface&family=Oswald:wght@700&family=Merriweather:wght@700&family=Parisienne&family=Italiana&family=Josefin+Sans:wght@700&display=swap" rel="stylesheet">
+  
   <style>
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      transition: background-color 0.6s ease, color 0.6s ease;
-      overflow-x: hidden;
-    }
-    .font-custom-style {
-      font-family: 'Caveat', cursive;
-    }
-    .font-arcade {
-      font-family: 'Orbitron', sans-serif;
+    body { 
+      transition: background-color 0.5s ease, color 0.4s ease; 
+      overflow-x: hidden; 
     }
     
-    @keyframes slideUpFade {
-      from { opacity: 0; transform: translateY(25px) scale(0.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
+    .font-wc-2026 { font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+    .font-wc-2022 { font-family: 'Shrikhand', cursive, 'Teko', sans-serif; font-size: 1.2rem; letter-spacing: 0.03em; }
+    .font-wc-2018 { font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; }
+    .font-wc-2014 { font-family: 'Caveat', cursive; font-size: 1.5rem; font-weight: 700; }
+    .font-wc-2010 { font-family: 'Comfortaa', cursive, sans-serif; font-weight: 700; letter-spacing: 0.03em; }
+    .font-wc-2006 { font-family: 'Montserrat', sans-serif; font-weight: 900; font-style: italic; }
+    .font-wc-2002 { font-family: 'Orbitron', sans-serif; font-weight: 800; letter-spacing: 0.1em; }
+    .font-wc-1998 { font-family: 'Quicksand', sans-serif; font-weight: 700; }
+    .font-wc-1994 { font-family: 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .font-wc-1990 { font-family: 'Montserrat', sans-serif; font-weight: 900; letter-spacing: 0.15em; }
+    .font-wc-1986 { font-family: 'Cinzel', serif; font-weight: 700; letter-spacing: 0.05em; }
+    .font-wc-1982 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; letter-spacing: 0.05em; }
+    .font-wc-1978 { font-family: 'Pacifico', cursive; font-size: 1.2rem; }
+    .font-wc-1974 { font-family: 'Archivo Black', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
+    .font-wc-1970 { font-family: 'Fredoka', cursive, sans-serif; font-weight: 700; }
+    .font-wc-1966 { font-family: 'Montserrat', sans-serif; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; }
+    .font-wc-1962 { font-family: 'Abril Fatface', serif; }
+    .font-wc-1958 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+    .font-wc-1954 { font-family: 'Oswald', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .font-wc-1950 { font-family: 'Merriweather', serif; font-weight: 700; }
+    .font-wc-1938 { font-family: 'Parisienne', cursive; font-size: 1.3rem; }
+    .font-wc-1934 { font-family: 'Italiana', serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+    .font-wc-1930 { font-family: 'Josefin Sans', sans-serif; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+    .font-arcade { font-family: 'Orbitron', sans-serif; }
+    .font-default { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-    @keyframes floatElement {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-4px) rotate(2deg); }
-    }
-
-    .animate-entry {
-      animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      opacity: 0;
-    }
-
-    .logo-animated {
-      animation: floatElement 4s ease-in-out infinite;
-    }
-
+    /* ==========================================================
+       ANIMACIONES SIMPLES Y FLUIDAS (TARJETAS, ICONOS Y BOTONES)
+       ========================================================== */
     .app-card {
-      backdrop-filter: blur(16px);
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .app-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s ease;
     }
 
-    #dropdown-disenos {
-      transform-origin: top right;
-      transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-    #dropdown-disenos.hidden {
-      opacity: 0;
-      transform: scale(0.85) translateY(-10px);
-      pointer-events: none;
-      display: block !important;
-      visibility: hidden;
+    body.modo-pc-activo .app-card:hover {
+      transform: translateY(-7px) scale(1.01);
+      box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.5);
     }
 
-    button:active {
-      transform: scale(0.94);
+    /* Animación al pasar el cursor sobre los iconos de las tarjetas */
+    body.modo-pc-activo .app-card:hover img,
+    body.modo-pc-activo .app-card:hover .icon-box {
+      transform: scale(1.08);
+      transition: transform 0.3s ease;
     }
 
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    .icon-box {
+      transition: transform 0.3s ease;
     }
-    ::-webkit-scrollbar-track {
-      background: #030712;
+
+    /* Animación limpia en botones y enlaces */
+    body.modo-pc-activo button:hover, 
+    body.modo-pc-activo .app-card a:hover {
+      transform: scale(1.04);
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease;
     }
-    ::-webkit-scrollbar-thumb {
-      background: #1e293b;
-      border-radius: 3px;
+
+    body.modo-pc-activo button:active, 
+    body.modo-pc-activo a:active {
+      transform: scale(0.95) !important;
+      transition: transform 0.08s ease;
     }
+
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body id="cuerpo-principal" class="min-h-screen flex flex-col justify-between">
+<body id="cuerpo-principal" class="modo-pc-activo min-h-screen flex flex-col md:flex-row font-default">
 
-  <div class="flex-1 flex flex-col">
-    
-    <!-- BARRA SUPERIOR (Principal) -->
-    <header id="barra-superior" class="py-4 px-6 sm:px-10 shadow-2xl transition-all duration-500 sticky top-0 z-50 border-b border-white/10">
-      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-        
-        <!-- Logo y Título -->
-        <div class="flex items-center gap-3 cursor-pointer group" onclick="cerrarVisor(); seleccionarCategoria('Todos')">
-          <div id="logo-header-box" class="w-11 h-11 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg logo-animated overflow-hidden p-1">
+  <!-- FONDO OSCURO MÓVIL -->
+  <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+  <!-- PANEL LATERAL -->
+  <aside id="sidebar-panel" class="fixed inset-y-0 left-0 w-72 sm:w-80 transform -translate-x-full md:translate-x-0 md:sticky md:top-0 md:h-screen flex flex-col justify-between p-5 sm:p-6 border-r transition-transform duration-200 ease-out z-50 shadow-2xl overflow-y-auto">
+    <div class="space-y-5">
+      <div class="flex items-center justify-between pb-4 border-b border-white/10">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="cerrarVisor(); seleccionarCategoria('Todos'); cerrarSidebarMobile();">
+          <div id="logo-header-box" class="w-11 h-11 rounded-2xl flex items-center justify-center font-black text-xl shadow-md overflow-hidden p-1 border border-white/20">
             <img src="https://play-lh.googleusercontent.com/Vt3x_xEWabXw14MyYKfeFGazAxLFKg4Q-rAowh_ZYAI3-kcX7qkots-9opxGglSJ3vIbG9iBF2vppWjihACH" alt="NovaPlay Logo" class="w-full h-full object-cover rounded-xl" />
           </div>
           <div>
-            <h1 class="text-base sm:text-lg font-extrabold tracking-wider text-white leading-tight">
-              NOVAPLAY <span id="titulo-sub" class="text-lg font-light ml-1 text-white">Portal</span>
-            </h1>
-            <p id="sub-etiqueta-header" class="text-[9px] font-bold tracking-widest uppercase opacity-80">Interfaz Avanzada</p>
+            <h1 class="text-base font-black tracking-widest leading-tight">NOVAPLAY</h1>
+            <p id="sub-etiqueta-header" class="text-[9px] font-extrabold tracking-widest uppercase opacity-80">World Cup Edition</p>
           </div>
         </div>
+        <button onclick="toggleSidebar()" class="md:hidden p-2 rounded-xl bg-black/20 text-sm font-bold">✕</button>
+      </div>
 
-        <!-- Buscador Superior -->
-        <div class="hidden md:flex flex-1 max-w-sm mx-6">
-          <div class="relative w-full">
-            <input
-              id="buscador-superior"
-              type="text"
-              placeholder="Buscar aplicación o juego..."
-              oninput="sincronizarBusqueda(this.value)"
-              class="w-full bg-slate-900/90 text-white rounded-xl px-4 py-2 text-xs focus:outline-none placeholder-slate-400 font-medium border border-slate-700/80 focus:border-indigo-500 transition-all duration-300 shadow-inner"
-            />
-            <span class="absolute right-3 top-2.5 text-slate-400 text-xs">🔍</span>
-          </div>
-        </div>
-
-        <!-- Botón de Diseños -->
-        <div class="relative">
-          <button onclick="toggleMenuDisenos()" id="btn-menu-disenos" class="font-extrabold px-4 py-2 rounded-xl text-xs transition-all duration-300 flex items-center gap-2 shadow-lg border border-white/20">
-            🎨 Diseños ▾
+      <!-- INTERRUPTOR DE MODO PC / MÓVIL -->
+      <div class="p-3.5 rounded-2xl bg-black/25 border border-white/10 space-y-2">
+        <span class="text-[9px] font-black uppercase tracking-widest opacity-70 block">Rendimiento Visual:</span>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-modo-pc" onclick="cambiarModoRendimiento('pc')" class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1">
+            💻 Modo PC
           </button>
+          <button id="btn-modo-movil" onclick="cambiarModoRendimiento('movil')" class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1">
+            📱 Modo Móvil
+          </button>
+        </div>
+      </div>
 
-          <!-- Dropdown -->
-          <div id="dropdown-disenos" class="hidden absolute right-0 mt-2 w-60 bg-slate-950 text-slate-200 rounded-2xl shadow-2xl border border-slate-800 py-3 text-xs z-50 backdrop-blur-3xl">
-            <div class="px-4 py-1 font-extrabold text-cyan-400 uppercase tracking-wider text-[10px] border-b border-slate-800 mb-1">
-              ✨ Estilos de Interfaz
-            </div>
-            <button onclick="cambiarTema('institucional'); cerrarMenuDisenos();" class="w-full text-left px-4 py-2 hover:bg-slate-800 hover:text-white transition-colors">🏛️ Institucional</button>
-            <button onclick="cambiarTema('futurista'); cerrarMenuDisenos();" class="w-full text-left px-4 py-2 hover:bg-slate-800 hover:text-white transition-colors">⚡ Futurista</button>
-            <button onclick="cambiarTema('blanco'); cerrarMenuDisenos();" class="w-full text-left px-4 py-2 hover:bg-slate-800 hover:text-white transition-colors">⬜ Blanco (Claro)</button>
-            <button onclick="cambiarTema('negro'); cerrarMenuDisenos();" class="w-full text-left px-4 py-2 hover:bg-slate-800 hover:text-white transition-colors">⬛ Negro (Oscuro)</button>
+      <div class="p-3.5 rounded-2xl bg-black/20 border border-white/10 space-y-1">
+        <span class="text-[9px] font-black uppercase tracking-widest opacity-70 block">Estilo Activo:</span>
+        <div id="titulo-sub" class="text-sm font-bold truncate">Institucional</div>
+      </div>
 
-            <div class="px-4 py-1 font-extrabold text-amber-400 uppercase tracking-wider text-[10px] border-t border-b border-slate-800 mt-2 mb-1">
-              ⚽ Ediciones de Mundiales (1930 - 2026)
-            </div>
-            <div class="max-h-48 overflow-y-auto px-1" id="lista-mundiales-dropdown">
-              <!-- Generado dinámicamente -->
-            </div>
-          </div>
+      <div class="space-y-3">
+        <p class="text-[10px] font-black uppercase tracking-widest opacity-75">🎨 Temas Base:</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="cambiarTema('institucional', true)" class="p-2.5 rounded-xl text-xs font-bold bg-slate-800 text-white border border-white/10 text-left">🏛️ Inst.</button>
+          <button onclick="cambiarTema('futurista', true)" class="p-2.5 rounded-xl text-xs font-bold bg-slate-800 text-cyan-400 border border-white/10 text-left">⚡ Cyber</button>
+          <button onclick="cambiarTema('blanco', true)" class="p-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-900 border border-slate-300 text-left">⬜ Claro</button>
+          <button onclick="cambiarTema('negro', true)" class="p-2.5 rounded-xl text-xs font-bold bg-black text-white border border-white/20 text-left">⬛ Dark</button>
         </div>
 
+        <div class="pt-2">
+          <label for="select-mundial-sidebar" class="text-[10px] font-black uppercase tracking-widest opacity-75 block mb-1.5">⚽ Mundiales (1930 - 2026):</label>
+          <select id="select-mundial-sidebar" onchange="cambiarTema(this.value, true)" class="w-full bg-slate-900 text-white rounded-xl px-3 py-3 text-xs font-bold border border-white/20 focus:outline-none cursor-pointer"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-4 mt-6 border-t border-white/10 text-[11px] opacity-75 flex items-center justify-between">
+      <span id="texto-estado-modo">Modo PC (Animaciones Simples ON)</span>
+      <span>Fluido</span>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="flex-1 flex flex-col min-h-screen w-full">
+    
+    <header id="barra-superior" class="py-3 px-4 sm:px-8 shadow-sm sticky top-0 z-30 border-b backdrop-blur-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <button onclick="toggleSidebar()" aria-label="Abrir menú" class="md:hidden px-3 py-2 rounded-xl bg-black/20 border border-white/20 text-sm font-black">
+            ☰ Menú
+          </button>
+          <span id="banner-badge" class="text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider border truncate max-w-[190px] sm:max-w-none">
+            Dashboard
+          </span>
+        </div>
+        <div class="text-[11px] font-bold opacity-80 hidden lg:block">
+          Explora aplicaciones y juegos web
+        </div>
+      </div>
+
+      <div class="w-full sm:max-w-xs md:max-w-md relative">
+        <input id="buscador-principal" type="text" placeholder="Buscar app o juego..." oninput="renderizarProyectos()" class="w-full bg-slate-900/85 text-white rounded-2xl pl-4 pr-9 py-2.5 text-xs focus:outline-none placeholder-slate-400 font-medium border border-white/20 focus:border-cyan-400" />
+        <span class="absolute right-3.5 top-2.5 text-slate-400 text-xs pointer-events-none">🔍</span>
       </div>
     </header>
 
-    <!-- BANNER HERO (Secundario) -->
-    <section id="banner-principal" class="py-12 px-6 sm:px-10 relative transition-all duration-500 border-b border-white/10">
-      <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 animate-entry">
-        <div>
-          <span id="banner-badge" class="text-[10px] font-extrabold px-3.5 py-1 rounded-full uppercase tracking-widest inline-block mb-2 shadow-sm text-white">
-            Panel Activo
-          </span>
-          <h2 id="banner-titulo" class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
-            Explora tus herramientas de desarrollo y juegos.
-          </h2>
-          <p id="banner-sub" class="text-xs text-slate-100 mt-1">
-            Diseño estructurado con colores sólidos independientes por sección.
-          </p>
-        </div>
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-8 py-6 flex-1 flex flex-col">
 
-        <div class="w-full md:w-80 relative">
-          <input
-            id="buscador-principal"
-            type="text"
-            placeholder="Escribe para filtrar..."
-            oninput="sincronizarBusqueda(this.value)"
-            class="w-full bg-slate-900/90 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none placeholder-slate-400 font-medium border border-slate-700/80 transition-all duration-300 shadow-inner"
-          />
-        </div>
-      </div>
-    </section>
-
-    <!-- CONTENEDOR PRINCIPAL -->
-    <main class="max-w-7xl w-full mx-auto px-6 sm:px-10 py-8 flex-1">
-
-      <!-- VISOR DE APLICACIÓN ACTIVA -->
-      <section id="seccion-visor" class="hidden mb-10 animate-entry">
-        <div id="visor-card-box" class="rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-900/90 shadow-2xl backdrop-blur-xl">
-          <div id="visor-header" class="px-6 py-3.5 text-white flex flex-wrap items-center justify-between gap-4 bg-slate-950/80 border-b border-slate-800">
-            <div class="flex items-center gap-3">
-              <button
-                onclick="cerrarVisor()"
-                class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all flex items-center gap-1.5">
+      <!-- VISOR -->
+      <section id="seccion-visor" class="hidden mb-8">
+        <div class="rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-700/80 bg-slate-900/95 shadow-xl">
+          <div class="px-4 sm:px-6 py-3.5 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-950/90 border-b border-slate-800">
+            <div class="flex items-center justify-between sm:justify-start gap-3">
+              <button onclick="cerrarVisor()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition flex items-center gap-1">
                 ← Volver
               </button>
-              <div class="flex items-center gap-2">
-                <span id="visor-icono" class="text-xl">🚀</span>
-                <div>
-                  <h3 id="visor-titulo" class="font-bold text-xs sm:text-sm text-white leading-tight">Proyecto</h3>
-                  <span id="visor-categoria" class="text-[10px] font-medium text-slate-400">Categoría</span>
+              <div class="flex items-center gap-2 truncate">
+                <span id="visor-icono" class="text-xl shrink-0">🚀</span>
+                <div class="truncate">
+                  <h3 id="visor-titulo" class="font-bold text-xs sm:text-sm text-white truncate">Proyecto</h3>
+                  <span id="visor-categoria" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Categoría</span>
                 </div>
               </div>
             </div>
 
-            <div class="flex items-center gap-2">
-              <button
-                onclick="reiniciarProyecto()"
-                class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition-colors">
-                🔄 Reiniciar
-              </button>
-              <a
-                id="btn-nueva-pestana"
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition-colors">
-                ↗ Pestaña nueva
-              </a>
-              <button
-                onclick="pantallaCompleta()"
-                class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors shadow">
-                ⛶ Pantalla completa
-              </button>
+            <div class="grid grid-cols-3 sm:flex items-center gap-2">
+              <button onclick="reiniciarProyecto()" class="px-2.5 py-2 rounded-xl bg-slate-800 text-white text-[11px] sm:text-xs font-semibold text-center">🔄 Reiniciar</button>
+              <a id="btn-nueva-pestana" href="#" target="_blank" rel="noopener noreferrer" class="px-2.5 py-2 rounded-xl bg-slate-800 text-white text-[11px] sm:text-xs font-semibold text-center">↗ Pestaña</a>
+              <button onclick="pantallaCompleta()" class="px-2.5 py-2 rounded-xl bg-indigo-600 text-white font-bold text-[11px] sm:text-xs text-center">⛶ Full</button>
             </div>
           </div>
 
-          <div id="contenedor-iframe" class="relative w-full bg-black aspect-video max-h-[75vh]">
-            <iframe
-              id="frame-proyecto"
-              src="about:blank"
-              class="w-full h-full border-0"
-              allow="autoplay; fullscreen; gamepad; clipboard-write"
-              allowfullscreen>
-            </iframe>
+          <div id="contenedor-iframe" class="relative w-full bg-black h-[65vh] sm:h-auto sm:aspect-video max-h-[80vh]">
+            <iframe id="frame-proyecto" src="about:blank" class="w-full h-full border-0" allow="autoplay; fullscreen; gamepad; clipboard-write" allowfullscreen></iframe>
           </div>
         </div>
       </section>
 
-      <!-- DIRECTORIO DE APLICACIONES -->
-      <section id="seccion-catalogo">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-3 border-b border-slate-800/80">
+      <!-- CATÁLOGO -->
+      <section id="seccion-catalogo" class="flex-1 flex flex-col">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5 pb-3 border-b border-white/10">
           <div>
-            <h3 id="titulo-directorio" class="text-lg font-extrabold text-white">Aplicaciones Disponibles</h3>
-            <p id="contador-proyectos" class="text-xs font-semibold text-slate-400 mt-0.5">0 proyectos</p>
+            <h2 id="titulo-directorio" class="text-lg sm:text-xl font-black tracking-wide">Panel de Aplicaciones</h2>
+            <p id="contador-proyectos" class="text-[11px] font-bold opacity-70 mt-0.5 uppercase tracking-wider">0 proyectos disponibles</p>
           </div>
           
-          <!-- Filtros de Categoría -->
-          <div id="barra-categorias" class="flex items-center gap-2 overflow-x-auto pb-1">
-            <!-- Generado por script -->
-          </div>
+          <div id="barra-categorias" class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"></div>
         </div>
 
-        <!-- Grid de Tarjetas -->
-        <div id="grid-proyectos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          <!-- Tarjetas dinámicas -->
-        </div>
+        <div id="grid-proyectos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div>
 
-        <!-- Estado Vacío -->
-        <div id="estado-vacio" class="hidden rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 p-12 text-center max-w-md mx-auto my-12 animate-entry">
-          <div class="w-14 h-14 rounded-xl bg-slate-800 flex items-center justify-center text-2xl mx-auto mb-3 text-slate-400">
-            🔍
-          </div>
+        <div id="estado-vacio" class="hidden rounded-3xl border border-dashed border-slate-700 bg-slate-900/40 p-12 text-center max-w-md mx-auto my-10">
+          <div class="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-2xl mx-auto mb-3 text-slate-400">🔍</div>
           <h4 class="text-sm font-bold text-white mb-1">Sin resultados</h4>
-          <p class="text-xs text-slate-400">Prueba con otra palabra clave o categoría, o marca tus favoritos con estrellas ⭐.</p>
+          <p class="text-xs text-slate-400">Prueba con otro filtro o término de búsqueda.</p>
         </div>
       </section>
 
     </main>
-  </div>
 
-  <!-- PIE DE PÁGINA (Principal) -->
-  <footer id="footer-principal" class="py-6 px-6 sm:px-10 text-xs mt-12 border-t border-white/10 transition-all duration-500">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-      <div>
-        <p id="footer-titulo" class="font-bold text-white mb-0.5">NovaPlay Portal</p>
-        <p class="opacity-75">Interfaz con sistema de estrellas (Favoritos) y corazones (Me gusta).</p>
+    <footer id="footer-principal" class="py-5 px-4 sm:px-8 text-[11px] border-t mt-auto">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left opacity-80">
+        <p class="font-bold">NovaPlay Portal — Interactive Edition</p>
+        <p>Tarjetas, iconos y botones interactivos</p>
       </div>
-      <div>
-        <p class="font-medium text-emerald-400">Estado: Activo 🟢</p>
-      </div>
-    </div>
-  </footer>
+    </footer>
+  </div>
 
   <script>
     const TEMAS_DISENOS = {
-      institucional: { nombre: "Institucional", tipoFuente: "font-bold text-xl text-white", badge: "Institucional", primario: "#0f172a", secundario: "#1e293b", terciario: "#111827", cuaternario: "#3b82f6" },
-      futurista: { nombre: "Futurista", tipoFuente: "font-arcade text-lg text-cyan-400 tracking-wider", badge: "Futurista", primario: "#090b10", secundario: "#131722", terciario: "#0f131d", cuaternario: "#06b6d4" },
-      blanco: { nombre: "Modo Blanco", tipoFuente: "font-bold text-xl text-slate-900", badge: "Modo Blanco", primario: "#ffffff", secundario: "#f1f5f9", terciario: "#ffffff", cuaternario: "#0f172a" },
-      negro: { nombre: "Modo Negro", tipoFuente: "font-bold text-xl text-white", badge: "Modo Negro", primario: "#000000", secundario: "#111827", terciario: "#050505", cuaternario: "#38bdf8" },
-
-      '2026': { nombre: "USA/MX/CN 2026", tipoFuente: "font-bold text-xl", badge: "Mundial USA/MX/CN 2026", primario: "#003DA5", secundario: "#BF0A30", terciario: "#006847", cuaternario: "#FFFFFF" },
-      '2022': { nombre: "Qatar 2022", tipoFuente: "font-bold text-xl", badge: "Mundial Qatar 2022", primario: "#8A1538", secundario: "#C8A45D", terciario: "#F5EBDD", cuaternario: "#171717" },
-      '2018': { nombre: "Rusia 2018", tipoFuente: "font-bold text-xl", badge: "Mundial Rusia 2018", primario: "#FFFFFF", secundario: "#0039A6", terciario: "#D52B1E", cuaternario: "#D4AF37" },
-      '2014': { nombre: "Brasil 2014", tipoFuente: "font-custom-style text-3xl text-yellow-300", badge: "Mundial Brasil 2014", primario: "#009739", secundario: "#FFDF00", terciario: "#002776", cuaternario: "#FFFFFF" },
-      '2010': { nombre: "Sudafrica 2010", tipoFuente: "font-bold text-xl", badge: "Mundial Sudafrica 2010", primario: "#007749", secundario: "#FFB81C", terciario: "#DE3831", cuaternario: "#002395" },
-      '2006': { nombre: "Alemania 2006", tipoFuente: "font-bold text-xl", badge: "Mundial Alemania 2006", primario: "#000000", secundario: "#DD0000", terciario: "#FFCE00", cuaternario: "#FFFFFF" },
-      '2002': { nombre: "Corea-Japon 2002", tipoFuente: "font-bold text-xl", badge: "Mundial Corea-Japon 2002", primario: "#CD2E3A", secundario: "#003478", terciario: "#BC002D", cuaternario: "#FFFFFF" },
-      '1998': { nombre: "Francia 1998", tipoFuente: "font-bold text-xl", badge: "Mundial Francia 1998", primario: "#0055A4", secundario: "#EF4135", terciario: "#FFFFFF", cuaternario: "#D4AF37" },
-      '1994': { nombre: "USA 1994", tipoFuente: "font-bold text-xl", badge: "Mundial USA 1994", primario: "#3C3B6E", secundario: "#B22234", terciario: "#FFFFFF", cuaternario: "#C0C0C0" },
-      '1990': { nombre: "Italia 1990", tipoFuente: "font-bold text-xl", badge: "Mundial Italia 1990", primario: "#009246", secundario: "#FFFFFF", terciario: "#CE2B37", cuaternario: "#0066B3" },
-      '1986': { nombre: "Mexico 1986", tipoFuente: "font-bold text-xl", badge: "Mundial Mexico 1986", primario: "#006847", secundario: "#FFFFFF", terciario: "#CE1126", cuaternario: "#D4AF37" },
-      '1982': { nombre: "Espana 1982", tipoFuente: "font-bold text-xl", badge: "Mundial Espana 1982", primario: "#AA151B", secundario: "#F1BF00", terciario: "#FFFFFF", cuaternario: "#003399" },
-      '1978': { nombre: "Argentina 1978", tipoFuente: "font-bold text-xl", badge: "Mundial Argentina 1978", primario: "#74ACDF", secundario: "#FFFFFF", terciario: "#D4AF37", cuaternario: "#1B365D" },
-      '1974': { nombre: "Alemania 1974", tipoFuente: "font-bold text-xl", badge: "Mundial Alemania 1974", primario: "#000000", secundario: "#DD0000", terciario: "#FFCE00", cuaternario: "#FFFFFF" },
-      '1970': { nombre: "Mexico 1970", tipoFuente: "font-bold text-xl", badge: "Mundial Mexico 1970", primario: "#006847", secundario: "#FFFFFF", terciario: "#CE1126", cuaternario: "#D4AF37" },
-      '1966': { nombre: "Inglaterra 1966", tipoFuente: "font-bold text-xl", badge: "Mundial Inglaterra 1966", primario: "#012169", secundario: "#C8102E", terciario: "#FFFFFF", cuaternario: "#D4AF37" },
-      '1962': { nombre: "Chile 1962", tipoFuente: "font-bold text-xl", badge: "Mundial Chile 1962", primario: "#D52B1E", secundario: "#FFFFFF", terciario: "#0039A6", cuaternario: "#D4AF37" },
-      '1958': { nombre: "Suecia 1958", tipoFuente: "font-bold text-xl", badge: "Mundial Suecia 1958", primario: "#006AA7", secundario: "#FECC00", terciario: "#FFFFFF", cuaternario: "#17365D" },
-      '1954': { nombre: "Suiza 1954", tipoFuente: "font-bold text-xl", badge: "Mundial Suiza 1954", primario: "#D52B1E", secundario: "#FFFFFF", terciario: "#333333", cuaternario: "#D4AF37" },
-      '1950': { nombre: "Brasil 1950", tipoFuente: "font-bold text-xl", badge: "Mundial Brasil 1950", primario: "#009739", secundario: "#FFDF00", terciario: "#002776", cuaternario: "#FFFFFF" },
-      '1938': { nombre: "Francia 1938", tipoFuente: "font-bold text-xl", badge: "Mundial Francia 1938", primario: "#0055A4", secundario: "#FFFFFF", terciario: "#EF4135", cuaternario: "#D4AF37" },
-      '1934': { nombre: "Italia 1934", tipoFuente: "font-bold text-xl", badge: "Mundial Italia 1934", primario: "#009246", secundario: "#FFFFFF", terciario: "#CE2B37", cuaternario: "#D4AF37" },
-      '1930': { nombre: "Uruguay 1930", tipoFuente: "font-bold text-xl", badge: "Mundial Uruguay 1930", primario: "#75AADB", secundario: "#FFFFFF", terciario: "#1B365D", cuaternario: "#D4AF37" }
+      institucional: { nombre: "🏛️ Institucional", tipoFuente: "font-bold text-base text-white", badge: "Institucional", primario: "#0f172a", secundario: "#1e293b", terciario: "#111827", cuaternario: "#3b82f6", cardShape: "rounded-3xl shadow-md", etiquetaPais: "ESTÁNDAR" },
+      futurista: { nombre: "⚡ Futurista", tipoFuente: "font-arcade text-sm text-cyan-400 tracking-wider", badge: "Futurista", primario: "#090b10", secundario: "#131722", terciario: "#0f131d", cuaternario: "#06b6d4", cardShape: "rounded-2xl border-l-4 border-cyan-400", etiquetaPais: "CYBER" },
+      blanco: { nombre: "⬜ Modo Blanco", tipoFuente: "font-bold text-base text-slate-900", badge: "Modo Blanco", primario: "#ffffff", secundario: "#f1f5f9", terciario: "#ffffff", cuaternario: "#0f172a", cardShape: "rounded-2xl shadow-sm", etiquetaPais: "CLARO" },
+      negro: { nombre: "⬛ Modo Negro", tipoFuente: "font-bold text-base text-white", badge: "Modo Negro", primario: "#000000", secundario: "#111827", terciario: "#050505", cuaternario: "#38bdf8", cardShape: "rounded-3xl border border-sky-500/30", etiquetaPais: "DARK" },
+      '2026': { nombre: "🏆 USA/MX/CN 2026", tipoFuente: "font-wc-2026 text-sm text-white", badge: "Mundial 2026", primario: "#003DA5", secundario: "#BF0A30", terciario: "#006847", cuaternario: "#FFFFFF", cardShape: "rounded-[2rem] border-t-4 border-white shadow-lg", etiquetaPais: "CAN/USA/MEX" },
+      '2022': { nombre: "🏆 Qatar 2022", tipoFuente: "font-wc-2022 text-lg text-[#f5ebd7]", badge: "Qatar 2022", primario: "#8A1538", secundario: "#640d24", terciario: "#4a081a", cuaternario: "#C8A45D", cardShape: "rounded-tr-[3rem] rounded-bl-[3rem] border-2 border-[#C8A45D]", etiquetaPais: "QATAR 2022" },
+      '2018': { nombre: "🏆 Rusia 2018", tipoFuente: "font-wc-2018 text-sm text-red-400", badge: "Rusia 2018", primario: "#002040", secundario: "#001020", terciario: "#001830", cuaternario: "#D52B1E", cardShape: "rounded-2xl border-l-8 border-[#D52B1E] shadow-md", etiquetaPais: "RUSIA 2018" },
+      '2014': { nombre: "🏆 Brasil 2014", tipoFuente: "font-wc-2014 text-lg text-yellow-300", badge: "Brasil 2014", primario: "#009739", secundario: "#006625", terciario: "#004d1c", cuaternario: "#FFDF00", cardShape: "rounded-[1.75rem] border-4 border-[#FFDF00]", etiquetaPais: "BRASIL 2014" },
+      '2010': { nombre: "🏆 Sudáfrica 2010", tipoFuente: "font-wc-2010 text-base text-amber-200", badge: "Sudáfrica 2010", primario: "#007749", secundario: "#005232", terciario: "#003822", cuaternario: "#FFB81C", cardShape: "rounded-3xl border-b-8 border-[#FFB81C]", etiquetaPais: "SUDÁFRICA 2010" },
+      '2006': { nombre: "🏆 Alemania 2006", tipoFuente: "font-wc-2006 text-sm text-yellow-300", badge: "Alemania 2006", primario: "#111111", secundario: "#000000", terciario: "#1c1c1c", cuaternario: "#FFCE00", cardShape: "rounded-lg border-2 border-[#FFCE00]", etiquetaPais: "ALEMANIA 2006" },
+      '2002': { nombre: "🏆 Corea-Japón 2002", tipoFuente: "font-wc-2002 text-xs text-white", badge: "Corea-Japón 2002", primario: "#003478", secundario: "#00204a", terciario: "#001433", cuaternario: "#CD2E3A", cardShape: "rounded-3xl border-t-4 border-[#CD2E3A]", etiquetaPais: "KOR / JPN 2002" },
+      '1998': { nombre: "🏆 Francia 1998", tipoFuente: "font-wc-1998 text-base text-sky-200", badge: "Francia 1998", primario: "#0055A4", secundario: "#003366", terciario: "#002244", cuaternario: "#EF4135", cardShape: "rounded-[2rem] border-r-4 border-[#EF4135]", etiquetaPais: "FRANCIA '98" },
+      '1994': { nombre: "🏆 USA 1994", tipoFuente: "font-wc-1994 text-sm text-white", badge: "USA 1994", primario: "#3C3B6E", secundario: "#252446", terciario: "#1b1933", cuaternario: "#B22234", cardShape: "rounded-2xl border-2 border-dashed border-[#B22234]", etiquetaPais: "USA '94" },
+      '1990': { nombre: "🏆 Italia 1990", tipoFuente: "font-wc-1990 text-sm text-emerald-300", badge: "Italia 1990", primario: "#009246", secundario: "#00612f", terciario: "#004722", cuaternario: "#CE2B37", cardShape: "rounded-3xl border-t-8 border-[#CE2B37]", etiquetaPais: "ITALIA '90" },
+      '1986': { nombre: "🏆 México 1986", tipoFuente: "font-wc-1986 text-sm text-amber-300", badge: "México 1986", primario: "#006847", secundario: "#00442f", terciario: "#002e20", cuaternario: "#CE1126", cardShape: "rounded-xl border-l-8 border-[#CE1126]", etiquetaPais: "MÉXICO '86" },
+      '1982': { nombre: "🏆 España 1982", tipoFuente: "font-wc-1982 text-sm text-yellow-300", badge: "España 1982", primario: "#AA151B", secundario: "#7a0f13", terciario: "#540a0c", cuaternario: "#F1BF00", cardShape: "rounded-3xl border-b-8 border-[#F1BF00]", etiquetaPais: "ESPAÑA '82" },
+      '1978': { nombre: "🏆 Argentina 1978", tipoFuente: "font-wc-1978 text-lg text-sky-200", badge: "Argentina 1978", primario: "#74ACDF", secundario: "#4a8ac4", terciario: "#32689c", cuaternario: "#D4AF37", cardShape: "rounded-[1.75rem] border-2 border-[#D4AF37]", etiquetaPais: "ARGENTINA '78" },
+      '1974': { nombre: "🏆 Alemania 1974", tipoFuente: "font-wc-1974 text-sm text-yellow-300", badge: "Alemania 1974", primario: "#222222", secundario: "#111111", terciario: "#080808", cuaternario: "#DD0000", cardShape: "rounded-xl border-t-4 border-[#DD0000]", etiquetaPais: "RFA '74" },
+      '1970': { nombre: "🏆 México 1970", tipoFuente: "font-wc-1970 text-base text-amber-300", badge: "México 1970", primario: "#006847", secundario: "#00442f", terciario: "#002e20", cuaternario: "#D4AF37", cardShape: "rounded-3xl border-2 border-[#D4AF37]", etiquetaPais: "MÉXICO '70" },
+      '1966': { nombre: "🏆 Inglaterra 1966", tipoFuente: "font-wc-1966 text-sm text-amber-300", badge: "Inglaterra 1966", primario: "#012169", secundario: "#011648", terciario: "#000d2e", cuaternario: "#C8102E", cardShape: "rounded-2xl border-l-4 border-[#C8102E]", etiquetaPais: "INGLATERRA '66" },
+      '1962': { nombre: "🏆 Chile 1962", tipoFuente: "font-wc-1962 text-lg text-white", badge: "Chile 1962", primario: "#D52B1E", secundario: "#9e1f16", terciario: "#6b140f", cuaternario: "#0039A6", cardShape: "rounded-3xl border-t-4 border-[#0039A6]", etiquetaPais: "CHILE '62" },
+      '1958': { nombre: "🏆 Suecia 1958", tipoFuente: "font-wc-1958 text-sm text-yellow-300", badge: "Suecia 1958", primario: "#006AA7", secundario: "#004873", terciario: "#002c47", cuaternario: "#FECC00", cardShape: "rounded-2xl border-2 border-[#FECC00]", etiquetaPais: "SUECIA '58" },
+      '1954': { nombre: "🏆 Suiza 1954", tipoFuente: "font-wc-1954 text-sm text-red-200", badge: "Suiza 1954", primario: "#D52B1E", secundario: "#9e1f16", terciario: "#333333", cuaternario: "#FFFFFF", cardShape: "rounded-2xl border-t-4 border-[#FFFFFF]", etiquetaPais: "SUIZA '54" },
+      '1950': { nombre: "🏆 Brasil 1950", tipoFuente: "font-wc-1950 text-lg text-yellow-300", badge: "Brasil 1950", primario: "#009739", secundario: "#002776", terciario: "#001a4d", cuaternario: "#FFDF00", cardShape: "rounded-[2rem] border-2 border-[#FFDF00]", etiquetaPais: "BRASIL '50" },
+      '1938': { nombre: "🏆 Francia 1938", tipoFuente: "font-wc-1938 text-lg text-blue-200", badge: "Francia 1938", primario: "#0055A4", secundario: "#003366", terciario: "#001f3d", cuaternario: "#EF4135", cardShape: "rounded-3xl border-l-8 border-[#EF4135]", etiquetaPais: "FRANCIA '38" },
+      '1934': { nombre: "🏆 Italia 1934", tipoFuente: "font-wc-1934 text-sm text-amber-300", badge: "Italia 1934", primario: "#009246", secundario: "#005e2d", terciario: "#003b1c", cuaternario: "#CE2B37", cardShape: "rounded-2xl border-b-4 border-[#CE2B37]", etiquetaPais: "ITALIA '34" },
+      '1930': { nombre: "🏆 Uruguay 1930", tipoFuente: "font-wc-1930 text-sm text-sky-200", badge: "Uruguay 1930", primario: "#75AADB", secundario: "#1B365D", terciario: "#10213d", cuaternario: "#D4AF37", cardShape: "rounded-[1.75rem] border-t-8 border-[#75AADB] shadow-lg", etiquetaPais: "URUGUAY 1930" }
     };
 
     let temaActual = 'institucional';
-
     const LISTA_PROYECTOS = [
       { id: 'among-us', title: 'Among Us', category: 'Arcade', iconUrl: 'https://images.seeklogo.com/logo-png/41/2/among-us-logo-png_seeklogo-410042.png', description: 'Descubre al impostor antes de que sea demasiado tarde.', url: './AmongUs/' },
       { id: 'angry-birds', title: 'Angry Birds', category: 'Arcade', iconUrl: 'https://www.angrybirds.com/wp-content/uploads/2022/05/ABF_App_Logo-800x800.jpg', description: 'Lanza aves y destruye las estructuras enemigas.', url: './Angry%20Birds/' },
@@ -315,6 +272,7 @@
       { id: 'nova-game', title: 'NovaGame', category: 'Arcade', iconUrl: 'https://img.magnific.com/premium-vector/8bit-pixelated-style-star-icon-vector-illustration_1120563-33205.jpg?semt=ais_hybrid&w=740&q=80', description: 'Videojuego exclusivo de la plataforma.', url: './NovaGame/' },
       { id: 'os', title: 'OS', category: 'Sistema', iconUrl: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Windows_logo_-_2021.svg/960px-Windows_logo_-_2021.svg.png', description: 'Simulador de entorno de sistema operativo web.', url: './OS/' },
       { id: 'powerpoint', title: 'PowerPoint', category: 'Productividad', iconUrl: 'https://mailmeteor.com/logos/assets/PNG/Microsoft_Office_PowerPoint_Logo_512px.png', description: 'Creador y visor de presentaciones web.', url: './Powerpoint/' },
+      { id: 'school-party-craft', title: 'SchoolPartyCraft', category: 'Arcade', iconUrl: 'https://img-tc.tapimg.com/market/images/c083f350432794bf0b46446b19f83271.png/_tap_appicon_m.jpg', description: 'Divertido juego de bloques con temática escolar.', url: './SchoolPartyCraft/' },
       { id: 'traductor', title: 'Traductor', category: 'Herramientas', iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Google_Translate_logo.svg/1280px-Google_Translate_logo.svg.png', description: 'Traductor de texto rápido y eficiente.', url: './Traductor/' },
       { id: 'volumen', title: 'Volumen', category: 'Cálculo', iconUrl: 'https://cdn-icons-png.flaticon.com/512/2902/2902663.png', description: 'Calculadora de volumen y capacidad geométrica.', url: './Volumen/' },
       { id: 'word', title: 'Word', category: 'Productividad', iconUrl: 'https://mailmeteor.com/logos/assets/PNG/Microsoft_Office_Word_Logo_512px.png', description: 'Procesador de textos web integrado.', url: './Word/' }
@@ -322,132 +280,141 @@
 
     let categoriaActiva = 'Todos';
     let proyectoActual = null;
-
     let favoritos = JSON.parse(localStorage.getItem('novaplay_favoritos')) || [];
     let meGustas = JSON.parse(localStorage.getItem('novaplay_megustas')) || [];
 
+    function cambiarModoRendimiento(modo) {
+      const cuerpo = document.getElementById('cuerpo-principal');
+      const btnPc = document.getElementById('btn-modo-pc');
+      const btnMovil = document.getElementById('btn-modo-movil');
+      const textoEstado = document.getElementById('texto-estado-modo');
+
+      if (modo === 'pc') {
+        cuerpo.classList.add('modo-pc-activo');
+        btnPc.className = "py-2 px-3 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 shadow-md transition";
+        btnMovil.className = "py-2 px-3 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-white/10 transition";
+        textoEstado.textContent = "Modo PC (Animaciones Simples ON)";
+        localStorage.setItem('novaplay_modo_rendimiento', 'pc');
+      } else {
+        cuerpo.classList.remove('modo-pc-activo');
+        btnMovil.className = "py-2 px-3 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 shadow-md transition";
+        btnPc.className = "py-2 px-3 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-white/10 transition";
+        textoEstado.textContent = "Modo Móvil (Animaciones OFF)";
+        localStorage.setItem('novaplay_modo_rendimiento', 'movil');
+      }
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar-panel');
+      const overlay = document.getElementById('mobile-overlay');
+      const cerrado = sidebar.classList.contains('-translate-x-full');
+      if (cerrado) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function cerrarSidebarMobile() {
+      if (window.innerWidth < 768) {
+        document.getElementById('sidebar-panel').classList.add('-translate-x-full');
+        document.getElementById('mobile-overlay').classList.add('hidden');
+      }
+    }
+
     function toggleFavorito(id, event) {
       event.stopPropagation();
-      if (favoritos.includes(id)) {
-        favoritos = favoritos.filter(favId => favId !== id);
-      } else {
-        favoritos.push(id);
-      }
+      favoritos = favoritos.includes(id) ? favoritos.filter(f => f !== id) : [...favoritos, id];
       localStorage.setItem('novaplay_favoritos', JSON.stringify(favoritos));
       renderizarProyectos();
     }
 
     function toggleMeGusta(id, event) {
       event.stopPropagation();
-      if (meGustas.includes(id)) {
-        meGustas = meGustas.filter(mgId => mgId !== id);
-      } else {
-        meGustas.push(id);
-      }
+      meGustas = meGustas.includes(id) ? meGustas.filter(m => m !== id) : [...meGustas, id];
       localStorage.setItem('novaplay_megustas', JSON.stringify(meGustas));
       renderizarProyectos();
     }
 
     function inicializar() {
-      const listaMundiales = document.getElementById('lista-mundiales-dropdown');
+      const selectSidebar = document.getElementById('select-mundial-sidebar');
       const keysMundiales = ['2026','2022','2018','2014','2010','2006','2002','1998','1994','1990','1986','1982','1978','1974','1970','1966','1962','1958','1954','1950','1938','1934','1930'];
+      selectSidebar.innerHTML = keysMundiales.map(key => `<option value="${key}">${TEMAS_DISENOS[key].nombre}</option>`).join('');
       
-      listaMundiales.innerHTML = keysMundiales.map(key => {
-        const m = TEMAS_DISENOS[key];
-        return `<button onclick="cambiarTema('${key}'); cerrarMenuDisenos();" class="w-full text-left px-4 py-2 hover:bg-slate-800 hover:text-white transition-colors text-slate-300">${m.nombre}</button>`;
-      }).join('');
-
-      cambiarTema('institucional');
-    }
-
-    function toggleMenuDisenos() {
-      const menu = document.getElementById('dropdown-disenos');
-      menu.classList.toggle('hidden');
-    }
-
-    function cerrarMenuDisenos() {
-      const menu = document.getElementById('dropdown-disenos');
-      menu.classList.add('hidden');
-    }
-
-    window.addEventListener('click', function(e) {
-      const btn = document.getElementById('btn-menu-disenos');
-      const menu = document.getElementById('dropdown-disenos');
-      if (!btn.contains(e.target) && !menu.contains(e.target)) {
-        menu.classList.add('hidden');
+      const modoGuardado = localStorage.getItem('novaplay_modo_rendimiento');
+      if (modoGuardado) {
+        cambiarModoRendimiento(modoGuardado);
+      } else {
+        if (window.innerWidth < 768) {
+          cambiarModoRendimiento('movil');
+        } else {
+          cambiarModoRendimiento('pc');
+        }
       }
-    });
 
-    function cambiarTema(clave) {
+      cambiarTema('institucional', false);
+    }
+
+    function cambiarTema(clave, cerrarMenu = false) {
       temaActual = clave;
       const tema = TEMAS_DISENOS[clave];
+      const selectSidebar = document.getElementById('select-mundial-sidebar');
+      if (selectSidebar.value !== clave && TEMAS_DISENOS[clave] && clave.length === 4) {
+        selectSidebar.value = clave;
+      }
 
       if (clave === 'blanco') {
         document.body.style.backgroundColor = '#f8fafc';
         document.body.style.color = '#0f172a';
-        document.getElementById('barra-superior').style = `background-color: #ffffff; color: #0f172a; border-bottom: 1px solid #e2e8f0;`;
-        document.getElementById('logo-header-box').style = `background-color: #0f172a; color: #ffffff;`;
-        document.getElementById('banner-principal').style = `background-color: #f1f5f9; color: #0f172a; border-bottom: 1px solid #cbd5e1;`;
-        document.getElementById('banner-badge').style = `background-color: #0f172a; color: #ffffff;`;
-        document.getElementById('footer-principal').style = `background-color: #ffffff; color: #0f172a; border-top: 1px solid #e2e8f0;`;
-        document.getElementById('banner-principal').querySelectorAll('h2, p').forEach(el => el.style.color = '#0f172a');
+        document.getElementById('sidebar-panel').style.cssText = 'background-color: #ffffff; color: #0f172a; border-right: 1px solid #cbd5e1;';
+        document.getElementById('logo-header-box').style.cssText = 'background-color: #0f172a; color: #ffffff;';
+        document.getElementById('barra-superior').style.cssText = 'background-color: rgba(255, 255, 255, 0.95); color: #0f172a; border-bottom: 1px solid #cbd5e1;';
+        document.getElementById('banner-badge').style.cssText = 'background-color: #0f172a; color: #ffffff;';
+        document.getElementById('footer-principal').style.cssText = 'background-color: #ffffff; color: #0f172a; border-top: 1px solid #cbd5e1;';
       } else {
         document.body.style.backgroundColor = tema.secundario;
         document.body.style.color = '#f8fafc';
-        
-        document.getElementById('barra-superior').style = `background-color: ${tema.primario}; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.15);`;
-        document.getElementById('logo-header-box').style = `background-color: ${tema.cuaternario}; color: ${tema.primario};`;
-        
-        document.getElementById('banner-principal').style = `background-color: ${tema.secundario}; border-bottom: 1px solid rgba(255,255,255,0.15);`;
-        document.getElementById('banner-badge').style = `background-color: ${tema.cuaternario}; color: #0f172a;`;
-        document.getElementById('banner-badge').textContent = tema.badge;
-        
-        document.getElementById('footer-principal').style = `background-color: ${tema.primario}; border-top: 1px solid rgba(255,255,255,0.15); color: #cbd5e1;`;
-        
-        const esSecundarioClaro = (tema.secundario.toLowerCase() === '#ffffff' || tema.secundario.toLowerCase() === '#f1f5f9' || tema.secundario.toLowerCase() === '#ffdf00' || tema.secundario.toLowerCase() === '#fecc00' || tema.secundario.toLowerCase() === '#f1bf00' || tema.secundario.toLowerCase() === '#f5ebdd');
-        document.getElementById('banner-principal').querySelectorAll('h2, p').forEach(el => {
-          el.style.color = esSecundarioClaro ? '#0f172a' : '#ffffff';
-        });
+        document.getElementById('sidebar-panel').style.cssText = `background-color: ${tema.primario}; color: #ffffff; border-right: 1px solid rgba(255,255,255,0.15);`;
+        document.getElementById('logo-header-box').style.cssText = `background-color: ${tema.cuaternario}; color: ${tema.primario};`;
+        document.getElementById('barra-superior').style.cssText = `background-color: ${tema.primario}f2; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.15);`;
+        document.getElementById('banner-badge').style.cssText = `background-color: ${tema.cuaternario}; color: #0f172a;`;
+        document.getElementById('footer-principal').style.cssText = `background-color: ${tema.primario}f2; border-top: 1px solid rgba(255,255,255,0.15); color: #cbd5e1;`;
       }
 
       const sub = document.getElementById('titulo-sub');
-      sub.textContent = tema.nombre;
-      sub.className = tema.tipoFuente;
-      if(!tema.tipoFuente.includes('text-') && clave !== 'blanco') {
+      sub.innerHTML = `${tema.nombre} <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ml-1 bg-black/30 border border-white/20">${tema.etiquetaPais}</span>`;
+      sub.className = tema.tipoFuente + ' truncate';
+      if (!tema.tipoFuente.includes('text-') && clave !== 'blanco') {
         sub.style.color = tema.cuaternario;
       }
 
+      const badgeEl = document.getElementById('banner-badge');
+      if (badgeEl) badgeEl.textContent = tema.badge;
+
       renderizarCategorias();
       renderizarProyectos();
-    }
-
-    function sincronizarBusqueda(valor) {
-      const input1 = document.getElementById('buscador-superior');
-      const input2 = document.getElementById('buscador-principal');
-      if (input1 && input1.value !== valor) input1.value = valor;
-      if (input2 && input2.value !== valor) input2.value = valor;
-      renderizarProyectos();
+      if (cerrarMenu) cerrarSidebarMobile();
     }
 
     function renderizarCategorias() {
       const barra = document.getElementById('barra-categorias');
       const categorias = ['Todos', '⭐ Favoritos', ...new Set(LISTA_PROYECTOS.map(p => p.category).filter(Boolean))];
       const tema = TEMAS_DISENOS[temaActual];
+      const esBlanco = temaActual === 'blanco';
 
       barra.innerHTML = categorias.map(cat => {
         const activa = cat === categoriaActiva;
-        const esBlanco = temaActual === 'blanco';
-        return `
-          <button
-            onclick="seleccionarCategoria('${cat}')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-300 shadow-sm hover:scale-105 active:scale-95 ${
-              activa
-                ? 'text-white font-bold shadow-lg scale-105'
-                : esBlanco ? 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50' : 'bg-slate-900/80 text-slate-300 border border-slate-700 hover:bg-slate-800'
-            }" style="${activa ? `background-color: ${esBlanco ? '#0f172a' : tema.cuaternario}; color: ${esBlanco ? '#ffffff' : '#0f172a'};` : ''}">
-            ${cat}
-          </button>
-        `;
+        const baseClass = activa
+          ? 'font-black shadow-md'
+          : esBlanco
+            ? 'bg-white text-slate-700 border border-slate-300'
+            : 'bg-slate-900/90 text-slate-300 border border-slate-700';
+        const inlineStyle = activa
+          ? `background-color: ${esBlanco ? '#0f172a' : tema.cuaternario}; color: ${esBlanco ? '#ffffff' : '#0f172a'};`
+          : '';
+        return `<button onclick="seleccionarCategoria('${cat}')" class="px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 shadow-sm ${baseClass}" style="${inlineStyle}">${cat}</button>`;
       }).join('');
     }
 
@@ -461,26 +428,21 @@
       const grid = document.getElementById('grid-proyectos');
       const vacio = document.getElementById('estado-vacio');
       const contador = document.getElementById('contador-proyectos');
-      const inputBusqueda = document.getElementById('buscador-principal') || document.getElementById('buscador-superior');
+      const inputBusqueda = document.getElementById('buscador-principal');
       const textoBusqueda = (inputBusqueda ? inputBusqueda.value : '').toLowerCase().trim();
       const tema = TEMAS_DISENOS[temaActual];
       const esBlanco = temaActual === 'blanco';
 
       const filtrados = LISTA_PROYECTOS.filter(proj => {
-        let coincideCategoria = true;
-        if (categoriaActiva === '⭐ Favoritos') {
-          coincideCategoria = favoritos.includes(proj.id);
-        } else if (categoriaActiva !== 'Todos') {
-          coincideCategoria = proj.category === categoriaActiva;
-        }
-
-        const coincideTexto =
-          proj.title.toLowerCase().includes(textoBusqueda) ||
+        const coincideCategoria = categoriaActiva === '⭐ Favoritos'
+          ? favoritos.includes(proj.id)
+          : categoriaActiva === 'Todos' || proj.category === categoriaActiva;
+        const coincideTexto = proj.title.toLowerCase().includes(textoBusqueda) ||
           (proj.description && proj.description.toLowerCase().includes(textoBusqueda));
         return coincideCategoria && coincideTexto;
       });
 
-      contador.textContent = `${filtrados.length} ${filtrados.length === 1 ? 'proyecto' : 'proyectos'}`;
+      contador.textContent = `${filtrados.length} ${filtrados.length === 1 ? 'proyecto disponible' : 'proyectos disponibles'}`;
 
       if (filtrados.length === 0) {
         grid.innerHTML = '';
@@ -490,67 +452,46 @@
 
       vacio.classList.add('hidden');
 
-      grid.innerHTML = filtrados.map((proj, index) => {
-        const iconoHtml = proj.iconUrl 
-          ? `<img src="${proj.iconUrl}" alt="${proj.title}" class="w-8 h-8 object-contain rounded-lg transition-transform duration-500 group-hover:scale-125 group-hover:rotate-6" />` 
-          : `<span>${proj.icon || '🚀'}</span>`;
+      const esTerciarioClaro = tema.terciario && ['#ffffff', '#f5ebdd', '#ffce00'].includes(tema.terciario.toLowerCase());
+      const textColorTitle = esBlanco || esTerciarioClaro ? 'text-slate-900' : 'text-white';
+      const textColorDesc = esBlanco || esTerciarioClaro ? 'text-slate-700' : 'text-slate-300';
+      const shapeClass = tema.cardShape || 'rounded-3xl';
+      const cardStyle = esBlanco
+        ? 'background-color: #ffffff; border: 1px solid #cbd5e1;'
+        : `background-color: ${tema.terciario}; border: 1px solid rgba(255,255,255,0.15);`;
+      const btnStyle = esBlanco
+        ? 'background-color: #0f172a; color: #ffffff;'
+        : `background-color: ${tema.cuaternario}; color: #0f172a;`;
 
-        const delay = index * 0.05;
+      grid.innerHTML = filtrados.map(proj => {
+        const iconoHtml = proj.iconUrl
+          ? `<img src="${proj.iconUrl}" alt="${proj.title}" class="w-9 h-9 object-contain rounded-xl" />`
+          : `<span>${proj.icon || '🚀'}</span>`;
         const esFavorito = favoritos.includes(proj.id);
         const tieneMeGusta = meGustas.includes(proj.id);
-
-        const cardStyle = esBlanco ? 'background-color: #ffffff; border: 1px solid #cbd5e1;' : `background-color: ${tema.terciario}; border: 1px solid rgba(255,255,255,0.12);`;
-        const btnStyle = esBlanco ? 'background-color: #0f172a; color: #ffffff;' : `background-color: ${tema.cuaternario}; color: #0f172a;`;
-
-        const esTerciarioClaro = (tema.terciario && (tema.terciario.toLowerCase() === '#ffffff' || tema.terciario.toLowerCase() === '#f5ebdd' || tema.terciario.toLowerCase() === '#ffce00'));
-        const textColorTitle = esBlanco || esTerciarioClaro ? 'text-slate-900' : 'text-white';
-        const textColorDesc = esBlanco || esTerciarioClaro ? 'text-slate-700' : 'text-slate-300';
+        const iconBoxClass = esBlanco ? 'bg-slate-100 border-slate-200' : 'bg-slate-950 border-slate-800';
+        const actionBtnClass = esBlanco ? 'bg-slate-100 border-slate-300' : 'bg-slate-900 border-slate-700';
+        const badgeCatClass = esBlanco ? 'bg-slate-100 text-slate-700 border-slate-300' : 'bg-slate-950 text-slate-300 border-slate-800';
+        const linkBtnClass = esBlanco ? 'bg-slate-100 border-slate-300' : 'bg-slate-800 text-slate-200 border-slate-700';
 
         return `
-          <article class="app-card rounded-2xl p-4 flex flex-col justify-between shadow-lg group animate-entry relative" style="${cardStyle} animation-delay: ${delay}s;">
+          <article class="app-card ${shapeClass} p-4 sm:p-5 flex flex-col justify-between shadow-md relative overflow-hidden" style="${cardStyle}">
+            <div class="absolute right-3 bottom-2 text-[9px] font-black uppercase tracking-widest opacity-10 pointer-events-none">${tema.etiquetaPais}</div>
             <div>
-              <div class="flex items-start justify-between gap-3 mb-3">
+              <div class="flex items-start justify-between gap-2 mb-3.5">
                 <div class="flex items-center gap-2">
-                  <div class="w-11 h-11 rounded-xl ${esBlanco ? 'bg-slate-100 border-slate-200' : 'bg-slate-950 border-slate-800'} border flex items-center justify-center text-xl shadow-inner overflow-hidden p-1 transition-transform duration-300 group-hover:scale-110">
-                    ${iconoHtml}
-                  </div>
-                  
-                  <!-- Botón de Estrella (⭐ Favorito) -->
-                  <button onclick="toggleFavorito('${proj.id}', event)" title="Marcar como favorito (Estrella)" class="w-9 h-9 rounded-xl ${esBlanco ? 'bg-slate-100 hover:bg-slate-200 border-slate-300' : 'bg-slate-900 hover:bg-slate-800 border-slate-700'} border flex items-center justify-center text-sm transition-transform active:scale-90 shadow-sm">
-                    ${esFavorito ? '⭐' : '☆'}
-                  </button>
-
-                  <!-- Botón de Corazón (❤️ Me gusta) -->
-                  <button onclick="toggleMeGusta('${proj.id}', event)" title="Dar 'Me gusta' (Corazón)" class="w-9 h-9 rounded-xl ${esBlanco ? 'bg-slate-100 hover:bg-slate-200 border-slate-300' : 'bg-slate-900 hover:bg-slate-800 border-slate-700'} border flex items-center justify-center text-sm transition-transform active:scale-90 shadow-sm">
-                    ${tieneMeGusta ? '❤️' : '🤍'}
-                  </button>
+                  <div class="icon-box w-11 h-11 sm:w-12 sm:h-12 rounded-2xl ${iconBoxClass} border flex items-center justify-center text-xl shadow-inner overflow-hidden p-1.5 shrink-0">${iconoHtml}</div>
+                  <button onclick="toggleFavorito('${proj.id}', event)" title="Favorito" class="w-9 h-9 rounded-xl ${actionBtnClass} border flex items-center justify-center text-sm transition">${esFavorito ? '⭐' : '☆'}</button>
+                  <button onclick="toggleMeGusta('${proj.id}', event)" title="Me Gusta" class="w-9 h-9 rounded-xl ${actionBtnClass} border flex items-center justify-center text-sm transition">${tieneMeGusta ? '❤️' : '🤍'}</button>
                 </div>
-
-                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${esBlanco ? 'bg-slate-100 text-slate-700 border-slate-300' : 'bg-slate-950 text-slate-300 border-slate-800'}">
-                  ${proj.category || 'General'}
-                </span>
+                <span class="text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider border ${badgeCatClass}">${proj.category || 'General'}</span>
               </div>
-
-              <h4 class="text-sm font-extrabold ${textColorTitle} mb-1 tracking-tight group-hover:opacity-80 transition-opacity">${proj.title}</h4>
-              <p class="text-xs ${textColorDesc} leading-relaxed mb-5 font-medium line-clamp-2">
-                ${proj.description || 'Haz clic para abrir el proyecto.'}
-              </p>
+              <h3 class="text-base font-black ${textColorTitle} mb-1 tracking-tight">${proj.title}</h3>
+              <p class="text-xs ${textColorDesc} leading-relaxed mb-4 font-medium line-clamp-2">${proj.description || 'Haz clic para abrir el proyecto.'}</p>
             </div>
-
             <div class="flex items-center gap-2 pt-3 border-t ${esBlanco ? 'border-slate-100' : 'border-white/10'}">
-              <button
-                onclick="abrirProyecto('${proj.id}')"
-                class="flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all duration-300 shadow-md hover:opacity-90 active:scale-95" style="${btnStyle}">
-                ▶ ACCEDER
-              </button>
-              <a
-                href="${proj.url}"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Abrir en pestaña nueva"
-                class="p-2 rounded-xl ${esBlanco ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300' : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'} text-xs transition-all duration-300 border hover:scale-110">
-                ↗
-              </a>
+              <button onclick="abrirProyecto('${proj.id}')" class="flex-1 py-2.5 px-4 rounded-xl font-black text-xs shadow-sm flex items-center justify-center gap-1.5 tracking-wider uppercase transition" style="${btnStyle}">▶ JUGAR</button>
+              <a href="${proj.url}" target="_blank" rel="noopener noreferrer" title="Abrir en pestaña nueva" class="p-2.5 rounded-xl ${linkBtnClass} text-xs border transition">↗</a>
             </div>
           </article>
         `;
@@ -560,50 +501,37 @@
     function abrirProyecto(id) {
       const proj = LISTA_PROYECTOS.find(p => p.id === id);
       if (!proj) return;
-
       proyectoActual = proj;
-      
       const visorIcono = document.getElementById('visor-icono');
-      if (proj.iconUrl) {
-        visorIcono.innerHTML = `<img src="${proj.iconUrl}" class="w-6 h-6 object-contain rounded inline-block" />`;
-      } else {
-        visorIcono.textContent = proj.icon || '💻';
-      }
-
+      visorIcono.innerHTML = proj.iconUrl
+        ? `<img src="${proj.iconUrl}" class="w-6 h-6 object-contain rounded-lg inline-block" />`
+        : (proj.icon || '💻');
       document.getElementById('visor-titulo').textContent = proj.title;
       document.getElementById('visor-categoria').textContent = proj.category || 'General';
       document.getElementById('btn-nueva-pestana').href = proj.url;
-
-      const iframe = document.getElementById('frame-proyecto');
-      iframe.src = proj.url;
+      document.getElementById('frame-proyecto').src = proj.url;
 
       const visor = document.getElementById('seccion-visor');
       visor.classList.remove('hidden');
-      visor.classList.add('animate-entry');
       visor.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function cerrarVisor() {
-      const visor = document.getElementById('seccion-visor');
-      const iframe = document.getElementById('frame-proyecto');
-      visor.classList.add('hidden');
-      iframe.src = 'about:blank';
+      document.getElementById('seccion-visor').classList.add('hidden');
+      document.getElementById('frame-proyecto').src = 'about:blank';
       proyectoActual = null;
     }
 
     function reiniciarProyecto() {
-      if (!proyectoActual) return;
-      const iframe = document.getElementById('frame-proyecto');
-      iframe.src = proyectoActual.url;
+      if (proyectoActual) {
+        document.getElementById('frame-proyecto').src = proyectoActual.url;
+      }
     }
 
     function pantallaCompleta() {
       const contenedor = document.getElementById('contenedor-iframe');
-      if (contenedor.requestFullscreen) {
-        contenedor.requestFullscreen();
-      } else if (contenedor.webkitRequestFullscreen) {
-        contenedor.webkitRequestFullscreen();
-      }
+      if (contenedor.requestFullscreen) contenedor.requestFullscreen();
+      else if (contenedor.webkitRequestFullscreen) contenedor.webkitRequestFullscreen();
     }
 
     inicializar();
