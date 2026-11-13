@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeminiOS - AI Native Workspace</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        /* Fondo dinámico interestelar con la paleta cromática de Gemini */
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at 80% 20%, #1a0b36 0%, #0b0d19 60%, #05060c 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px;
+        }
+
+        /* --- BARRA CORTICAL SUPERIOR --- */
+        .cortical-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .ai-pulse {
+            width: 8px;
+            height: 8px;
+            background: #38bdf8;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px #38bdf8;
+            animation: pulse 2s infinite;
+        }
+
+        /* --- LIENZO COGNITIVO (El centro del sistema) --- */
+        .cognitive-canvas {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 24px;
+            width: 100%;
+            max-width: 1200px;
+            height: 65vh;
+            margin: auto;
+        }
+
+        /* Paneles de datos neurales (Glassmorphism avanzado) */
+        .neural-panel {
+            background: rgba(15, 18, 36, 0.4);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 24px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .neural-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #7c3aed, #3b82f6, #ec4899);
+        }
+
+        .panel-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #93c5fd;
+            font-weight: 700;
+        }
+
+        /* --- NÚCLEO DE ENTRADA INTELIGENTE (La barra de comandos del OS) --- */
+        .quantum-input-zone {
+            width: 100%;
+            max-width: 750px;
+            align-self: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .prompt-shell {
+            width: 100%;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            font-size: 15px;
+            color: white;
+            outline: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+        .prompt-shell:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+        }
+
+        /* --- BOTONES DE ENTORNO DINÁMICO --- */
+        .context-chips {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .chip {
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chip:hover {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Animaciones */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 15px #38bdf8; }
+            100% { transform: scale(1); opacity: 0.6; }
+        }
+
+        .thought-bubble {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.4;
+            border-left: 3px solid #db2777;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra de Estado de la Mente Artificial -->
+    <div class="cortical-header">
+        <div>
+            <span class="ai-pulse"></span>
+            <span style="margin-left: 8px; font-weight: 600; letter-spacing: 0.5px;">GeminiOS v2.6 Core</span>
+        </div>
+        <div style="opacity: 0.8;">
+            <span>Memoria Cuántica Activa</span> &nbsp;|&nbsp; 
+            <span id="clock">00:00:00</span>
+        </div>
+    </div>
+
+    <!-- Lienzo Dinámico de Trabajo -->
+    <div class="cognitive-canvas">
+        
+        <!-- Panel Izquierdo: Monitoreo de Pensamiento Continuo -->
+        <div class="neural-panel">
+            <div class="panel-title">Procesamiento de Contexto</div>
+            <h2 style="font-size: 20px; font-weight: 400;">Flujo de Consciencia del OS</h2>
+            
+            <div class="thought-bubble">
+                🧠 <b>Estado Actual:</b> Esperando intenciones del usuario. Interfaz optimizada para renderizado rápido.
+            </div>
+            <div class="thought-bubble" style="border-left-color: #3b82f6;" id="aiInsight">
+                ✨ <b>Sugerencia proactiva:</b> El entorno detecta un ambiente creativo. ¿Quieres que configure un espacio de código o un lienzo de diseño?
+            </div>
+            
+            <div style="margin-top: auto; font-size: 11px; opacity: 0.4; text-align: center;">
+                Latencia de Interfaz: 1.2ms | Tokens/sec: 145
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Espacio Mutante de Aplicaciones -->
+        <div class="neural-panel" id="mainAppWorkspace" style="background: rgba(20, 10, 45, 0.25);">
+            <div class="panel-title" id="workspaceLabel">Espacio Mutante</div>
+            <div id="workspaceContent" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; gap: 12px;">
+                <span style="font-size: 50px; filter: drop-shadow(0 0 15px rgba(124,58,237,0.6));">✦</span>
+                <h3 style="font-weight: 400; font-size: 16px;">Lienzo Multimodal Vacío</h3>
+                <p style="opacity: 0.6; font-size: 12px; max-width: 320px;">Escribe una orden abajo. GeminiOS no ejecuta aplicaciones pesadas, genera interfaces bajo demanda.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Zona de Comando Central (La única "herramienta" fija del OS) -->
+    <div class="quantum-input-zone">
+        <input type="text" class="prompt-shell" id="promptInput" placeholder="¿Qué entorno o herramienta necesitas manifestar hoy?..." onkeydown="handleCommand(event)">
+        
+        <div class="context-chips">
+            <div class="chip" onclick="mutateEnvironment('code')">⚙️ Manifestar Entorno de Código</div>
+            <div class="chip" onclick="mutateEnvironment('music')">🎨 Generar Modo Relajación</div>
+            <div class="chip" onclick="mutateEnvironment('clear')">🧹 Resetear Estructura</div>
+        </div>
+    </div>
+
+    <script {r1-strict-completion}>
+        // Reloj de alta precisión
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Manejo de comandos interactivos por teclado
+        function handleCommand(e) {
+            if (e.key === 'Enter') {
+                const text = e.target.value.toLowerCase();
+                e.target.value = '';
+                
+                if (text.includes('codigo') || text.includes('programar') || text.includes('dev')) {
+                    mutateEnvironment('code');
+                } else if (text.includes('musica') || text.includes('relax') || text.includes('arte')) {
+                    mutateEnvironment('music');
+                } else {
+                    alert(`Generando módulo cuántico para: "${text}"...\n(GeminiOS interpretó tu intención semántica de forma exitosa).`);
+                }
+            }
+        }
+
+        // Sistema de mutación de interfaz dinámico
+        function mutateEnvironment(mode) {
+            const workspace = document.getElementById('workspaceContent');
+            const label = document.getElementById('workspaceLabel');
+            const insight = document.getElementById('aiInsight');
+
+            if (mode === 'code') {
+                label.textContent = "IDE Cuántico Autogenerado";
+                insight.innerHTML = "✨ <b>Sugerencia proactiva:</b> Entorno de desarrollo acoplado con Node.js sintético y depurador predictivo listo.";
+                workspace.innerHTML = `
+                    <div style="width: 100%; text-align: left; font-family: monospace; background: rgba(0,0,0,0.4); padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); flex: 1;">
+                        <span style="color: #60a5fa;">function</span> <span style="color: #f43f5e;">GeminiCore</span>() {<br>
+                        &nbsp;&nbsp;<span style="color: #eab308;">console</span>.log(<span style="color: #34d399;">"Hola del sistema operativo sintético"</span>);<br>
+                        }<br><br>
+                        <span style="color: #a78bfa;">// El compilador de IA está optimizando activamente este bucle...</span>
+                    </div>
+                `;
+            } else if (mode === 'music') {
+                label.textContent = "Sintetizador Estético de Frecuencias";
+                insight.innerHTML = "✨ <b>Sugerencia proactiva:</b> Sincronizando ondas alfa binaurales para potenciar tu estado de enfoque.";
+                workspace.innerHTML = `
+                    <span style="font-size: 40px; animation: pulse 1.5s infinite;">🎵</span>
+                    <h4 style="margin-top:10px;">Reproduciendo: Audio Generativo en 432Hz</h4>
+                    <div style="width: 80%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top:15px; overflow:hidden;">
+                        <div style="width: 65%; height: 100%; background: linear-gradient(90deg, #ec4899, #8b5cf6);"></div>
+                    </div>
+                `;
+            } else if (mode === 'clear') {
+                label.textContent = "Espacio Mutante";
+                insight.innerHTML = "✨ <b>Sugerencia proactiva:</b> El entorno detecta un ambiente creativo. ¿Quieres que configure un espacio de código o un lienzo de diseño?";
+                workspace.innerHTML = `
+                    <span style="font-size: 50px;">✦</span>
+                    <h3 style="font-weight: 400; font-size: 16px;">Lienzo Multimodal Vacío</h3>
+                    <p style="opacity: 0.6; font-size: 12px;">Escribe una orden abajo. GeminiOS no ejecuta aplicaciones pesadas, genera interfaces bajo demanda.</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

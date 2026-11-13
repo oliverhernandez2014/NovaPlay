@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Cairo Project - Prototype (1993)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'MS Sans Serif', Tahoma, Arial, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #4e4e4e;
+        }
+
+        /* El fondo verde oliva grisáceo típico de los primeros conceptos de Cairo */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background-color: #556655;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- CAIRO TOP BAR (Antes de que se decidiera ponerla abajo en Win95) --- */
+        .cairo-top-bar {
+            width: 100%;
+            height: 32px;
+            background: #d4d0c8;
+            border-bottom: 2px solid #808080;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .cairo-logo-btn {
+            font-weight: bold;
+            font-size: 13px;
+            color: #000080;
+            cursor: pointer;
+            border: 1px solid transparent;
+            padding: 2px 6px;
+        }
+        .cairo-logo-btn:hover {
+            border-color: #fff #808080 #808080 #fff;
+            background: #e6e6e6;
+        }
+
+        /* --- ÁREA DE COMPONENTES DE ESCRITORIO --- */
+        .desktop-objects {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .object-folder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            text-align: center;
+            cursor: pointer;
+            color: #fff;
+            font-size: 11px;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .object-icon {
+            font-size: 28px;
+            background: rgba(255,255,255,0.1);
+            padding: 6px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        /* --- VENTANAS PRIMITIVAS DE CAIRO --- */
+        .window {
+            position: absolute;
+            width: 520px;
+            height: 340px;
+            background: #d4d0c8;
+            border: 2px solid;
+            border-color: #fff #404040 #404040 #fff;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        /* Barra de título con el color púrpura/azul oscuro de las patentes de Cairo */
+        .window-header {
+            background: #800080; /* El mítico color púrpura de desarrollo de Cairo */
+            color: white;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+            cursor: move;
+        }
+        .window-title { font-size: 11px; font-weight: bold; letter-spacing: 0.5px; }
+
+        .win-controls { display: flex; gap: 2px; }
+        .win-btn {
+            width: 16px;
+            height: 16px;
+            background: #d4d0c8;
+            border: 1px solid;
+            border-color: #fff #404040 #404040 #fff;
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Barra de Arquitectura de Objetos (Object-Oriented Folder) */
+        .object-path-bar {
+            background: #eeeeee;
+            border-bottom: 1px solid #808080;
+            padding: 4px 10px;
+            font-size: 11px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .window-content {
+            flex: 1;
+            background: #ffffff;
+            padding: 15px;
+            overflow: auto;
+            color: #000000;
+            font-size: 12px;
+        }
+
+        /* Contenido simulado de Cairo Object File System */
+        .of-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .of-item {
+            border: 1px dashed #808080;
+            padding: 8px;
+            text-align: center;
+            background: #fdfdfd;
+            cursor: pointer;
+        }
+        .of-item:hover { background: #800080; color: white; border-style: solid; }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop">
+        
+        <!-- BARRA SUPERIOR PROTOTIPO CAIRO -->
+        <div class="cairo-top-bar">
+            <div class="cairo-logo-btn" onclick="alert('Microsoft Cairo OS\nAdvanced Object Architecture\nBuild 1993.Dev')">
+                ⊙ Cairo-System
+            </div>
+            <div style="font-size: 11px; color: #444; margin-left: auto;">
+                [Modo Avanzado Inteligente Activo]
+            </div>
+        </div>
+
+        <!-- OBJETOS NATIVOS DEL SISTEMA COGNITIVO -->
+        <div class="desktop-objects">
+            <div class="object-folder" onclick="openCairoApp('Almacenamiento de Objetos', 'ofs')">
+                <div class="object-icon">📦</div>
+                <span>Object FS</span>
+            </div>
+            <div class="object-folder" onclick="openCairoApp('Máquina de Distribución', 'dist')">
+                <div class="object-icon">🧬</div>
+                <span>Distribuidor</span>
+            </div>
+        </div>
+
+        <!-- VENTANA PRE-CARGADA: INTRODUCCIÓN A CAIRO -->
+        <div class="window" id="win-welcome" style="top: 80px; left: 140px;">
+            <div class="window-header" onmousedown="dragStart(event, 'win-welcome')">
+                <div class="window-title">Cairo Architecture Manifesto</div>
+                <div class="win-controls">
+                    <div class="win-btn" onclick="document.getElementById('win-welcome').remove()">✕</div>
+                </div>
+            </div>
+            <div class="object-path-bar">Class: /System/Manifesto/Documentation</div>
+            <div class="window-content">
+                <h3 style="color: #800080; margin-bottom: 8px;">Bienvenido a la Computación Basada en Objetos</h3>
+                <p style="margin-bottom: 12px; line-height: 1.4;">Estás ejecutando la simulación de <b>Cairo</b>. En este sistema operativo, las "carpetas" ya no existen. Todo el contenido es una base de datos indexada en tiempo real. Si guardas un archivo con el nombre de un contacto, el sistema sabrá relacionarlo de inmediato.</p>
+                <div style="background: #f5f5f5; border: 1px solid #808080; padding: 10px; font-family: monospace; font-size: 11px;">
+                    STATUS: Ecosistema distribuido OK<br>
+                    KERNEL: Basado en micro-mensajería de objetos<br>
+                    NOTE: Demasiado avanzado para el hardware de 1993.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let zIndexCounter = 100;
+
+        function openCairoApp(name, type) {
+            if (document.getElementById(`win-${type}`)) return;
+
+            let content = '';
+            if (type === 'ofs') {
+                content = `
+                    <p style="margin-bottom:10px;"><b>Búsqueda inteligente por Atributos:</b></p>
+                    <div class="of-grid">
+                        <div class="of-item" onclick="alert('Indexando todos los archivos de tipo Humano...')">🧑 Clase: Personas</div>
+                        <div class="of-item" onclick="alert('Indexando correos e impresoras cercanas...')">🖨️ Clase: Periféricos</div>
+                        <div class="of-item" onclick="alert('Mostrando archivos modificados hoy de forma global...')">🕒 Atributo: Hoy</div>
+                    </div>`;
+            } else {
+                content = `
+                    <h4>Controlador de Procesos Distribuidos</h4>
+                    <p style="margin-top:8px; color:#555;">Cairo permite que una aplicación se ejecute dividiendo sus tareas de procesamiento con otras computadoras conectadas a la red local automáticamente.</p>
+                    <p style="margin-top:10px; font-weight:bold; color:red;">[Error 902: Falta ancho de banda en la red de 1993]</p>`;
+            }
+
+            const win = document.createElement('div');
+            win.classList.add('window');
+            win.id = `win-${type}`;
+            win.style.top = '140px';
+            win.style.left = '220px';
+            win.style.zIndex = ++zIndexCounter;
+
+            win.innerHTML = `
+                <div class="window-header" onmousedown="dragStart(event, '${win.id}')">
+                    <div class="window-title">${name}</div>
+                    <div class="win-controls">
+                        <div class="win-btn" onclick="document.getElementById('${win.id}').remove()">✕</div>
+                    </div>
+                </div>
+                <div class="object-path-bar">Class: /Network/Dynamic/${type}</div>
+                <div class="window-content">${content}</div>
+            `;
+
+            win.addEventListener('mousedown', () => { win.style.zIndex = ++zIndexCounter; });
+            document.getElementById('desktop').appendChild(win);
+        }
+
+        // --- SISTEMA DE ARRASTRE ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+    </script>
+</body>
+</html>

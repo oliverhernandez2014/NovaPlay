@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinNintenOS - Corporate Gaming Workspace</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        /* Escritorio dinámico con el color rojo característico y el azul de Windows */
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #e60012 0%, #001f3f 50%, #0078d4 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 0;
+        }
+
+        /* --- BARRA SUPERIOR DE NOTIFICACIONES (Híbrida Switch + Win11) --- */
+        .ninten-statusbar {
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 2px solid #e60012;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 9000;
+        }
+        .user-profile-mii {
+            width: 28px;
+            height: 28px;
+            background: #00cbc6;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255,255,255,0.4);
+        }
+
+        /* --- CAROUSEL DE JUEGOS Y APLICACIONES (Estilo Switch Home) --- */
+        .desktop-carousel {
+            display: flex;
+            gap: 20px;
+            padding: 40px;
+            overflow-x: auto;
+            max-width: 1300px;
+            width: 100%;
+            margin: auto;
+            scrollbar-width: none; /* Ocultar barra de scroll */
+        }
+        .desktop-carousel::-webkit-scrollbar { display: none; }
+
+        /* Tarjeta de Juego estilo Windows Mica/Acrílico */
+        .game-card {
+            min-width: 210px;
+            height: 210px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 16px;
+            color: white;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+        .game-card:hover {
+            transform: scale(1.08) translateY(-10px);
+            border-color: #e60012;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 20px 40px rgba(230, 0, 18, 0.4);
+        }
+        .game-title { font-size: 16px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+
+        /* --- VENTANA FLOTANTE DE CONFIGURACIÓN DE CRISTAL --- */
+        .ninten-window {
+            position: absolute;
+            top: 15%;
+            left: 25%;
+            width: 600px;
+            height: 380px;
+            background: rgba(20, 20, 20, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 20px;
+            border: 2px solid #0078d4;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 5000;
+            color: white;
+        }
+        .window-topbar {
+            background: #0078d4;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+        .close-btn {
+            background: #e60012;
+            border: none;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* --- MENÚ INICIO (El botón rojo de Nintendo combinado con Win11) --- */
+        .ninten-dock {
+            width: 100%;
+            height: 65px;
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+        }
+
+        /* Botón de Inicio Híbrido */
+        .start-ninten-btn {
+            width: 48px;
+            height: 48px;
+            background: #e60012;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            box-shadow: 0 4px 15px rgba(230,0,18,0.5);
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        .start-ninten-btn:hover { transform: scale(1.1); background: #ff1a2e; }
+        .start-ninten-btn:active { transform: scale(0.95); }
+
+        .dock-utility-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s;
+        }
+        .dock-utility-icon:hover {
+            background: #0078d4;
+            transform: translateY(-4px);
+        }
+
+        /* Botones de acción clásicos ABXY simulados a la derecha */
+        .hardware-buttons {
+            position: absolute;
+            right: 24px;
+            display: flex;
+            gap: 8px;
+        }
+        .hw-circle {
+            width: 24px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA DE ESTADO OS -->
+    <div class="ninten-statusbar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="user-profile-mii" onclick="openSettings('Perfil de Mii / Xbox Live')">👨‍🚀</div>
+            <span>WinNinten Online</span>
+        </div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <span>📶 Wi-Fi 6E</span>
+            <span>🔋 82% (Cargando)</span>
+            <span style="letter-spacing: 0.5px;">🖥️ 1080p</span>
+            <span id="liveClock" style="background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 6px;">00:00</span>
+        </div>
+    </div>
+
+    <!-- CAROUSEL PRINCIPAL DE SELECCIÓN DE JUEGOS (Estilo Dashboard) -->
+    <div class="desktop-carousel">
+        <!-- Tarjeta 1 -->
+        <div class="game-card" style="background-image: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0)), url('https://images.unsplash.com/photo-1551103782-8ab07afd45c1?q=80&w=400'); background-size: cover;" onclick="openSettings('Zelda: Breath of the Windows')">
+            <div class="game-title">⚔️ Zelda: Breath of the Windows</div>
+        </div>
+        <!-- Tarjeta 2 -->
+        <div class="game-card" style="background-image: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0)), url('https://images.unsplash.com/photo-1605901309584-818e25960a8f?q=80&w=400'); background-size: cover;" onclick="openSettings('Super Office Moto Bros')">
+            <div class="game-title">🏎️ Super Office Bros</div>
+        </div>
+        <!-- Tarjeta 3 -->
+        <div class="game-card" style="background-image: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0)), url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=400'); background-size: cover;" onclick="openSettings('Microsoft Flight Simulator: Island Edition')">
+            <div class="game-title">🛩️ Flight Simulator: Island</div>
+        </div>
+        <!-- Tarjeta 4 -->
+        <div class="game-card" style="background-image: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=400'); background-size: cover;" onclick="openSettings('Explorador de Archivos RPG')">
+            <div class="game-title">🗂️ Explorador de Archivos Pro</div>
+        </div>
+    </div>
+
+    <!-- VENTANA EMERGENTE FLOTANTE (ESTILO INTERFAZ NINTENDO) -->
+    <div class="ninten-window" id="popupWindow">
+        <div class="window-topbar">
+            <span id="winTitle">Consola de Control</span>
+            <button class="close-btn" onclick="closeWindow()">X</button>
+        </div>
+        <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; height: calc(100% - 45px); justify-content: center; align-items: center; text-align: center;">
+            <div style="font-size: 42px; animation: bounce 2s infinite;">🎮</div>
+            <h2 id="windowContentHeader" style="font-weight: 800; font-size: 22px;">Ejecutando software híbrido</h2>
+            <p style="color: #ccc; max-width: 400px; font-size: 14px;">El Kernel de Windows ha optimizado los hilos de procesamiento para maximizar los fotogramas por segundo (FPS) usando la arquitectura integrada de Nintendo.</p>
+            <button style="background: #0078d4; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px;" onclick="closeWindow()">Cerrar Cartucho Virtual</button>
+        </div>
+    </div>
+
+    <!-- BARRA DE TAREAS / DOCK OPERATIVO CENTRAL -->
+    <div class="ninten-dock">
+        <!-- El icónico botón de Inicio híbrido -->
+        <div class="start-ninten-btn" onclick="openSettings('Menú de Inicio Integrado')" title="Menú de Inicio">
+            ❖
+        </div>
+
+        <!-- Utilidades del Sistema -->
+        <div class="dock-utility-icon" onclick="openSettings('Configuración de Controles / Mandos')" title="Mandos">🎮</div>
+        <div class="dock-utility-icon" onclick="openSettings('Ajustes del Sistema de Almacenamiento')" title="Ajustes">⚙️</div>
+        <div class="dock-utility-icon" onclick="alert('Abriendo Microsoft eShop... 🛍️')" title="Tienda">🛍️</div>
+        <div class="dock-utility-icon" onclick="alert('Apagando consola virtual...')" title="Apagar">⏻</div>
+
+        <!-- Botones físicos simulados en la barra de tareas (Sabor a Consola) -->
+        <div class="hardware-buttons">
+            <div class="hw-circle" style="background:#ff3b30;">Y</div>
+            <div class="hw-circle" style="background:#4cd964;">X</div>
+            <div class="hw-circle" style="background:#007aff;">A</div>
+            <div class="hw-circle" style="background:#ffcc00;">B</div>
+        </div>
+    </div>
+
+    <script {r1-strict-completion}>
+        function openSettings(title) {
+            const win = document.getElementById('popupWindow');
+            document.getElementById('winTitle').textContent = `WinNintenOS — ${title}`;
+            document.getElementById('windowContentHeader').textContent = `Cargando: ${title}`;
+            win.style.display = 'flex';
+        }
+
+        function closeWindow() {
+            document.getElementById('popupWindow').style.display = 'none';
+        }
+
+        // Reloj Superior Sincronizado
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours().toString().padStart(2, '0');
+            let m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('liveClock').textContent = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

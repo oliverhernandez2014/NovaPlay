@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompuOS - Windows & Mac Fusion Concept</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* Fondo de pantalla fluido abstracto (Estilo híbrido macOS Ventura / Windows 11 Bloom) */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1920') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- BARRA DE MENÚ SUPERIOR (Esencia macOS) --- */
+        .top-menubar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 12px;
+            font-weight: 500;
+            z-index: 9000;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .menubar-left { display: flex; gap: 16px; }
+        .menubar-right { margin-left: auto; display: flex; gap: 14px; }
+        .os-logo { font-weight: 800; cursor: pointer; color: #00c6ff; }
+
+        /* --- MENÚ DE INICIO COMPOSITE (Híbrido Win11 + Launchpad) --- */
+        .smart-launcher {
+            position: absolute;
+            bottom: 74px;
+            width: 620px;
+            height: 460px;
+            background: rgba(20, 20, 20, 0.65);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transform: translateY(30px) scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+            z-index: 5000;
+        }
+        .smart-launcher.open {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            font-size: 13px;
+            color: white;
+            outline: none;
+        }
+        .search-bar::placeholder { color: rgba(255,255,255,0.5); }
+
+        .launcher-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        .launcher-app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .launcher-app:hover { background: rgba(255, 255, 255, 0.08); }
+        .launcher-app span { color: white; font-size: 12px; margin-top: 6px; }
+
+        /* --- VENTANAS HÍBRIDAS (Botones Mac + Estructura Windows Snap) --- */
+        .window-hybrid {
+            position: absolute;
+            width: 600px;
+            height: 380px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        /* Cabecera estilo Mac con gestión de paneles tipo Windows */
+        .window-header {
+            height: 42px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            cursor: move;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* Botones semáforo clásicos de macOS */
+        .window-buttons { display: flex; gap: 8px; margin-right: 16px; }
+        .win-dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; position: relative; }
+        .dot-close { background: #ff5f56; }
+        .dot-minimize { background: #ffbd2e; }
+        .dot-snap { background: #27c93f; } /* Verde Mac, pero abrirá el Snap Assist de Windows */
+
+        .window-title { font-size: 13px; font-weight: 600; color: #222; margin-right: auto; }
+        .snap-indicator { font-size: 11px; color: #666; cursor: pointer; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.04); }
+        .snap-indicator:hover { background: rgba(0,0,0,0.08); }
+
+        .window-content { flex: 1; padding: 24px; overflow: auto; color: #333; font-size: 14px; line-height: 1.5; }
+
+        /* --- EL SMART DOCK CENTRALIZADO (Lo mejor de ambos) --- */
+        .smart-dock {
+            position: absolute;
+            bottom: 14px;
+            height: 52px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            gap: 6px;
+            z-index: 8000;
+        }
+
+        .dock-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        .dock-icon:hover {
+            transform: scale(1.18) translateY(-6px);
+            background: rgba(255,255,255,0.15);
+        }
+        /* Punto activo estilo macOS */
+        .dock-icon.active::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .dock-sep { width: 1px; height: 28px; background: rgba(255,255,255,0.2); margin: 0 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop" onclick="closeLauncher()">
+        
+        <!-- BARRA SUPERIOR MAC STYLE -->
+        <div class="top-menubar">
+            <div class="menubar-left">
+                <span class="os-logo" onclick="toggleLauncher(); event.stopPropagation();">❖</span>
+                <span style="font-weight: 600;">CompuOS</span>
+                <span style="opacity: 0.7;">Archivo</span>
+                <span style="opacity: 0.7;">Edición</span>
+                <span style="opacity: 0.7;">Organizar Ventanas</span>
+            </div>
+            <div class="menubar-right">
+                <span>📶</span>
+                <span>🔋 98%</span>
+                <span id="topClock" style="font-weight:600;">00:00 AM</span>
+            </div>
+        </div>
+
+        <!-- SMART LAUNCHER (Menú Inicio integrado en vidrio oscuro) -->
+        <div class="smart-launcher" id="smartLauncher" onclick="event.stopPropagation()">
+            <input type="text" class="search-bar" placeholder="Buscar en CompuOS, aplicaciones o archivos compartidos...">
+            
+            <p style="color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Aplicaciones fijadas</p>
+            <div class="launcher-grid">
+                <div class="app-item launcher-app" onclick="openApp('Explorador Global')">
+                    <span style="font-size:28px;">🗂️</span>
+                    <span>Explorador</span>
+                </div>
+                <div class="app-item launcher-app" onclick="openApp('Terminal Core')">
+                    <span style="font-size:28px;">💻</span>
+                    <span>Terminal</span>
+                </div>
+                <div class="app-item launcher-app" onclick="openApp('Ajustes del Sistema')">
+                    <span style="font-size:28px;">⚙️</span>
+                    <span>Ajustes</span>
+                </div>
+                <div class="app-item launcher-app" onclick="alert('Abriendo App Store híbrida...')">
+                    <span style="font-size:28px;">🛍️</span>
+                    <span>Tienda</span>
+                </div>
+            </div>
+
+            <!-- Recomendaciones inteligentes estilo Windows 11 -->
+            <div style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display:flex; align-items:center; gap:10px; color:white;">
+                    <div style="width:32px; height:32px; background:#00c6ff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">U</div>
+                    <div>
+                        <p style="font-size:12px; font-weight:500;">Usuario Local</p>
+                        <p style="font-size:10px; opacity:0.5;">CompuOS Workspace</p>
+                    </div>
+                </div>
+                <span style="color:rgba(255,255,255,0.6); font-size:16px; cursor:pointer;" onclick="alert('Cerrando sesión...')">⏻</span>
+            </div>
+        </div>
+
+        <!-- VENTANA FLOTANTE MICA/ACRÍLICO -->
+        <div class="window-hybrid" id="appWindow">
+            <div class="window-header" onmousedown="dragStart(event, 'appWindow')">
+                <div class="window-buttons">
+                    <div class="win-dot dot-close" onclick="closeWindow('appWindow')"></div>
+                    <div class="win-dot dot-minimize" onclick="alert('Minimizando al Dock con efecto Aladino...')"></div>
+                    <div class="win-dot dot-snap" onclick="triggerSnapLayout()"></div>
+                </div>
+                <div class="window-title" id="winTitle">Ventana de Aplicación</div>
+                <div class="snap-indicator" onclick="triggerSnapLayout()">🪟 Snap Layouts</div>
+            </div>
+            
+            <div class="window-content">
+                <h3 style="font-weight: 700; font-size: 18px; margin-bottom: 8px; color: #111;">Bienvenido a la convergencia de CompuOS</h3>
+                <p style="color: #444; margin-bottom: 16px;">Has unificado con éxito los flujos de trabajo más potentes de la industria tecnológica.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                    <div style="background: rgba(0, 198, 255, 0.08); border-radius: 8px; padding: 12px; border: 1px solid rgba(0, 198, 255, 0.2);">
+                        <b style="color: #0088cc;">ADN Windows 11:</b><br>
+                        Gestión inteligente de esquinas con un solo botón, barra de búsqueda unificada en el sistema y compatibilidad total de ventanas organizadas.
+                    </div>
+                    <div style="background: rgba(155, 89, 182, 0.08); border-radius: 8px; padding: 12px; border: 1px solid rgba(155, 89, 182, 0.2);">
+                        <b style="color: #8e44ad;">ADN macOS:</b><br>
+                        Efectos avanzados de distorsión detrás del cristal, animaciones elásticas en el dock inferior y barra de menús integrada en la parte superior.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EL SMART DOCK FLOTANTE -->
+        <div class="smart-dock" onclick="event.stopPropagation()">
+            <div class="dock-icon" onclick="toggleLauncher()" title="Menú Inicio Híbrido">❖</div>
+            <div class="dock-sep"></div>
+            <div class="dock-icon active" onclick="openApp('Explorador Global')" title="Explorador">𗃔</div>
+            <div class="dock-icon" onclick="openApp('Terminal Core')" title="Terminal">💻</div>
+            <div class="dock-icon" onclick="openApp('Ajustes del Sistema')" title="Ajustes">⚙️</div>
+        </div>
+
+    </div>
+
+    <script {r1-strict-completion}>
+        let zIndexCounter = 100;
+
+        function toggleLauncher() {
+            document.getElementById('smartLauncher').classList.toggle('open');
+        }
+
+        function closeLauncher() {
+            document.getElementById('smartLauncher').classList.remove('open');
+        }
+
+        function openApp(name) {
+            closeLauncher();
+            const win = document.getElementById('appWindow');
+            document.getElementById('winTitle').textContent = name;
+            win.style.display = 'flex';
+            win.style.zIndex = ++zIndexCounter;
+            
+            // Centrar ventana al abrir
+            win.style.left = `${(window.innerWidth - win.offsetWidth) / 2}px`;
+            win.style.top = `${(window.innerHeight - win.offsetHeight) / 2}px`;
+        }
+
+        function closeWindow(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function triggerSnapLayout() {
+            const win = document.getElementById('appWindow');
+            win.style.transition = 'all 0.3s cubic-bezier(0.1, 0.9, 0.2, 1)';
+            win.style.left = '20px';
+            win.style.top = '44px';
+            win.style.width = `${(window.innerWidth / 2) - 30}px`;
+            win.style.height = `${window.innerHeight - 130}px`;
+            
+            setTimeout(() => { win.style.transition = 'none'; }, 300);
+            alert('Snap Assist: Ventana anclada a la izquierda de la pantalla estilo Windows 11.');
+        }
+
+        // --- MANEJO DE MOVIMIENTO INERCIAL DE VENTANAS ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj Superior
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours();
+            let m = now.getMinutes().toString().padStart(2, '0');
+            let ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            h = h ? h : 12; 
+            document.getElementById('topClock').textContent = `${h}:${m} ${ampm}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

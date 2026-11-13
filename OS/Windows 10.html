@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 10 Desktop Simulation</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* El icónico fondo de pantalla "Hero" de Windows 10 */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1620121692029-d088224ddc74?q=80&w=1920') no-repeat center center;
+            background-size: cover;
+            position: relative;
+        }
+
+        /* --- ICONOS DE ESCRITORIO --- */
+        .desktop-icons {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 75px;
+            height: 75px;
+            border: 1px solid transparent;
+            border-radius: 2px;
+            cursor: pointer;
+            color: white;
+            font-size: 11px;
+            text-align: center;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        .icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .icon-img {
+            font-size: 26px;
+            margin-bottom: 4px;
+        }
+
+        /* --- MENÚ INICIO WIN 10 --- */
+        .start-menu {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 520px;
+            height: 500px;
+            background: rgba(31, 31, 31, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
+            z-index: 2000;
+        }
+        .start-menu.open {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Columna ultra-estrecha de poder (Apagar, Config) */
+        .start-rail {
+            width: 48px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding-bottom: 10px;
+            align-items: center;
+            gap: 15px;
+        }
+        .rail-btn {
+            width: 100%;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .rail-btn:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+
+        /* Lista Alfabética de Apps */
+        .start-apps-list {
+            width: 220px;
+            padding: 15px 5px;
+            overflow-y: auto;
+            color: #ccc;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .app-list-item {
+            padding: 8px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .app-list-item:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+
+        /* Contenedor de Mosaicos Organizados */
+        .start-tiles {
+            flex: 1;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.15);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+            overflow-y: auto;
+        }
+        .tile {
+            background: #0078d7; /* Azul clásico de énfasis Windows 10 */
+            padding: 12px;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.1s, filter 0.1s;
+        }
+        .tile:hover { filter: brightness(1.15); transform: scale(1.01); }
+        .tile-wide { grid-column: span 2; }
+        .tile-weather { background: #2b579a; }
+        .tile-edge { background: #0063b1; }
+
+        /* --- VENTANAS ESTILO FLUENT LIGHT --- */
+        .window {
+            position: absolute;
+            width: 600px;
+            height: 400px;
+            background: #ffffff;
+            border: 1px solid #707070;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .window-header {
+            background: #ffffff;
+            height: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 12px;
+            cursor: move;
+        }
+        .window-title { font-size: 12px; color: #333; }
+        
+        .window-controls { display: flex; height: 100%; }
+        .win-btn {
+            width: 46px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #000;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .win-btn:hover { background: #e5e5e5; }
+        .win-btn.close-btn:hover { background: #e81123; color: white; }
+
+        .window-content { 
+            flex: 1; 
+            padding: 20px; 
+            overflow: auto; 
+            color: #333; 
+            font-size: 14px; 
+            background: #f3f3f3;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        /* --- BARRA DE TAREAS OSCURA --- */
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: #101010;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 3000;
+        }
+
+        .taskbar-left { display: flex; align-items: center; height: 100%; }
+        
+        .start-btn {
+            font-size: 16px;
+            color: #fff;
+            cursor: pointer;
+            width: 48px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.1s, color 0.1s;
+        }
+        .start-btn:hover, .start-btn.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #0078d7;
+        }
+
+        .search-bar {
+            width: 150px;
+            height: 30px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid transparent;
+            color: white;
+            padding: 0 10px;
+            font-size: 12px;
+            margin-left: 4px;
+            outline: none;
+        }
+        .search-bar::placeholder { color: #ccc; }
+        .search-bar:focus { background: white; color: black; border-color: #0078d7; }
+
+        .system-tray {
+            color: white;
+            font-size: 12px;
+            padding-right: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop" onclick="closeStart()">
+        
+        <!-- ICONOS -->
+        <div class="desktop-icons">
+            <div class="icon" onclick="openApp('Este Equipo', 'pc')">
+                <div class="icon-img">🖥️</div>
+                <span>Este Equipo</span>
+            </div>
+            <div class="icon" onclick="openApp('Papelera de reciclaje', 'trash')">
+                <div class="icon-img">🗑️</div>
+                <span>Papelera</span>
+            </div>
+        </div>
+
+        <!-- MENÚ INICIO OFICIAL WINDOWS 10 -->
+        <div class="start-menu" id="startMenu" onclick="event.stopPropagation()">
+            <!-- Riel lateral izquierdo (Botones de sistema) -->
+            <div class="start-rail">
+                <div class="rail-btn" onclick="alert('Usuario: Administrador de Windows')">👤</div>
+                <div class="rail-btn" onclick="openApp('Configuración de Windows', 'settings')">⚙️</div>
+                <div class="rail-btn" onclick="alert('Apagando equipo simulado...')"> Alfredo ⏻</div>
+            </div>
+            
+            <!-- Lista alfabética intermedia -->
+            <div class="start-apps-list">
+                <div style="padding: 5px 10px; font-weight: bold; color: #0078d7;">A</div>
+                <div class="app-list-item" onclick="openApp('Accesibilidad', 'generic')">♿ Accesibilidad</div>
+                <div style="padding: 5px 10px; font-weight: bold; color: #0078d7;">C</div>
+                <div class="app-list-item" onclick="openApp('Configuración de Windows', 'settings')">⚙️ Configuración</div>
+                <div class="app-list-item" onclick="alert('Abriendo Cortana...')">⭕ Cortana Voice Hub</div>
+                <div style="padding: 5px 10px; font-weight: bold; color: #0078d7;">N</div>
+                <div class="app-list-item" onclick="alert('Abriendo Bloc de Notas...')">📝 Bloc de Notas</div>
+            </div>
+
+            <!-- Mosaicos Interactivos del Menú Inicio (Live Tiles) -->
+            <div class="start-tiles">
+                <div class="tile tile-edge" onclick="alert('Abriendo Microsoft Edge Chromium...')">🌐 Microsoft Edge</div>
+                <div class="tile tile-weather" onclick="alert('Clima: 24°C Tormentas aisladas en Redmond')">☀️ El Tiempo</div>
+                <div class="tile tile-wide" style="background: #107c10;" onclick="alert('Conectando a Xbox App...')">🎮 Xbox Network App</div>
+                <div class="tile" style="background: #b4009e;">🎬 Películas y TV</div>
+                <div class="tile" style="background: #d13438;">📰 Noticias Globales</div>
+            </div>
+        </div>
+
+        <!-- VENTANA POR DEFECTO: CONFIGURACIÓN -->
+        <div class="window" id="win-settings" style="top: 80px; left: 120px;">
+            <div class="window-header" onmousedown="dragStart(event, 'win-settings')">
+                <div class="window-title">Configuración de Windows</div>
+                <div class="window-controls">
+                    <div class="win-btn"></div>
+                    <div class="win-btn close-btn" onclick="document.getElementById('win-settings').remove()">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2 style="font-weight: 400; margin-bottom: 20px;">Configuración del Sistema</h2>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                    <div style="background: white; padding: 15px; border: 1px solid #ccc; cursor: pointer;" onclick="alert('Actualizaciones al día. Última revisión: Hoy.')">
+                        <b>🔄 Windows Update</b>
+                        <p style="font-size: 12px; color: #666; margin-top: 4px;">Seguridad y parches del sistema.</p>
+                    </div>
+                    <div style="background: white; padding: 15px; border: 1px solid #ccc; cursor: pointer;" onclick="alert('Windows 10 Pro \nVersión 22H2\nExperiencia Estable.')">
+                        <b>ℹ️ Acerca de</b>
+                        <p style="font-size: 12px; color: #666; margin-top: 4px;">Especificaciones del sistema operativo.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE TAREAS -->
+        <div class="taskbar" onclick="event.stopPropagation()">
+            <div class="taskbar-left">
+                <div class="start-btn" id="startBtn" onclick="toggleStart()">
+                    🪟
+                </div>
+                <input type="text" class="search-bar" placeholder="Escribe aquí para buscar..." onclick="alert('Buscador de Windows 10 activo')">
+            </div>
+            <div class="system-tray">
+                <span>ESP</span>
+                <span id="clock">00:00</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let zIndexCounter = 100;
+
+        function toggleStart() {
+            const menu = document.getElementById('startMenu');
+            const btn = document.getElementById('startBtn');
+            menu.classList.toggle('open');
+            btn.classList.toggle('active');
+        }
+
+        function closeStart() {
+            document.getElementById('startMenu').classList.remove('open');
+            document.getElementById('startBtn').classList.remove('active');
+        }
+
+        function openApp(name, type) {
+            closeStart();
+            if (document.getElementById(`win-${type}`)) return;
+
+            let content = `<h3>${name}</h3><p style="color:#555; margin-top:10px;">Esta es una ventana del explorador nativo de Windows 10 ejecutándose de manera fluida.</p>`;
+
+            if (type === 'pc') {
+                content = `
+                    <h3>Este Equipo</h3>
+                    <div style="margin-top:15px; display:flex; gap:20px; align-items:center;">
+                        <span style="font-size:32px;">💽</span>
+                        <div>
+                            <b>Disco Local (C:)</b><br>
+                            <div style="width:200px; height:12px; background:#ccc; border-radius:2px; margin-top:4px; overflow:hidden;">
+                                <div style="width:65%; height:100%; background:#0078d7;"></div>
+                            </div>
+                            <span style="font-size:11px; color:#555;">142 GB disponibles de 465 GB</span>
+                        </div>
+                    </div>`;
+            }
+
+            const win = document.createElement('div');
+            win.classList.add('window');
+            win.id = `win-${type}`;
+            win.style.top = '140px';
+            win.style.left = '200px';
+            win.style.zIndex = ++zIndexCounter;
+
+            win.innerHTML = `
+                <div class="window-header" onmousedown="dragStart(event, '${win.id}')">
+                    <div class="window-title">${name}</div>
+                    <div class="window-controls">
+                        <div class="win-btn">‒</div>
+                        <div class="win-btn close-btn" onclick="document.getElementById('${win.id}').remove()">✕</div>
+                    </div>
+                </div>
+                <div class="window-content">${content}</div>
+            `;
+
+            win.addEventListener('mousedown', () => { win.style.zIndex = ++zIndexCounter; });
+            document.getElementById('desktop').appendChild(win);
+        }
+
+        // --- SISTEMA DE ARRASTRE DE VENTANAS ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj de la barra de tareas
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours().toString().padStart(2, '0');
+            let m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

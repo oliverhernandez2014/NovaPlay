@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 9 - Threshold Concept (2014)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #111;
+        }
+
+        /* Fondo de pantalla conceptual híbrido (Era Win 8.1 / Win 10) */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=1920') no-repeat center center;
+            background-size: cover;
+            position: relative;
+        }
+
+        /* --- MENÚ INICIO HÍBRIDO (La gran idea de Windows 9) --- */
+        .start-menu {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 480px;
+            height: 450px;
+            background: rgba(29, 29, 29, 0.95);
+            border-top-right-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 5px -5px 25px rgba(0,0,0,0.5);
+            display: flex;
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+            z-index: 2000;
+        }
+        .start-menu.open {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Lado izquierdo: Lista clásica estilo Windows 7 */
+        .start-left {
+            width: 200px;
+            border-right: 1px solid rgba(255,255,255,0.08);
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .start-item {
+            color: #eee;
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .start-item:hover { background: rgba(255,255,255,0.1); }
+
+        /* Lado derecho: Los polémicos Mosaicos (Tiles) compactados de Windows 8 */
+        .start-right {
+            flex: 1;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .tile {
+            border-radius: 2px;
+            padding: 10px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .tile:hover { transform: scale(1.02); filter: brightness(1.1); }
+        .tile-blue { background: #0078d7; }
+        .tile-purple { background: #744da9; }
+        .tile-green { background: #107c10; }
+        .tile-orange { background: #d83b01; }
+
+        /* --- BARRA DE TAREAS CLÁSICA EVOLUCIONADA --- */
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: rgba(16, 16, 16, 0.85);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            z-index: 3000;
+        }
+
+        /* El logotipo de Windows plano pero inclinado de la época */
+        .start-btn {
+            color: #0078d7;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 12px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        .start-btn:hover, .start-btn.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #53a6ff;
+        }
+
+        .system-tray { color: white; font-size: 12px; padding-right: 5px; }
+
+        /* --- VENTANAS MODERNAS CON BORDE FINO --- */
+        .window {
+            position: absolute;
+            width: 550px;
+            height: 360px;
+            background: #ffffff;
+            border: 1px solid #111;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .window-header {
+            background: #ffffff;
+            height: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            cursor: move;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .window-title { font-size: 12px; color: #333; }
+        
+        .window-controls { display: flex; }
+        .win-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #000;
+            cursor: pointer;
+        }
+        .win-btn:hover { background: #e5e5e5; }
+        .win-btn.close-btn:hover { background: #e81123; color: white; }
+
+        .window-content { flex: 1; padding: 15px; overflow: auto; color: #333; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop" onclick="closeStart()">
+        
+        <!-- EL MENÚ INICIO QUE DEBIÓ DEBUTAR EN WINDOWS 9 -->
+        <div class="start-menu" id="startMenu" onclick="event.stopPropagation()">
+            <div class="start-left">
+                <div class="start-item" onclick="openApp('Explorador de Archivos', 'files')">📁 Explorador</div>
+                <div class="start-item" onclick="openApp('Configuración de Threshold', 'settings')">⚙️ Configuración</div>
+                <div class="start-item" onclick="alert('Buscando actualizaciones de Windows 9...')">🔄 Windows Update</div>
+                <hr style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin: 5px 0;">
+                <div class="start-item" style="color:#aaa;">Apagar Sistema</div>
+            </div>
+            
+            <!-- Mosaicos dinámicos rescatados de Windows 8 -->
+            <div class="start-right">
+                <div class="tile tile-blue" onclick="alert('Abriendo el Clima dinámico...')">🌤️ El Tiempo<br><span style="font-size:10px; font-weight:normal;">22°C - Despejado</span></div>
+                <div class="tile tile-purple" onclick="openApp('Tienda Windows 9', 'store')">🛍️ Tienda Beta</div>
+                <div class="tile tile-green" style="grid-column: span 2;" onclick="alert('Sincronizando con tu cuenta Xbox...')">🎮 Xbox Live Hub</div>
+                <div class="tile tile-orange">✉️ Correo</div>
+            </div>
+        </div>
+
+        <!-- BARRA DE TAREAS -->
+        <div class="taskbar" onclick="event.stopPropagation()">
+            <div class="start-btn" id="startBtn" onclick="toggleStart()">
+                🪟
+            </div>
+            <div class="system-tray">
+                <span id="clock">00:00</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let zIndexCounter = 100;
+
+        function toggleStart() {
+            const menu = document.getElementById('startMenu');
+            const btn = document.getElementById('startBtn');
+            menu.classList.toggle('open');
+            btn.classList.toggle('active');
+        }
+
+        function closeStart() {
+            document.getElementById('startMenu').classList.remove('open');
+            document.getElementById('startBtn').classList.remove('active');
+        }
+
+        function openApp(name, type) {
+            closeStart();
+            if (document.getElementById(`win-${type}`)) return;
+
+            let content = '';
+            if (type === 'settings') {
+                content = `
+                    <h3>Configuración de Windows (Build 9600)</h3>
+                    <p style="margin-top:10px;"><b>Personalización del Menú Inicio:</b></p>
+                    <label><input type="checkbox" checked disabled> Habilitar Mosaicos Dinámicos</label><br>
+                    <label><input type="checkbox" checked disabled> No usar pantalla completa al presionar el botón de inicio</label>
+                    <p style="color: green; margin-top:15px;">✔ Las aplicaciones de la tienda ahora corren en ventanas normales y no en pantalla completa.</p>`;
+            } else if (type === 'store') {
+                content = `
+                    <h3 style="color:#744da9;">Windows Store (Versión 9)</h3>
+                    <p style="color:#666; margin-bottom:15px;">Aplicaciones universales en modo ventana.</p>
+                    <div style="border:1px solid #ccc; padding:10px; border-radius:4px; margin-bottom:8px;">✓ Skype para Windows 9 (Optimizado)</div>
+                    <div style="border:1px solid #ccc; padding:10px; border-radius:4px;">✓ Rompecabezas Xbox Metro</div>`;
+            } else {
+                content = `<h3>${name}</h3><p style="color:#555; margin-top:10px;">Estructura de archivos nativa del sistema operativo.</p>`;
+            }
+
+            const win = document.createElement('div');
+            win.classList.add('window');
+            win.id = `win-${type}`;
+            win.style.top = '100px';
+            win.style.left = '150px';
+            win.style.zIndex = ++zIndexCounter;
+
+            win.innerHTML = `
+                <div class="window-header" onmousedown="dragStart(event, '${win.id}')">
+                    <div class="window-title">${name}</div>
+                    <div class="window-controls">
+                        <div class="win-btn">‒</div>
+                        <div class="win-btn close-btn" onclick="document.getElementById('${win.id}').remove()">✕</div>
+                    </div>
+                </div>
+                <div class="window-content">${content}</div>
+            `;
+
+            win.addEventListener('mousedown', () => { win.style.zIndex = ++zIndexCounter; });
+            document.getElementById('desktop').appendChild(win);
+        }
+
+        // --- SISTEMA DE ARRASTRE DE VENTANAS ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj de la barra de tareas
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours().toString().padStart(2, '0');
+            let m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

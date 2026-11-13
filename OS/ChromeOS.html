@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChromeOS Desktop</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #111;
+        }
+
+        /* Fondo de pantalla oficial de ChromeOS (Estilo orgánico y fluido) */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1920') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* --- CHROMEOS SHELF (BARRA INFERIOR) --- */
+        .shelf {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 48px;
+            background: rgba(32, 33, 36, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            z-index: 2000;
+        }
+
+        /* El Launcher Redondo (Todo empieza aquí) */
+        .launcher-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .launcher-btn:hover, .launcher-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .launcher-circle {
+            width: 16px;
+            height: 16px;
+            border: 2.5px solid white;
+            border-radius: 50%;
+        }
+
+        /* Iconos de la barra centrados */
+        .shelf-apps {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .shelf-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .shelf-icon:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Status Area (Bandeja del sistema compacta) */
+        .status-area {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 12px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .status-area:hover { background: rgba(255, 255, 255, 0.25); }
+
+        /* --- MENÚ DE APLICACIONES (PRODUCTIVITY LAUNCHER) --- */
+        .app-launcher {
+            position: absolute;
+            bottom: 60px;
+            left: 12px;
+            width: 320px;
+            height: 450px;
+            background: rgba(32, 33, 36, 0.92);
+            backdrop-filter: blur(25px);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            transform: scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            z-index: 1900;
+            padding: 16px;
+            color: white;
+        }
+        .app-launcher.open {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .search-bar {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 10px 14px;
+            border-radius: 20px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .launcher-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            text-align: center;
+        }
+        .launcher-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            cursor: pointer;
+            color: #e3e3e3;
+        }
+        .launcher-item div {
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            margin-bottom: 6px;
+            transition: background 0.2s;
+        }
+        .launcher-item:hover div { background: rgba(255,255,255,0.15); }
+
+        /* --- VENTANAS WEB DE CHROMEOS --- */
+        .window {
+            position: absolute;
+            width: 650px;
+            height: 420px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Barra de la ventana simulando pestañas de Chrome */
+        .window-header {
+            background: #f1f3f4;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            cursor: move;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .chrome-tab {
+            background: white;
+            padding: 6px 16px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-size: 12px;
+            color: #3c4043;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
+        }
+
+        .window-controls { display: flex; gap: 14px; color: #5f6368; font-size: 14px; }
+        .win-btn { cursor: pointer; padding: 2px 4px; }
+        .win-btn:hover { color: #000; }
+
+        /* Contenido simulando apps web nativas */
+        .window-content { flex: 1; background: white; overflow: auto; position: relative; }
+
+        /* Google Docs Mock */
+        .docs-toolbar { background: #f8f9fa; border-bottom: 1px solid #e0e0e0; padding: 6px 12px; font-size: 12px; display: flex; gap: 12px; color: #5f6368; }
+        .docs-editor { padding: 30px 50px; background: #f0f3f4; height: calc(100% - 31px); overflow-y: auto; }
+        .docs-page { background: white; min-height: 400px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 40px; outline: none; font-size: 14px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop" onclick="closeMenus()">
+        
+        <!-- PRODUCTIVITY LAUNCHER -->
+        <div class="app-launcher" id="appLauncher" onclick="event.stopPropagation()">
+            <input type="text" class="search-bar" placeholder="Busca en tu Chromebook, apps o la web...">
+            <div class="launcher-grid">
+                <div class="launcher-item" onclick="openApp('Google Chrome', 'chrome')">
+                    <div style="background: rgba(66, 133, 244, 0.2);">🌐</div>
+                    <span>Chrome</span>
+                </div>
+                <div class="launcher-item" onclick="openApp('Google Docs', 'docs')">
+                    <div style="background: rgba(52, 168, 83, 0.2);">📄</div>
+                    <span>Docs</span>
+                </div>
+                <div class="launcher-item" onclick="openApp('Archivos', 'files')">
+                    <div style="background: rgba(251, 188, 5, 0.2);">📁</div>
+                    <span>Archivos</span>
+                </div>
+                <div class="launcher-item" onclick="openApp('Terminal', 'terminal')">
+                    <div style="background: rgba(142, 36, 170, 0.2);">💻</div>
+                    <span>Linux</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- THE SHELF (BARRA DE TAREAS) -->
+        <div class="shelf" onclick="event.stopPropagation()">
+            <!-- Izquierda: Launcher -->
+            <div class="launcher-btn" id="launcherBtn" onclick="toggleLauncher()">
+                <div class="launcher-circle"></div>
+            </div>
+
+            <!-- Centro: Accesos rápidos y apps ancladas -->
+            <div class="shelf-apps">
+                <div class="shelf-icon" onclick="openApp('Google Chrome', 'chrome')">🌐</div>
+                <div class="shelf-icon" onclick="openApp('Google Docs', 'docs')">📄</div>
+                <div class="shelf-icon" onclick="openApp('Archivos', 'files')">📁</div>
+            </div>
+
+            <!-- Derecha: Área de Estado -->
+            <div class="status-area" onclick="alert('Centro de Control:\nWiFi: Conectado\nBatería: 87%\nNotificaciones: 0')">
+                <span>🕒</span>
+                <span id="clock">00:00</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let zIndexCounter = 100;
+
+        function toggleLauncher() {
+            const launcher = document.getElementById('appLauncher');
+            const btn = document.getElementById('launcherBtn');
+            launcher.classList.toggle('open');
+            btn.classList.toggle('active');
+        }
+
+        function closeMenus() {
+            document.getElementById('appLauncher').classList.remove('open');
+            document.getElementById('launcherBtn').classList.remove('active');
+        }
+
+        // Sistema para levantar Aplicaciones de ChromeOS
+        function openApp(name, type) {
+            closeMenus();
+            if (document.getElementById(`win-${name}`)) return;
+
+            let content = '';
+            if (type === 'chrome') {
+                content = `<iframe src="https://bing.com" style="width:100%; height:100%; border:none; background:white;"></iframe>`;
+            } else if (type === 'docs') {
+                content = `
+                    <div class="docs-toolbar">
+                        <b>Archivo</b> <span>Editar</span> <span>Ver</span> <span>Insertar</span> | <span style="color:#2b579a; font-weight:bold;">Guardado en Drive</span>
+                    </div>
+                    <div class="docs-editor">
+                        <div class="docs-page" contenteditable="true">
+                            <h3>Documento sin título</h3>
+                            <p style="color:#666; margin-top:8px;">Empieza a escribir en este procesador de textos basado en la nube...</p>
+                        </div>
+                    </div>`;
+            } else if (type === 'terminal') {
+                content = `
+                    <div style="background:#212121; color:#4af626; height:100%; padding:15px; font-family:monospace; font-size:13px;">
+                        <p>crosh> shell</p>
+                        <p style="color:white; margin:8px 0;">chronos@localhost / $ uname -a</p>
+                        <p>Linux chromeos-kernel-5.15 #1 SMP PREEMPT 2026 x86_64 GNU/Linux</p>
+                        <p style="color:white; margin-top:15px;">chronos@localhost / $ <span style="animation: blink 1s infinite;">|</span></p>
+                    </div>`;
+            } else {
+                content = `
+                    <div style="padding:20px;">
+                        <h4>Archivos descargados</h4>
+                        <p style="color:#777; margin-top:10px; font-size:12px;">Tu carpeta de descargas está sincronizada localmente.</p>
+                    </div>`;
+            }
+
+            const win = document.createElement('div');
+            win.classList.add('window');
+            win.id = `win-${name}`;
+            win.style.top = '80px';
+            win.style.left = '120px';
+            win.style.zIndex = ++zIndexCounter;
+
+            win.innerHTML = `
+                <div class="window-header" onmousedown="dragStart(event, '${win.id}')">
+                    <div class="chrome-tab">
+                        <span>💡</span> ${name}
+                    </div>
+                    <div class="window-controls">
+                        <span class="win-btn">―</span>
+                        <span class="win-btn" onclick="toggleFullscreen('${win.id}')">⬜</span>
+                        <span class="win-btn" onclick="document.getElementById('${win.id}').remove()">✕</span>
+                    </div>
+                </div>
+                <div class="window-content">${content}</div>
+            `;
+
+            win.addEventListener('mousedown', () => {
+                win.style.zIndex = ++zIndexCounter;
+            });
+
+            document.getElementById('desktop').appendChild(win);
+        }
+
+        function toggleFullscreen(id) {
+            const win = document.getElementById(id);
+            if(win.style.width === '100%') {
+                win.style.width = '650px';
+                win.style.height = '420px';
+                win.style.top = '80px';
+                win.style.left = '120px';
+                win.style.borderRadius = '12px';
+            } else {
+                win.style.width = '100%';
+                win.style.height = 'calc(100vh - 48px)';
+                win.style.top = '0';
+                win.style.left = '0';
+                win.style.borderRadius = '0';
+            }
+        }
+
+        // --- MANEJO DE ARRASTRE ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            const win = document.getElementById(id);
+            if (win.style.width === '100%') return;
+
+            activeWin = win;
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj Shelf
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours().toString().padStart(2, '0');
+            let minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

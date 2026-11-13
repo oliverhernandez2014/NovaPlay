@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Neptune Simulation (Build 5111)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tahoma', 'MS Sans Serif', Arial, sans-serif;
+            font-size: 11px;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #008080; /* El clásico verde azulado de transición */
+        }
+
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* --- MARCA DE AGUA REAL DE NEPTUNE 1999 --- */
+        .neptune-watermark {
+            position: absolute;
+            bottom: 45px;
+            right: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: right;
+            line-height: 1.4;
+            font-family: Arial, sans-serif;
+            pointer-events: none;
+        }
+
+        /* Iconos en el escritorio */
+        .desktop-icons {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 70px;
+            cursor: pointer;
+            color: white;
+            text-align: center;
+            text-shadow: 1px 1px 1px #000;
+        }
+        .icon-img { font-size: 26px; margin-bottom: 4px; }
+
+        /* --- EXPERIMENTO: ACTIVITY CENTER (Centro de Actividad basado en Web) --- */
+        /* Esta era la propuesta revolucionaria de Neptune para el hogar */
+        .activity-center {
+            position: absolute;
+            top: 40px;
+            left: 120px;
+            width: 640px;
+            height: 440px;
+            background: #ffffff;
+            border: 2px solid;
+            border-color: #fff #0a0a0a #0a0a0a #fff;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        /* Barra de título con el azul clásico de la era pre-XP */
+        .nc-header {
+            background: linear-gradient(to right, #0a246a 0%, #a6caf0 100%);
+            color: white;
+            padding: 4px 6px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+        
+        .nc-close {
+            width: 16px;
+            height: 14px;
+            background: #c0c0c0;
+            border: 1px solid;
+            border-color: #fff #0a0a0a #0a0a0a #fff;
+            color: black;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .nc-close:active { border-color: #0a0a0a #fff #fff #0a0a0a; }
+
+        /* Panel central estilo HTML fluido (Mundo PC + Web unificados) */
+        .nc-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f4f4f4;
+        }
+
+        /* Cabecera estilo página web primitiva */
+        .nc-welcome-banner {
+            background: #5b7edc; /* El azul suave que luego heredaría Luna en XP */
+            padding: 15px 20px;
+            color: white;
+            border-bottom: 2px solid #385cb4;
+        }
+
+        .nc-content-grid {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            flex: 1;
+        }
+
+        /* Menú lateral izquierdo */
+        .nc-sidebar {
+            background: #d6dff7;
+            border-right: 1px solid #98aedc;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .nc-link {
+            color: #002080;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .nc-link:hover { color: #ff4500; }
+
+        /* Área de visualización principal */
+        .nc-main-zone {
+            background: #ffffff;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* --- BARRA DE TAREAS --- */
+        .taskbar-neptune {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 28px;
+            background: #c0c0c0;
+            border-top: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            z-index: 2000;
+        }
+
+        .start-btn {
+            height: 22px;
+            padding: 0 8px;
+            background: #c0c0c0;
+            border: 1px solid;
+            border-color: #fff #0a0a0a #0a0a0a #fff;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+        .start-btn:active { border-color: #0a0a0a #fff #fff #0a0a0a; }
+
+        .system-tray {
+            margin-left: auto;
+            height: 20px;
+            padding: 0 6px;
+            border: 1px solid;
+            border-color: #808080 #fff #fff #808080;
+            display: flex;
+            align-items: center;
+            background: #c0c0c0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="desktop">
+        
+        <!-- ICONOS DE ESCRITORIO -->
+        <div class="desktop-icons">
+            <div class="icon" onclick="openNeptuneCenter()">
+                <div class="icon-img">🏠</div>
+                <span>Neptune Home</span>
+            </div>
+            <div class="icon" onclick="alert('Abriendo Mi PC (Basado en el nuevo Kernel NT 5.5)')">
+                <div class="icon-img">🖥️</div>
+                <span>Mi PC</span>
+            </div>
+            <div class="icon" onclick="alert('Iniciando MSN Messenger integrado de fábrica...')">
+                <div class="icon-img">💬</div>
+                <span>Contactos</span>
+            </div>
+        </div>
+
+        <!-- CENTRO DE ACTIVIDAD "ACTIVITY CENTER" ORIGINAL DE NEPTUNE -->
+        <div class="activity-center" id="neptunePanel">
+            <div class="nc-header" onmousedown="dragStart(event, 'neptunePanel')">
+                <span>Windows Activity Center</span>
+                <div class="nc-close" onclick="document.getElementById('neptunePanel').style.display='none'">✕</div>
+            </div>
+            <div class="nc-body">
+                <div class="nc-welcome-banner">
+                    <h1 style="font-size: 16px; font-weight: normal; margin-bottom: 2px;">Bienvenido a su Centro de Actividades</h1>
+                    <p style="opacity: 0.8; font-size: 10px;">Diseñado para el uso familiar en el nuevo milenio</p>
+                </div>
+                
+                <div class="nc-content-grid">
+                    <div class="nc-sidebar">
+                        <div class="nc-link" onclick="changeContent('home')">🏠 Inicio de Centro</div>
+                        <div class="nc-link" onclick="changeContent('music')">🎵 Mi Música Digital</div>
+                        <div class="nc-link" onclick="changeContent('photos')">🖼️ Centro de Fotos</div>
+                    </div>
+                    
+                    <div class="nc-main-zone" id="mainContentZone">
+                        <h2 style="font-size: 14px; color: #5b7edc; margin-bottom: 10px;">¿Qué desea hacer hoy?</h2>
+                        <p style="line-height: 1.5; margin-bottom: 12px;">Windows Neptune introduce interfaces simplificadas basadas en páginas HTML locales. Ya no necesita explorar carpetas confusas para sus tareas del día a día.</p>
+                        
+                        <div style="border: 1px solid #ccc; padding: 10px; background: #fffde6; margin-top: 15px;">
+                            ℹ️ <b>Dato del proyecto:</b> Esta es la base conceptual que años más tarde daría vida a los paneles de control simplificados y las carpetas multimedia estilizadas de Windows XP.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MARCA DE AGUA AUTÉNTICA DE WINDOWS NEPTUNE (DICIEMBRE 1999) -->
+        <div class="neptune-watermark">
+            <b>Windows Neptune</b><br>
+            Under Construction - Build 5111<br>
+            For testing purposes only.
+        </div>
+
+        <!-- BARRA DE TAREAS GRIS PRE-XP -->
+        <div class="taskbar-neptune">
+            <div class="start-btn" onclick="alert('Menú Inicio - Windows Neptune:\n\n- Centro de Actividades\n- Programas de Casa\n- Internet Explorer 5.5\n- Log Off User...')">
+                <span style="font-size:12px; transform: rotate(-5deg); display:inline-block;">🪟</span> <b>Inicio</b>
+            </div>
+            <div class="system-tray">
+                <span style="margin-right: 5px;">🔒</span>
+                <span id="clock">00:00</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let zIndexCounter = 100;
+
+        function openNeptuneCenter() {
+            document.getElementById('neptunePanel').style.display = 'flex';
+            document.getElementById('neptunePanel').style.zIndex = ++zIndexCounter;
+        }
+
+        // Simula la navegación interna de los Activity Centers de Neptune
+        function changeContent(page) {
+            const zone = document.getElementById('mainContentZone');
+            if(page === 'home') {
+                zone.innerHTML = `
+                    <h2 style="font-size: 14px; color: #5b7edc; margin-bottom: 10px;">¿Qué desea hacer hoy?</h2>
+                    <p style="line-height: 1.5;">Windows Neptune introduce interfaces simplificadas basadas en páginas HTML locales. Ya no necesita explorar carpetas confusas para sus tareas del día a día.</p>
+                `;
+            } else if(page === 'music') {
+                zone.innerHTML = `
+                    <h2 style="font-size: 14px; color: #5b7edc; margin-bottom: 10px;">Música Digital Integrada</h2>
+                    <p style="margin-bottom: 10px;">Escuche sus pistas codificadas en formato WMA o MP3 directamente desde el núcleo del sistema:</p>
+                    <div style="background:#f0f0f0; padding:8px; border:1px solid #aaa; cursor:pointer;" onclick="alert('Reproduciendo pista de prueba en Windows Media Player 7...')">▶️ Reproducir: Track_01_Sample.mp3</div>
+                `;
+            } else if(page === 'photos') {
+                zone.innerHTML = `
+                    <h2 style="font-size: 14px; color: #5b7edc; margin-bottom: 10px;">Centro de Fotos y Escáner</h2>
+                    <p>Importe imágenes desde su nueva cámara digital USB con un solo clic.</p>
+                    <div style="margin-top:15px; display:inline-block; font-size:40px; border:1px solid #ccc; padding:10px; background:#fafafa;">🌄</div>
+                `;
+            }
+        }
+
+        // --- MANEJO DE MOVIMIENTO ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj de la barra
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours().toString().padStart(2, '0');
+            let m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

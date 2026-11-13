@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS Desktop Edition Concept</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+
+        /* Lienzo de Monitor de PC con el fondo fluido de iOS */
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920') center center no-repeat;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            padding: 50px 40px 30px 40px;
+        }
+
+        /* --- BARRA DE MENÚS HÍBRIDA (Grosor Mac, Estilo Íconos iOS) --- */
+        .mac-ios-menubar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 9000;
+        }
+        .menu-left { display: flex; gap: 18px; }
+        .menu-right { margin-left: auto; display: flex; gap: 16px; align-items: center; }
+        .apple-logo { font-weight: 800; font-size: 14px; cursor: pointer; }
+
+        /* --- CONTENEDOR PRINCIPAL DE LA PANTALLA (Widgets + Apps Grid) --- */
+        .ios-desktop-workspace {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 160px);
+            gap: 24px;
+            max-width: 1100px;
+            width: 100%;
+            margin: 20px auto 0 auto;
+        }
+
+        /* Widgets Inteligentes de iOS (Gris translúcido / Squircle de Apple) */
+        .pc-widget {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            padding: 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+        }
+        .pc-widget:hover { transform: scale(1.02); }
+
+        /* Cuadrícula de Apps estilo trampolín de iOS */
+        .ios-app-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .ios-app-icon {
+            width: 68px;
+            height: 68px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            margin-bottom: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        .ios-app-item:hover .ios-app-icon {
+            transform: scale(1.08);
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* --- CENTRO DE CONTROL FLOTANTE (Inspirado en iPadOS) --- */
+        .cc-overlay-panel {
+            position: absolute;
+            top: 40px;
+            right: 24px;
+            width: 360px;
+            background: rgba(30, 30, 30, 0.45);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 22px;
+            z-index: 8500;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transform: translateY(-20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cc-overlay-panel.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .cc-grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .cc-block {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 14px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Sliders de control de volumen/brillo verticales de iOS */
+        .ios-slider-track {
+            width: 100%;
+            height: 36px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .ios-slider-fill {
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            width: 70%;
+        }
+
+        /* Switch iOS */
+        .ios-toggle {
+            width: 44px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            margin-left: auto;
+        }
+        .ios-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        .ios-toggle.on { background: #34c759; }
+        .ios-toggle.on::after { transform: translateX(20px); }
+
+        /* --- DOCK EXPANDIDO DE ESCRITORIO --- */
+        .ios-pc-dock {
+            margin-top: auto;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            padding: 10px 20px;
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            align-self: center;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .dock-app {
+            width: 54px;
+            height: 54px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 1, 0.2, 1);
+        }
+        .dock-app:hover {
+            transform: scale(1.15) translateY(-8px);
+            background: rgba(255,255,255,0.25);
+        }
+    </style>
+</head>
+<body onclick="closeCenter()">
+
+    <!-- Barra de menú unificada tipo Mac -->
+    <div class="mac-ios-menubar">
+        <div class="menu-left">
+            <span class="apple-logo"></span>
+            <span style="font-weight: 600;">iOS Desktop</span>
+            <span style="opacity: 0.7; cursor:pointer;" onclick="alert('Abriendo buscador unificado Spotlight...')">Buscar</span>
+            <span style="opacity: 0.7;">Widgets</span>
+        </div>
+        <div class="menu-right" onclick="toggleCenter(event)" style="cursor: pointer;">
+            <span>📶</span>
+            <span>🔋 100%</span>
+            <span id="liveTime" style="font-weight:600;">00:00 AM</span>
+        </div>
+    </div>
+
+    <!-- Escritorio Espacioso (La pantalla del PC) -->
+    <div class="ios-desktop-workspace">
+        
+        <!-- Widget 1: Clima Local Pro (Ocupa dos columnas) -->
+        <div class="pc-widget" style="grid-column: span 2; background: linear-gradient(135deg, #1d428a, #007aff);">
+            <div>
+                <p style="font-size: 13px; font-weight: 600; opacity: 0.8; text-transform: uppercase;">Estado del Tiempo</p>
+                <h2 style="font-size: 36px; font-weight: 300; margin-top: 4px;">19° Parcialmente Nublado</h2>
+            </div>
+            <p style="font-size: 11px; opacity: 0.9;">Precipitaciones: 10% | Viento de la costa a 14 km/h</p>
+        </div>
+
+        <!-- Widget 2: Estado de Baterías de Dispositivos -->
+        <div class="pc-widget">
+            <p style="font-size: 12px; font-weight: 600; opacity: 0.7;">Mis Dispositivos</p>
+            <div style="display:flex; flex-direction:column; gap:8px; margin: 10px 0;">
+                <div style="display:flex; justify-content:space-between;"><span>💻 Mac Display</span><b style="color:#34c759;">100%</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>📱 iPhone 15</span><b style="color:#34c759;">84%</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>🎧 AirPods Max</span><b style="color:#ffcc00;">45%</b></div>
+            </div>
+        </div>
+
+        <!-- Icono de App 1 -->
+        <div class="ios-app-item" onclick="alert('Iniciando Galería de Fotos...')">
+            <div class="ios-app-icon">🖼️</div>
+            <span>Fotos</span>
+        </div>
+
+        <!-- Icono de App 2 -->
+        <div class="ios-app-item" onclick="alert('Abriendo mapas vectoriales de Apple...')">
+            <div class="ios-app-icon">🗺️</div>
+            <span>Mapas</span>
+        </div>
+
+        <!-- Icono de App 3 -->
+        <div class="ios-app-item" onclick="alert('Abriendo notas en iCloud...')">
+            <div class="ios-app-icon">📝</div>
+            <span>Notas</span>
+        </div>
+
+        <!-- Widget 3: Fitness / Actividad Semanal -->
+        <div class="pc-widget" style="grid-column: span 2; background: #111; border-color: #333;">
+            <p style="font-size: 12px; font-weight: 600; color: #fa243c;">Anillos de Actividad</p>
+            <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
+                <span style="font-size: 32px;">🏃‍♂️</span>
+                <div>
+                    <p style="font-size: 14px; font-weight: bold; color: #34c759;">Mover: 450 / 600 kcal</p>
+                    <p style="font-size: 11px; color: #aaa;">¡Vas por buen camino el día de hoy!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CENTRO DE CONTROL INTEGRADO (Desplegable superior derecho) -->
+    <div class="cc-overlay-panel" id="controlPanel" onclick="event.stopPropagation()">
+        <div style="display: flex; justify-content: space-between; align-items: center; color: white; margin-bottom: 4px;">
+            <h4 style="font-size: 16px; font-weight: 600;">Centro de Control</h4>
+        </div>
+
+        <div class="cc-grid-2x2">
+            <div class="cc-block">
+                <span style="font-size: 18px;">📶</span>
+                <div>
+                    <p style="font-size: 11px; font-weight: 600;">Wi-Fi</p>
+                </div>
+                <div class="ios-toggle on" id="toggleWifi" onclick="handleToggle('toggleWifi')"></div>
+            </div>
+            <div class="cc-block">
+                <span style="font-size: 18px;">🌙</span>
+                <div>
+                    <p style="font-size: 11px; font-weight: 600;">Enfoque</p>
+                </div>
+                <div class="ios-toggle" id="toggleEnfoque" onclick="handleToggle('toggleEnfoque')"></div>
+            </div>
+        </div>
+
+        <!-- Controles deslizantes horizontales gruesos estilo iPad -->
+        <div class="cc-block" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <span style="font-size: 11px; opacity: 0.7;">☀️ Brillo del Monitor</span>
+            <div class="ios-slider-track">
+                <div class="ios-slider-fill" style="width: 80%;"></div>
+            </div>
+        </div>
+
+        <div class="cc-block" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <span style="font-size: 11px; opacity: 0.7;">🔊 Audio Principal</span>
+            <div class="ios-slider-track">
+                <div class="ios-slider-fill" style="width: 55%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAC-IOS DOCK CENTRAL -->
+    <div class="ios-pc-dock" onclick="event.stopPropagation()">
+        <div class="dock-app" onclick="alert('Abriendo Safari en pantalla completa...')" title="Safari">🌐</div>
+        <div class="dock-app" onclick="alert('Abriendo Mensajes iMessage...')" title="Mensajes">💬</div>
+        <div class="dock-app" onclick="alert('Abriendo Apple Music...')" title="Música">🎵</div>
+        <div class="dock-app" onclick="alert('Abriendo Ajustes de iOS PC...')" title="Ajustes">⚙️</div>
+    </div>
+
+    <script {r1-strict-completion}>
+        function toggleCenter(event) {
+            event.stopPropagation();
+            document.getElementById('controlPanel').classList.toggle('active');
+        }
+
+        function closeCenter() {
+            document.getElementById('controlPanel').classList.remove('active');
+        }
+
+        function handleToggle(id) {
+            document.getElementById(id).classList.toggle('on');
+        }
+
+        // Reloj Superior
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours();
+            let m = now.getMinutes().toString().padStart(2, '0');
+            let ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            h = h ? h : 12; 
+            document.getElementById('liveTime').textContent = `${h}:${m} ${ampm}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

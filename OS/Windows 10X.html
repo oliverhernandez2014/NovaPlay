@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 10X Simulation (Cancelled OS)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #e5e5e5;
+        }
+
+        /* Fondo de pantalla oficial de Windows 10X (Minimalista y suave) */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1920') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* --- LANZADOR DE APLICACIONES (El Menú Inicio de 10X) --- */
+        .launcher {
+            position: absolute;
+            bottom: 65px;
+            width: 560px;
+            height: 520px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transform: translateY(40px) scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+            z-index: 2000;
+        }
+        .launcher.open {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Barra de búsqueda superior tipo web */
+        .launcher-search {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            color: #333;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .launcher-search:focus { background: white; border-color: #0078d7; }
+
+        /* Rejilla de Apps Fluidas */
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .app-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .app-item:hover { background: rgba(0, 0, 0, 0.04); }
+        .app-icon { font-size: 32px; margin-bottom: 8px; }
+        .app-name { font-size: 12px; color: #222; text-align: center; }
+
+        /* Sección de archivos recomendados */
+        .recents-section {
+            margin-top: auto;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            padding-top: 15px;
+        }
+        .recents-title { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 10px; }
+        .recent-file {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #333;
+            cursor: pointer;
+        }
+        .recent-file:hover { background: rgba(0,0,0,0.04); }
+
+        /* --- VENTANAS MODERNAS REDONDEADAS --- */
+        .window-10x {
+            position: absolute;
+            top: 12%;
+            width: 580px;
+            height: 380px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .window-header {
+            height: 40px;
+            background: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            cursor: move;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .window-title { font-size: 13px; font-weight: 500; color: #333; }
+        
+        .win-btn-close {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #555;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .win-btn-close:hover { background: #f1f1f1; color: #000; }
+
+        .window-content { flex: 1; padding: 20px; overflow: auto; color: #444; font-size: 14px; background: #fafafa; }
+
+        /* --- EL DOCK FLOTANTE CENTRADO (Precursor de Win 11) --- */
+        .taskbar-dock {
+            position: absolute;
+            bottom: 12px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 6px;
+            gap: 4px;
+            z-index: 3000;
+        }
+
+        .dock-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .dock-btn:hover { background: rgba(0, 0, 0, 0.05); transform: translateY(-2px); }
+        .dock-btn:active { transform: scale(0.95); }
+        
+        .dock-btn.start-active { background: rgba(0, 0, 0, 0.08); }
+
+        .dock-separator {
+            width: 1px;
+            height: 24px;
+            background: rgba(0,0,0,0.1);
+            margin: 0 4px;
+        }
+
+        .dock-time {
+            font-size: 12px;
+            color: #333;
+            font-weight: 500;
+            padding: 0 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop" onclick="closeLauncher()">
+        
+        <!-- LANZADOR ESTILO WINDOWS 10X -->
+        <div class="launcher" id="launcherMenu" onclick="event.stopPropagation()">
+            <input type="text" class="launcher-search" placeholder="Buscar aplicaciones, archivos y web...">
+            
+            <div class="apps-grid">
+                <div class="app-item" onclick="openApp('Microsoft Edge', 'edge')">
+                    <span class="app-icon">🌐</span>
+                    <span class="app-name">Edge</span>
+                </div>
+                <div class="app-item" onclick="openApp('Archivos de la Nube', 'files')">
+                    <span class="app-icon">📂</span>
+                    <span class="app-name">Archivos</span>
+                </div>
+                <div class="app-item" onclick="openApp('Información del Sistema', 'info')">
+                    <span class="app-icon">💻</span>
+                    <span class="app-name">Acerca de</span>
+                </div>
+                <div class="app-item" onclick="alert('Abriendo Mapas...')">
+                    <span class="app-icon">🗺️</span>
+                    <span class="app-name">Mapas</span>
+                </div>
+            </div>
+
+            <!-- Archivos recomendados basados en IA -->
+            <div class="recents-section">
+                <div class="recents-title">Recomendado</div>
+                <div class="recent-file" onclick="openApp('Información del Sistema', 'info')">
+                    <span>📄</span>
+                    <div>
+                        <b>Por qué se canceló Windows 10X.docx</b><br>
+                        <span style="color:#777; font-size:10px;">Modificado hace 2 min</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VENTANA MODERNIZADA -->
+        <div class="window-10x" id="win-info">
+            <div class="window-header" onmousedown="dragStart(event, 'win-info')">
+                <div class="window-title">Especificaciones de Windows 10X</div>
+                <div class="win-btn-close" onclick="closeWindow('win-info')">✕</div>
+            </div>
+            <div class="window-content">
+                <h3 style="font-weight: 600; margin-bottom: 12px; color: #0078d7;">Windows 10X (Build 2021)</h3>
+                <p style="line-height: 1.5; margin-bottom: 15px;">Este sistema operativo iba a ser la competencia directa de Microsoft contra ChromeOS, diseñado originalmente para la tablet plegable <b>Surface Neo</b>.</p>
+                
+                <div style="background: rgba(0,0,0,0.03); border-radius: 8px; padding: 15px; font-size: 13px;">
+                    💡 <b>El Legado Vivo:</b> Aunque Microsoft lo canceló a favor de unificar esfuerzos, el diseño centrado, los iconos modernos y el menú simplificado sirvieron como plantilla exacta para desarrollar el diseño de <b>Windows 11</b>.
+                </div>
+            </div>
+        </div>
+
+        <!-- EL DOCK FLOTANTE FIJO Y CENTRADO -->
+        <div class="taskbar-dock" onclick="event.stopPropagation()">
+            <!-- Botón de Inicio con el nuevo logo azul plano de 2020 -->
+            <div class="dock-btn" id="startBtn" onclick="toggleLauncher()" style="color: #0078d7;">🪟</div>
+            <div class="dock-btn" onclick="openApp('Archivos de la Nube', 'files')">📂</div>
+            <div class="dock-btn" onclick="openApp('Microsoft Edge', 'edge')">🌐</div>
+            
+            <div class="dock-separator"></div>
+            
+            <!-- Bandeja integrada en el mismo dock -->
+            <div class="dock-time" id="dockClock" onclick="alert('Centro de Acción y Notificaciones Simplificado')">00:00</div>
+        </div>
+
+    </div>
+
+    <script {r1-strict-completion}>
+        let zIndexCounter = 100;
+
+        function toggleLauncher() {
+            const launcher = document.getElementById('launcherMenu');
+            const btn = document.getElementById('startBtn');
+            launcher.classList.toggle('open');
+            btn.classList.toggle('start-active');
+        }
+
+        function closeLauncher() {
+            document.getElementById('launcherMenu').classList.remove('open');
+            document.getElementById('startBtn').classList.remove('start-active');
+        }
+
+        function openApp(name, type) {
+            closeLauncher();
+            const win = document.getElementById('win-info');
+            
+            if(type === 'info') {
+                win.style.display = 'flex';
+                win.style.zIndex = ++zIndexCounter;
+            } else {
+                alert(`Abriendo contenedor aislado para: ${name}`);
+            }
+        }
+
+        function closeWindow(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // --- MANEJO DE MOVIMIENTO SIMPLE ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj compacto
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours().toString().padStart(2, '0');
+            let m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('dockClock').textContent = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

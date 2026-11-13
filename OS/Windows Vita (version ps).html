@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Vita Concept OS (2008 Alternate Reality)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* Fondo abstracto brillante, mezcla de los fondos ondulados de Sony y las auroras de Vista */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #0d2b45 0%, #203c56 50%, #543d63 100%);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- INTERFAZ DE ESFERAS (Estilo PS Vita) --- */
+        .vita-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 110px);
+            gap: 40px;
+            z-index: 10;
+        }
+
+        .vita-bubble {
+            width: 110px;
+            height: 110px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%);
+            border-radius: 50%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 -5px 15px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .vita-bubble:hover {
+            transform: scale(1.12);
+        }
+        .bubble-icon { font-size: 34px; margin-bottom: 2px; }
+
+        /* Colores temáticos de burbuja */
+        .b-vista { background-color: #0078d7; }
+        .b-game { background-color: #e81123; }
+        .b-media { background-color: #107c10; }
+
+        /* --- VENTANAS TRASLÚCIDAS "AERO GLASS" (Estilo Windows Vista) --- */
+        .window-aero {
+            position: absolute;
+            width: 540px;
+            height: 360px;
+            /* El mítico efecto cristal esmerilado de Windows Vista Aero */
+            background: rgba(200, 220, 240, 0.25);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.5);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        /* Barra de título súper brillante */
+        .aero-header {
+            height: 38px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            cursor: move;
+            color: #fff;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Botón de cerrar circular y rojo brillante de Vista */
+        .aero-close {
+            width: 32px;
+            height: 20px;
+            background: linear-gradient(to bottom, #f96b6b 0%, #d92020 100%);
+            border: 1px solid #b01010;
+            border-radius: 3px;
+            color: white;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .aero-close:hover { background: #ff3b3b; }
+
+        .aero-content {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.85); /* El fondo blanco lechoso de los exploradores de Vista */
+            padding: 20px;
+            color: #222;
+            font-size: 14px;
+        }
+
+        /* --- MINI BARRA DE TAREAS VISTA ORB --- */
+        .taskbar-vita {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.9) 100%);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 1000;
+        }
+
+        /* El famoso botón de Inicio redondo brillante (Start Orb) */
+        .vista-orb {
+            width: 36px;
+            height: 36px;
+            background: radial-gradient(circle at 50% 30%, #52b3ff 0%, #004799 60%, #001f4d 100%);
+            border-radius: 50%;
+            border: 2px solid #a3d1ff;
+            box-shadow: 0 0 10px rgba(82,179,255,0.8);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+        .vista-orb:hover {
+            box-shadow: 0 0 15px rgba(82,179,255,1);
+            filter: brightness(1.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop" onclick="closeAllWindows()">
+        
+        <!-- CUADRÍCULA DE BURBUJAS ESTILO PLAYSTATION VITA -->
+        <div class="vita-grid" onclick="event.stopPropagation()">
+            <div class="vita-bubble b-vista" onclick="openAeroWindow('win-about')">
+                <span class="bubble-icon">🪟</span>
+                <span>Acerca de</span>
+            </div>
+            <div class="vita-bubble b-game" onclick="openAeroWindow('win-games')">
+                <span class="bubble-icon">🎮</span>
+                <span>Juegos</span>
+            </div>
+            <div class="vita-bubble b-media" onclick="openAeroWindow('win-media')">
+                <span class="bubble-icon">🖼️</span>
+                <span>Galería</span>
+            </div>
+        </div>
+
+        <!-- VENTANA AERO TRASLÚCIDA: EXPLICACIÓN DEL MITO -->
+        <div class="window-aero" id="win-about" style="top: 15%; left: 20%;" onclick="event.stopPropagation()">
+            <div class="aero-header" onmousedown="dragStart(event, 'win-about')">
+                <span>Windows Vita Core - System Information</span>
+                <div class="aero-close" onclick="closeWindow('win-about')">✕</div>
+            </div>
+            <div class="aero-content">
+                <h3 style="color: #1a3a5f; margin-bottom: 10px;">Análisis de Realidad Alternativa</h3>
+                <p style="line-height: 1.5; margin-bottom: 15px;">
+                    ¡Has invocado un mito geonumérico! <b>Windows Vita</b> no existió en nuestro mercado, pero este experimento fusiona los dos grandes pilares multimedia de la era 2007-2011.
+                </p>
+                <div style="background: rgba(0,0,0,0.05); padding: 12px; border-left: 4px solid #0078d7; font-size: 13px;">
+                    • <b>Diseño de Ventana:</b> Copia el motor <i>Windows Aero</i> de Windows Vista, enfocado en transparencias pesadas mediante hardware.<br>
+                    • <b>Navegación:</b> Imita las esferas flotantes interactivas del sistema operativo original de la portátil <i>PS Vita</i>.
+                </div>
+            </div>
+        </div>
+
+        <!-- VENTANA AERO: JUEGOS HÍBRIDOS -->
+        <div class="window-aero" id="win-games" style="top: 20%; left: 25%;" onclick="event.stopPropagation()">
+            <div class="aero-header" onmousedown="dragStart(event, 'win-games')">
+                <span>Explorador de Juegos (Windows Games Hub)</span>
+                <div class="aero-close" onclick="closeWindow('win-games')">✕</div>
+            </div>
+            <div class="aero-content">
+                <h4 style="margin-bottom: 15px;">Títulos listos para ejecutar:</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="border: 1px solid #ccc; padding: 10px; background: white; border-radius: 4px; cursor:pointer;" onclick="alert('Iniciando Buscaminas Edición Portátil...')">💣 Buscaminas Vita 3D</div>
+                    <div style="border: 1px solid #ccc; padding: 10px; background: white; border-radius: 4px; cursor:pointer;" onclick="alert('Cargando datos de Uncharted desde la PC...')">🤠 Uncharted: Golden Abyss (PC Link)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE TAREAS CON EL EMBLEMÁTICO VISTA ORB -->
+        <div class="taskbar-vita" onclick="event.stopPropagation()">
+            <div class="vista-orb" onclick="alert('Menú de Inicio Híbrido:\n\n- Windows Media Center\n- PlayStation Network Sync\n- Internet Explorer 7 Ported')">
+                ❖
+            </div>
+            <div style="color: white; font-size: 12px; margin-left: auto; letter-spacing: 1px;">
+                16:54 🔋
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let zIndexCounter = 100;
+
+        function openAeroWindow(id) {
+            closeAllWindows();
+            const win = document.getElementById(id);
+            win.style.display = 'flex';
+            win.style.zIndex = ++zIndexCounter;
+        }
+
+        function closeWindow(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function closeAllWindows() {
+            document.querySelectorAll('.window-aero').forEach(w => w.style.display = 'none');
+        }
+
+        // --- SISTEMA DE ARRASTRE PARA EL CRISTAL AERO ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Memphis Simulation (Beta 1997)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'MS Sans Serif', Tahoma, Arial, sans-serif;
+            font-size: 11px;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #008080; /* El verde azulado clásico de escritorio */
+        }
+
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* --- MARCA DE AGUA DE LA BETA ORIGINAL --- */
+        .beta-watermark {
+            position: absolute;
+            bottom: 45px;
+            right: 15px;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: right;
+            line-height: 1.4;
+            pointer-events: none;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Iconos Clásicos */
+        .desktop-icons {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 65px;
+            cursor: pointer;
+            color: white;
+            text-align: center;
+            text-shadow: 1px 1px 1px #000;
+        }
+        .icon-img { font-size: 26px; margin-bottom: 4px; }
+
+        /* --- VENTANA CON DEGRADADO (Novedad de Memphis) --- */
+        /* Memphis introdujo los degradados de color en las barras de título */
+        .window-98 {
+            position: absolute;
+            width: 500px;
+            height: 340px;
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #fff #0a0a0a #0a0a0a #fff;
+            box-shadow: 1px 1px 0 0 #000;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .win-header {
+            /* El nuevo degradado de azul oscuro a azul claro de la era Memphis/98 */
+            background: linear-gradient(to right, #000080 0%, #1084d0 100%);
+            color: white;
+            padding: 3px 5px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+        
+        .win-controls { display: flex; gap: 2px; }
+        .win-btn {
+            width: 16px;
+            height: 14px;
+            background: #c0c0c0;
+            border: 1px solid;
+            border-color: #fff #0a0a0a #0a0a0a #fff;
+            color: black;
+            font-weight: bold;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .win-btn:active { border-color: #0a0a0a #fff #fff #0a0a0a; padding: 1px 0 0 1px; }
+
+        /* Contenido del explorador */
+        .window-content {
+            flex: 1;
+            background: white;
+            border: 2px solid;
+            border-color: #808080 #fff #fff #808080;
+            margin: 3px;
+            padding: 15px;
+            overflow: auto;
+            color: black;
+        }
+
+        /* --- BARRA DE TAREAS --- */
+        .taskbar-98 {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 28px;
+            background: #c0c0c0;
+            border-top: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            z-index: 2000;
+        }
+
+        .start-btn {
+            height: 22px;
+            padding: 0 8px;
+            background: #c0c0c0;
+            border: 1px solid;
+            border-color: #fff #0a0a0a #0a0a0a #fff;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+        .start-btn:active { border-color: #0a0a0a #fff #fff #0a0a0a; padding: 1px 5px 0 7px; }
+        
+        .start-logo { font-size: 13px; transform: rotate(-10deg); display: inline-block; }
+
+        .system-tray {
+            margin-left: auto;
+            height: 20px;
+            padding: 0 6px;
+            border: 1px solid;
+            border-color: #808080 #fff #fff #808080;
+            display: flex;
+            align-items: center;
+            background: #c0c0c0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop">
+        
+        <!-- ICONOS TRADICIONALES DE LA BETA -->
+        <div class="desktop-icons">
+            <div class="icon" onclick="alert('Abriendo Mi PC...\nBuscando controladores USB e instalaciones FAT32.')">
+                <div class="icon-img">🖥️</div>
+                <span>Mi PC</span>
+            </div>
+            <div class="icon" onclick="openMemphisApp()">
+                <div class="icon-img">⚙️</div>
+                <span>Memphis Setup</span>
+            </div>
+            <div class="icon" onclick="alert('Iniciando Entorno de Red de Nueva Generación...')">
+                <div class="icon-img">🖧</div>
+                <span>Vecindario de red</span>
+            </div>
+        </div>
+
+        <!-- VENTANA CLÁSICA MEMPHIS BUILD 1400 -->
+        <div class="window-98" id="win-memphis" style="top: 70px; left: 120px;">
+            <div class="win-header" onmousedown="dragStart(event, 'win-memphis')">
+                <span>Windows Memphis Developer Release</span>
+                <div class="win-controls">
+                    <div class="win-btn">?</div>
+                    <div class="win-btn" onclick="document.getElementById('win-memphis').remove()">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2 style="font-size: 15px; font-weight: bold; color: #000080; margin-bottom: 10px;">Microsoft Windows "Memphis" Project</h2>
+                <p style="line-height: 1.4; margin-bottom: 12px;">Estás ejecutando una simulación de la compilación de desarrollo de 1997. Este proyecto se diseñó para reemplazar los parches rápidos de Windows 95.</p>
+                
+                <div style="background: #f0f0f0; border: 1px solid #808080; padding: 10px; margin-bottom: 15px;">
+                    <b>Características principales en desarrollo:</b><br>
+                    • Soporte integrado para Concentradores de Bus Serie Universal (USB).<br>
+                    • Integración del motor de ejecución AGP para gráficos en 3D.<br>
+                    • Actualización del sistema al núcleo Internet Explorer 4.0.
+                </div>
+
+                <button onclick="triggerBlueScreen()" style="padding: 4px 12px; background: #c0c0c0; border: 1px solid; border-color: #fff #0a0a0a #0a0a0a #fff; cursor: pointer; font-weight: bold;">
+                    Probar Hardware USB (Simular Fallo)
+                </button>
+            </div>
+        </div>
+
+        <!-- MARCA DE AGUA REAL DE LAS COMPILACIONES DE MEMPHIS -->
+        <div class="beta-watermark">
+            <b>Windows Memphis</b><br>
+            Developer Beta Build 1411<br>
+            For testing purposes only.
+        </div>
+
+        <!-- BARRA DE TAREAS INDUSTRIAL -->
+        <div class="taskbar-98">
+            <div class="start-btn" onclick="alert('Menú Inicio - Proyecto Memphis:\n\n- Programas\n- Configuración\n- Buscar\n- Apagar sistema de pruebas...')">
+                <span class="start-logo">🪟</span> <b>Inicio</b>
+            </div>
+            <div class="system-tray">
+                <span style="margin-right: 6px;">🔊</span>
+                <span id="clock">00:00</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let zIndexCounter = 100;
+
+        function openMemphisApp() {
+            const win = document.getElementById('win-memphis');
+            if(win) {
+                win.style.display = 'flex';
+                win.style.zIndex = ++zIndexCounter;
+            } else {
+                alert('Reinicie el entorno para recargar el asistente.');
+            }
+        }
+
+        // El mítico chiste histórico: Windows 98 falló en vivo con un USB frente a Bill Gates
+        function triggerBlueScreen() {
+            document.body.innerHTML = `
+                <div style="background: #0000aa; color: white; width: 100vw; height: 100vh; padding: 10% 15%; font-family: monospace; font-size: 14px; user-select: none; line-height: 1.6;">
+                    <div style="background: white; color: #0000aa; display: inline-block; padding: 2px 8px; font-weight: bold; margin-bottom: 20px;">Windows</div>
+                    <p>Un error fatal excepcional 0E ha ocurrido en 0028:C0011A2B en VXD VMM(01) + 00005338. La aplicación actual será terminada de forma abrupta.</p>
+                    <br>
+                    <p>* Presione cualquier tecla para intentar inicializar el dispositivo USB de nuevo.</p>
+                    <p>* Presione CTRL+ALT+SUPR para reiniciar su computadora. Perderá la información no guardada de la compilación Memphis.</p>
+                    <br>
+                    <p style="text-align: center; margin-top: 50px; cursor: pointer; text-decoration: underline;" onclick="location.reload()">[ Presione aquí para reiniciar el sistema operativo ]</p>
+                </div>
+            `;
+        }
+
+        // --- MANEJO DE MOVIMIENTO RETRO ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj clásico de la barra
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours().toString().padStart(2, '0');
+            let m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

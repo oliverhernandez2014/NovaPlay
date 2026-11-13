@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Millennium Edition (2000)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tahoma', 'Segoe UI', sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #008080; /* El mítico color verde azulado clásico */
+        }
+
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* --- ICONOS DEL ESCRITORIO --- */
+        .desktop-icons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 75px;
+            text-align: center;
+            cursor: pointer;
+            color: white;
+            font-size: 11px;
+            text-shadow: 1px 1px 1px #000;
+        }
+        .icon-img {
+            font-size: 32px;
+            margin-bottom: 4px;
+        }
+
+        /* --- VENTANAS ESTILO DEGRADADO EN TITULO (WIN ME / 2000) --- */
+        .window {
+            position: absolute;
+            width: 500px;
+            height: 350px;
+            background: #d4d0c8;
+            border: 2px solid;
+            border-color: #fff #404040 #404040 #fff; /* Efecto biselado 3D clásico */
+            box-shadow: 1px 1px 0 0 #000;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        /* El degradado de barra de título que debutó fuerte en esta era */
+        .window-header {
+            background: linear-gradient(to right, #0a246a 0%, #a6caf0 100%);
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px;
+            cursor: move;
+        }
+        .window-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .window-controls { display: flex; gap: 2px; }
+        .win-btn {
+            width: 16px;
+            height: 14px;
+            background: #d4d0c8;
+            border: 1px solid;
+            border-color: #fff #404040 #404040 #fff;
+            font-size: 9px;
+            font-weight: bold;
+            color: black;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .win-btn:active {
+            border-color: #404040 #fff #fff #404040;
+            padding: 1px 0 0 1px;
+        }
+
+        /* Menú superior clásico de archivo */
+        .window-menu {
+            display: flex;
+            gap: 12px;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-bottom: 1px solid #808080;
+            background: #d4d0c8;
+        }
+        .window-menu span { cursor: pointer; }
+
+        .window-content { 
+            flex: 1; 
+            padding: 12px; 
+            background: white; 
+            overflow: auto; 
+            color: black;
+            font-size: 12px;
+        }
+
+        /* --- LA BARRA DE TAREAS GRIS --- */
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 28px;
+            background: #d4d0c8;
+            border-top: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2px;
+            z-index: 1000;
+        }
+
+        .start-btn {
+            height: 22px;
+            padding: 0 6px;
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border: 2px solid;
+            border-color: #fff #404040 #404040 #fff;
+            cursor: pointer;
+        }
+        .start-btn:active { border-color: #404040 #fff #fff #404040; }
+
+        .systray {
+            border: 2px solid;
+            border-color: #404040 #fff #fff #404040;
+            padding: 2px 8px;
+            font-size: 11px;
+            background: #d4d0c8;
+            height: 22px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* --- PANTALLA AZUL DE LA MUERTE (BSOD EXTRA) --- */
+        .bsod {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0000aa;
+            color: white;
+            font-family: 'Lucida Console', monospace;
+            padding: 10% 15%;
+            font-size: 15px;
+            line-height: 1.6;
+            z-index: 99999;
+            display: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop">
+        
+        <!-- ICONOS DE ESCRITORIO -->
+        <div class="desktop-icons">
+            <div class="icon" onclick="openApp('Mis Documentos', 'docs')">
+                <div class="icon-img">📁</div>
+                <span>Mis Documentos</span>
+            </div>
+            <div class="icon" onclick="openApp('Windows Media Player 7', 'media')">
+                <div class="icon-img">9️⃣</div>
+                <span>Windows Media</span>
+            </div>
+            <div class="icon" onclick="triggerBsod()">
+                <div class="icon-img">⚙️</div>
+                <span>Instalar Driver Extraño</span>
+            </div>
+        </div>
+
+        <!-- VENTANA POR DEFECTO: MOVIE MAKER -->
+        <div class="window" id="win-moviemaker" style="top: 60px; left: 140px;">
+            <div class="window-header" onmousedown="dragStart(event, 'win-moviemaker')">
+                <div class="window-title">🎬 Windows Movie Maker 1.0</div>
+                <div class="window-controls">
+                    <div class="win-btn" onclick="document.getElementById('win-moviemaker').remove()">✕</div>
+                </div>
+            </div>
+            <div class="window-menu">
+                <span>Archivo</span> <span>Edición</span> <span>Colecciones</span> <span>Ayuda</span>
+            </div>
+            <div class="window-content" style="background: #d4d0c8;">
+                <div style="display: flex; gap: 10px; height: 100%;">
+                    <div style="flex: 1; background: white; border: 2px solid #404040; padding: 10px;">
+                        <b>Colección: Mi video de Graduación</b>
+                        <p style="color: #555; margin-top: 10px; font-size: 11px;">[Clip 01.avi]</p>
+                    </div>
+                    <div style="width: 180px; background: #000; display: flex; align-items: center; justify-content: center; color: #4af626; font-weight: bold;">
+                        ► VISTA PREVIA
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LA BARRA DE TAREAS -->
+        <div class="taskbar">
+            <div class="start-btn" onclick="alert('Windows Millennium Edition\nMenú de Inicio Simplificado.')">
+                <span style="font-style: italic; font-size: 14px;">🪟</span> <b>Inicio</b>
+            </div>
+            <div class="systray">
+                <span id="clock">00:00</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- EL MITICO BLUE SCREEN OF DEATH -->
+    <div class="bsod" id="bsodScreen" onclick="recoverFromBsod()">
+        <p style="text-align: center; background: #aaaaaa; color: #0000aa; width: 160px; margin: 0 auto 30px auto; font-weight: bold;">Windows</p>
+        <p>Se ha producido un error fatal 0E en 0028:C0011A2D en VXD VMM(01) + 0000A2D. La aplicación actual será terminada de forma inestable.</p>
+        <br>
+        <p>* Presione cualquier tecla o haga clic para intentar regresar a Windows ME.</p>
+        <p>* Código de error: OE-B000-FEED-ME-MORE</p>
+        <br>
+        <p style="text-align: center; margin-top: 50px;">Haga clic en cualquier parte para reiniciar la simulación...</p>
+    </div>
+
+    <script>
+        let zIndexCounter = 100;
+
+        function openApp(name, type) {
+            if (document.getElementById(`win-${type}`)) return;
+
+            let content = '';
+            if (type === 'media') {
+                content = `
+                    <div style="background:#202020; color:white; padding:15px; text-align:center; height:100%; border-radius:4px;">
+                        <h3 style="color:#00e5ff;">Windows Media Player 7</h3>
+                        <p style="font-size:11px; margin-top:10px; color:#aaa;">Reproduciendo: Linkin_Park_In_The_End.mp3</p>
+                        <div style="margin-top:30px; font-size:24px;">📊 🎛️ 💿</div>
+                    </div>`;
+            } else {
+                content = `<h4>${name}</h4><p style="margin-top:10px; color:#444;">Carpeta vacía. No hay documentos guardados en este usuario.</p>`;
+            }
+
+            const win = document.createElement('div');
+            win.classList.add('window');
+            win.id = `win-${type}`;
+            win.style.top = '120px';
+            win.style.left = '200px';
+            win.style.zIndex = ++zIndexCounter;
+
+            win.innerHTML = `
+                <div class="window-header" onmousedown="dragStart(event, '${win.id}')">
+                    <div class="window-title">📂 ${name}</div>
+                    <div class="window-controls">
+                        <div class="win-btn" onclick="document.getElementById('${win.id}').remove()">✕</div>
+                    </div>
+                </div>
+                <div class="window-menu"><span>Archivo</span> <span>Ver</span> <span>Ayuda</span></div>
+                <div class="window-content">${content}</div>
+            `;
+
+            win.addEventListener('mousedown', () => { win.style.zIndex = ++zIndexCounter; });
+            document.getElementById('desktop').appendChild(win);
+        }
+
+        // Simulación de la Pantalla Azul
+        function triggerBsod() {
+            document.getElementById('bsodScreen').style.display = 'block';
+        }
+
+        function recoverFromBsod() {
+            document.getElementById('bsodScreen').style.display = 'none';
+        }
+
+        // --- SISTEMA DE ARRASTRE DE VENTANAS CLÁSICO ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj de la barra de tareas
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours().toString().padStart(2, '0');
+            let m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

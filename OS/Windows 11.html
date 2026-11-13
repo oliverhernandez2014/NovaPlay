@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 11 Interactivo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Fondo de Pantalla */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(circle at 50% 50%, #4762f9 0%, #0a1128 100%);
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Barra de Tareas */
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 48px;
+            background: rgba(243, 243, 243, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            z-index: 1000;
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .taskbar-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+
+        .taskbar-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .taskbar-icon:hover { background: rgba(255, 255, 255, 0.6); }
+        .taskbar-icon:active { transform: scale(0.9); }
+        .taskbar-icon img { width: 24px; height: 24px; }
+
+        .taskbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .system-tray { display: flex; gap: 10px; padding: 4px 8px; border-radius: 4px; }
+        .time-widget { text-align: right; padding: 2px 6px; border-radius: 4px; line-height: 1.3; }
+
+        /* Menú de Inicio */
+        .start-menu {
+            position: absolute;
+            bottom: -600px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 520px;
+            height: 550px;
+            background: rgba(243, 243, 243, 0.92);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: bottom 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+            z-index: 999;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .start-menu.open { bottom: 60px; }
+
+        .pinned-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: #333; margin-bottom: 16px; }
+        .apps-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+        
+        .app-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            color: #333;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 4px;
+            padding: 8px 4px;
+            transition: background 0.2s;
+        }
+        .app-item:hover { background: rgba(255, 255, 255, 0.6); }
+        .app-item img { width: 32px; height: 32px; margin-bottom: 6px; }
+
+        .start-footer {
+            height: 50px;
+            background: rgba(230, 230, 230, 0.5);
+            margin: 0 -30px -30px -30px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+        .avatar { width: 28px; height: 28px; background: #5c6bc0; border-radius: 50%; }
+
+        /* --- SISTEMA DE VENTANAS DINÁMICAS --- */
+        .window {
+            position: absolute;
+            width: 600px;
+            height: 400px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            border: 1px solid rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        /* Maximizado */
+        .window.maximized {
+            width: 100% !important;
+            height: calc(100vh - 48px) !important;
+            top: 0 !important;
+            left: 0 !important;
+            border-radius: 0;
+        }
+
+        /* Barra de título superior */
+        .window-header {
+            background: #f3f3f3;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .window-title {
+            font-size: 12px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .control-btn {
+            width: 28px;
+            height: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .control-btn:hover { background: rgba(0,0,0,0.08); }
+        .control-btn.close:hover { background: #e81123; color: white; }
+
+        /* Contenido interno de las apps */
+        .window-content {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+            background: #fafafa;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop" onclick="closeStartMenu()">
+        
+        <!-- Menú de Inicio -->
+        <div class="start-menu" id="startMenu" onclick="event.stopPropagation()">
+            <div class="pinned-section">
+                <div class="pinned-header">
+                    <span>Anclado</span>
+                    <span style="color: #0067b8; cursor: pointer;">Todas las aplicaciones ></span>
+                </div>
+                
+                <div class="apps-grid">
+                    <!-- Eventos onclick añadidos para abrir apps -->
+                    <div class="app-item" onclick="openApp('Edge', 'https://bing.com')">
+                        <img src="https://img.icons8.com/color/48/microsoft-edge.png" alt="Edge">
+                        <span>Edge</span>
+                    </div>
+                    <div class="app-item" onclick="openApp('Word', 'word')">
+                        <img src="https://img.icons8.com/color/48/microsoft-word-2019.png" alt="Word">
+                        <span>Word</span>
+                    </div>
+                    <div class="app-item" onclick="openApp('Configuración', 'config')">
+                        <img src="https://img.icons8.com/color/48/settings--v1.png" alt="Configuración">
+                        <span>Configuración</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="start-footer">
+                <div class="user-profile">
+                    <div class="avatar"></div>
+                    <span>Usuario Windows</span>
+                </div>
+                <div class="power-btn">⚙️</div>
+            </div>
+        </div>
+
+        <!-- Barra de Tareas -->
+        <div class="taskbar" onclick="event.stopPropagation()">
+            <div></div>
+            <div class="taskbar-center">
+                <div class="taskbar-icon" onclick="toggleStartMenu()">
+                    <img src="https://img.icons8.com/fluent/48/000000/windows-11.png" alt="Inicio">
+                </div>
+                <!-- Accesos directos rápidos -->
+                <div class="taskbar-icon" onclick="openApp('Edge', 'https://bing.com')">
+                    <img src="https://img.icons8.com/color/48/microsoft-edge.png" alt="Edge">
+                </div>
+                <div class="taskbar-icon" onclick="openApp('Word', 'word')">
+                    <img src="https://img.icons8.com/color/48/microsoft-word-2019.png" alt="Word">
+                </div>
+                <div class="taskbar-icon" onclick="openApp('Configuración', 'config')">
+                    <img src="https://img.icons8.com/color/48/settings--v1.png" alt="Configuración">
+                </div>
+            </div>
+
+            <div class="taskbar-right">
+                <div class="system-tray">🌐 🔊 🔋</div>
+                <div class="time-widget">
+                    <div id="time">00:00</div>
+                    <div id="date">01/01/2026</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Control del menú de inicio
+        function toggleStartMenu() {
+            document.getElementById('startMenu').classList.toggle('open');
+        }
+
+        function closeStartMenu() {
+            document.getElementById('startMenu').classList.remove('open');
+        }
+
+        // --- LÓGICA PARA CREAR Y CONTROLAR VENTANAS ---
+        let zIndexCounter = 10;
+
+        function openApp(name, type) {
+            closeStartMenu(); // Cierra el menú al abrir una app
+
+            // Evitar abrir la misma ventana dos veces si ya existe
+            if (document.getElementById(`win-${name}`)) {
+                return; 
+            }
+
+            // Definir contenido interno según la app
+            let content = '';
+            if (type.startsWith('http')) {
+                // Si es un enlace, cargamos un navegador real simulado
+                content = `<iframe src="${type}"></iframe>`;
+            } else if (type === 'word') {
+                content = `
+                    <div style="padding:10px; background:#fff; height:100%; border:1px solid #ccc; box-shadow: inset 0 0 5px #ccc;">
+                        <h2 style="color:#2b579a; margin-bottom:10px;">Documento de Word.docx</h2>
+                        <textarea style="width:100%; height:80%; border:none; resize:none; font-size:16px; outline:none;" placeholder="Empieza a escribir aquí tu documento simulado..."></textarea>
+                    </div>`;
+            } else if (type === 'config') {
+                content = `
+                    <h2 style="margin-bottom:15px;">Configuración del Sistema</h2>
+                    <p><strong>Versión:</strong> Windows 11 HTML Edition (2026)</p>
+                    <p style="margin-top:10px;">Pantalla, Almacenamiento, Personalización y Actualizaciones funcionando correctamente de manera simulada.</p>
+                    <button onclick="alert('¡Sistema Optimizado!')" style="margin-top:20px; padding:8px 15px; border:none; background:#0067b8; color:white; border-radius:4px; cursor:pointer;">Buscar actualizaciones</button>`;
+            }
+
+            // Crear el elemento contenedor de la ventana
+            const windowEl = document.createElement('div');
+            windowEl.classList.add('window');
+            windowEl.id = `win-${name}`;
+            windowEl.style.top = '100px';
+            windowEl.style.left = '150px';
+            windowEl.style.zIndex = ++zIndexCounter;
+
+            // Inyectar estructura HTML de la ventana
+            windowEl.innerHTML = `
+                <div class="window-header" onmousedown="dragStart(event, '${windowEl.id}')">
+                    <div class="window-title">🗔 ${name}</div>
+                    <div class="window-controls">
+                        <div class="control-btn" onclick="minimizeWin('${windowEl.id}')">─</div>
+                        <div class="control-btn" onclick="maximizeWin('${windowEl.id}')">🗖</div>
+                        <div class="control-btn close" onclick="closeWin('${windowEl.id}')">✕</div>
+                    </div>
+                </div>
+                <div class="window-content">${content}</div>
+            `;
+
+            // Traer al frente al hacer clic en ella
+            windowEl.addEventListener('mousedown', () => {
+                windowEl.style.zIndex = ++zIndexCounter;
+            });
+
+            document.getElementById('desktop').appendChild(windowEl);
+        }
+
+        // Funciones de control de ventanas
+        function closeWin(id) { document.getElementById(id).remove(); }
+        function minimizeWin(id) { document.getElementById(id).style.display = 'none'; alert('Ventana minimizada (vuelve a hacer clic en el icono para reabrir)'); document.getElementById(id).style.display = 'flex';}
+        function maximizeWin(id) { document.getElementById(id).classList.toggle('maximized'); }
+
+        // --- SISTEMA PARA ARRASTRAR LAS VENTANAS ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            // No arrastrar si se maximizó
+            if(document.getElementById(id).classList.contains('maximized')) return;
+            
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('time').textContent = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('date').textContent = now.getDate().toString().padStart(2, '0') + '/' + (now.getMonth() + 1).toString().padStart(2, '0') + '/' + now.getFullYear();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

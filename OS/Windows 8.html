@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 8 Original Simulation (2012)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #001829;
+        }
+
+        /* --- PANTALLA DE INICIO METRO PRINCIPAL --- */
+        /* En Win 8 original, esta era la pantalla por defecto, no el escritorio */
+        .metro-screen {
+            width: 100%;
+            height: 100vh;
+            background: #007a7a; /* El mítico color verde azulado por defecto de Win 8 */
+            padding: 80px 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .metro-header {
+            color: white;
+            font-size: 42px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mosaicos estilo Windows 8 */
+        .tile-container {
+            display: grid;
+            grid-template-columns: repeat(4, 150px);
+            grid-auto-rows: 150px;
+            gap: 15px;
+        }
+        .tile {
+            color: white;
+            padding: 15px;
+            font-size: 13px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .tile:hover {
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.4);
+        }
+        .tile:active { transform: scale(0.96); }
+        
+        .tile-label { position: absolute; bottom: 12px; left: 15px; font-size: 12px; font-weight: 400; }
+        .tile-icon { font-size: 36px; display: block; margin-bottom: 5px; }
+
+        /* Tamaños y colores de la paleta original de 2012 */
+        .tile-wide { grid-column: span 2; }
+        .tile-purple { background: #4e0038; }
+        .tile-blue { background: #002244; }
+        .tile-orange { background: #d24726; }
+        .tile-green { background: #008a00; }
+        .tile-darkblue { background: #2d89ef; }
+
+        /* --- LA INFAME "CHARMS BAR" (Barra Lateral Oculta) --- */
+        /* Aparecía mágicamente al llevar el puntero a la esquina derecha */
+        .charms-bar {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 85px;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.92);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 35px;
+            z-index: 5000;
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+            transition: all 0.2s ease;
+        }
+        /* Zona interactiva invisible en la derecha para activar la barra */
+        .trigger-zone {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 100vh;
+            z-index: 4000;
+        }
+        .trigger-zone:hover + .charms-bar, .charms-bar:hover {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+        .charm-item {
+            color: #8c8c8c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            cursor: pointer;
+            width: 100%;
+            padding: 10px 0;
+        }
+        .charm-item:hover { color: white; }
+        .charm-icon { font-size: 22px; }
+
+        /* --- VENTANA EN MODO ESCRITORIO SIMULADO --- */
+        /* En Win 8, el escritorio era solo una "app mas" */
+        .window-desktop-mode {
+            position: absolute;
+            top: 5%;
+            left: 5%;
+            width: 90%;
+            height: 85%;
+            background: #113355;
+            border: 2px solid #005588;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .win8-header {
+            background: #005588;
+            height: 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            color: white;
+            font-size: 13px;
+        }
+        .win8-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        .win8-close:hover { background: #e81123; }
+
+        .win8-content {
+            flex: 1;
+            background: #fff;
+            padding: 30px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ENTORNOS DE PANTALLA INICIAL METRO -->
+    <div class="metro-screen" id="metroDashboard">
+        <div class="metro-header">Inicio</div>
+        
+        <div class="tile-container">
+            <!-- Mosaico de Correo -->
+            <div class="tile tile-wide tile-purple" onclick="alert('Mensaje de Microsoft:\n¡Bienvenido a la nueva interfaz Modern UI!')">
+                <span class="tile-icon">✉️</span>
+                <h3 style="font-weight: 300;">Correo</h3>
+                <p style="font-size: 11px; opacity: 0.7; margin-top: 5px;">Sin leer: 2 notificaciones</p>
+                <span class="tile-label">Mail</span>
+            </div>
+
+            <!-- Mosaico de Escritorio Clásico -->
+            <div class="tile tile-block tile-blue" onclick="openDesktopMode()">
+                <span class="tile-icon">🖥️</span>
+                <span class="tile-label">Escritorio</span>
+            </div>
+
+            <!-- Mosaico Unión Mensajes -->
+            <div class="tile tile-block tile-orange" onclick="alert('Abriendo Mensajes estilo Windows Phone...')">
+                <span class="tile-icon">💬</span>
+                <span class="tile-label">Mensajes</span>
+            </div>
+
+            <!-- Mosaico Xbox Music -->
+            <div class="tile tile-wide tile-green" onclick="alert('Reproduciendo música en streaming desde Xbox Music...')">
+                <span class="tile-icon">🎵</span>
+                <h3 style="font-weight: 300;">Xbox Music</h3>
+                <span class="tile-label">Música</span>
+            </div>
+
+            <!-- Mosaico Tienda original -->
+            <div class="tile tile-block tile-darkblue" onclick="alert('Abriendo Windows Store original (2012)')">
+                <span class="tile-icon">🛍️</span>
+                <span class="tile-label">Tienda</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ZONA ACTIVA DERECHA PARA INVOCAR LA CHARMS BAR -->
+    <div class="trigger-zone"></div>
+
+    <!-- LA MÍTICA CHARMS BAR DE WINDOWS 8 -->
+    <div class="charms-bar">
+        <div class="charm-item" onclick="alert('Buscador Global del Sistema activo.')">
+            <span class="charm-icon">🔍</span>
+            <span>Buscar</span>
+        </div>
+        <div class="charm-item" onclick="alert('Compartir contenido mediante Apps Metro.')">
+            <span class="charm-icon">🔗</span>
+            <span>Compartir</span>
+        </div>
+        <div class="charm-item" onclick="closeDesktopMode()">
+            <span class="charm-icon">🪟</span>
+            <span>Inicio</span>
+        </div>
+        <div class="charm-item" onclick="alert('Buscando dispositivos externos conectables...')">
+            <span class="charm-icon">🔌</span>
+            <span>Dispositivos</span>
+        </div>
+        <div class="charm-item" onclick="alert('Configuración -> Configuración de PC\n\n[Aquí es donde Microsoft escondió el botón de Apagar en 2012]')">
+            <span class="charm-icon">⚙️</span>
+            <span>Configuración</span>
+        </div>
+    </div>
+
+    <!-- VENTANA INTERNA: ESCRITORIO TRADICIONAL COMPARTIMENTADO -->
+    <div class="window-desktop-mode" id="desktopView">
+        <div class="win8-header">
+            <span>Escritorio Clásico de Windows 8</span>
+            <button class="win8-close" onclick="closeDesktopMode()">✕</button>
+        </div>
+        <div class="win8-content">
+            <h2 style="font-weight: 400; margin-bottom: 15px;">Estás en el modo Escritorio</h2>
+            <p>Mira abajo a la izquierda... exacto, <b>no hay botón de Inicio</b>. Microsoft lo eliminó por completo en esta versión obligándote a usar esquinas activas.</p>
+            
+            <div style="margin-top: 25px; display: inline-block; background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 4px; font-size: 13px; color: #856404;">
+                🚩 <b>Dato histórico:</b> La eliminación del botón de inicio causó tanta frustración colectiva a nivel mundial que las ventas de computadoras cayeron notablemente, obligando a Microsoft a recular un año después.
+            </div>
+            
+            <button onclick="closeDesktopMode()" style="margin-top: 30px; display: block; padding: 10px 20px; background: #005588; color: white; border: none; font-size: 13px; cursor: pointer;">
+                Volver a la pantalla Metro
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Entrar al entorno de Escritorio Clásico
+        function openDesktopMode() {
+            document.getElementById('desktopView').style.display = 'flex';
+        }
+
+        // Salir del Escritorio y volver a Metro
+        function closeDesktopMode() {
+            document.getElementById('desktopView').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

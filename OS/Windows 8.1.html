@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 8.1 Simulation</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* Fondo de líneas abstractas amarillas/azules icónico de Windows 8.1 */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1618005198143-e528346d96f7?q=80&w=1920') no-repeat center center;
+            background-size: cover;
+            position: relative;
+        }
+
+        /* --- PANTALLA DE INICIO "METRO" (Se abre al pulsar Inicio) --- */
+        .metro-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 40px);
+            background: linear-gradient(135deg, #1f0030 0%, #004f7a 100%);
+            z-index: 2000;
+            padding: 60px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            transform: scale(1.05);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .metro-screen.open {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .metro-header {
+            color: white;
+            font-size: 36px;
+            font-weight: 300;
+        }
+
+        /* Rejilla de mosaicos interactivos de Windows 8.1 */
+        .tile-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 140px);
+            grid-auto-rows: 140px;
+            gap: 12px;
+        }
+        .tile {
+            color: white;
+            padding: 15px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.1s;
+        }
+        .tile:active { transform: scale(0.95); }
+        .tile-label { position: absolute; bottom: 12px; left: 12px; font-weight: 400; font-size: 12px; }
+        .tile-icon { font-size: 32px; display: block; margin-bottom: 5px; }
+
+        /* Tamaños y colores típicos de Windows 8.1 */
+        .tile-large { grid-column: span 2; grid-row: span 2; }
+        .tile-wide { grid-column: span 2; }
+        .tile-teal { background: #00a300; }
+        .tile-blue { background: #2d89ef; }
+        .tile-purple { background: #603cba; }
+        .tile-magenta { background: #ff0097; }
+        .tile-orange { background: #da532c; }
+
+        /* --- VENTANAS DE ESCRITORIO TOTALMENTE CUADRADAS --- */
+        .window {
+            position: absolute;
+            width: 580px;
+            height: 380px;
+            background: #ffffff;
+            border: 1px solid #1c97ea; /* Borde de color de énfasis sólido */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        /* En Windows 8 las barras eran de un color sólido llamativo sin transparencias */
+        .window-header {
+            background: #1c97ea;
+            height: 34px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            cursor: move;
+            color: white;
+        }
+        .window-title { font-size: 13px; font-weight: 400; }
+        
+        .window-controls { display: flex; height: 100%; }
+        .win-btn {
+            width: 40px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: white;
+            cursor: pointer;
+        }
+        .win-btn:hover { background: rgba(255, 255, 255, 0.2); }
+        .win-btn.close-btn:hover { background: #e81123; }
+
+        .window-content { flex: 1; padding: 20px; overflow: auto; color: #333; background: #fff; font-size: 14px; }
+
+        /* --- BARRA DE TAREAS RETRO COMPATIBLE --- */
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: rgba(10, 30, 50, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 3000;
+        }
+
+        /* El botón de inicio plano de Windows 8.1 que regresó tras las quejas */
+        .start-btn {
+            width: 48px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #8cd1ff;
+            font-size: 18px;
+            transition: background 0.1s, color 0.1s;
+        }
+        .start-btn:hover, .start-btn.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+
+        .taskbar-apps { flex: 1; display: flex; padding-left: 10px; gap: 5px; }
+        .active-app {
+            background: rgba(255,255,255,0.1);
+            border-bottom: 2px solid #1c97ea;
+            color: white;
+            padding: 0 15px;
+            font-size: 12px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .system-tray { color: white; font-size: 12px; padding-right: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop">
+        
+        <!-- PANTALLA DE INICIO INTERACTIVA "METRO / MODERN UI" -->
+        <div class="metro-screen" id="metroScreen" onclick="toggleMetro()">
+            <div class="metro-header">Inicio</div>
+            
+            <div class="tile-grid" onclick="event.stopPropagation()">
+                <!-- Mosaico Grande (Live Tile simulada) -->
+                <div class="tile tile-large tile-blue" onclick="alert('Abriendo Correo de Outlook Metro...')">
+                    <span class="tile-icon">✉️</span>
+                    <h3>Outlook</h3>
+                    <p style="font-size:11px; font-weight:normal; margin-top:10px; opacity:0.8;">Gabriel: "¿Nos vemos a las 5?"<br>Soporte: "Tu cuenta ha sido..."</p>
+                    <span class="tile-label">Correo</span>
+                </div>
+                <!-- Mosaicos Anchos -->
+                <div class="tile tile-wide tile-teal" onclick="openDesktopApp('Tienda de Windows', 'store')">
+                    <span class="tile-icon">🛍️</span>
+                    <span class="tile-label">Tienda</span>
+                </div>
+                <div class="tile tile-purple" onclick="alert('Abriendo Xbox Games...')">
+                    <span class="tile-icon">🎮</span>
+                    <span class="tile-label">Juegos</span>
+                </div>
+                <div class="tile tile-magenta" onclick="alert('Abriendo Skydrive (Luego OneDrive)...')">
+                    <span class="tile-icon">☁️</span>
+                    <span class="tile-label">SkyDrive</span>
+                </div>
+                <!-- Fila inferior -->
+                <div class="tile tile-wide tile-orange" onclick="alert('Cargando Finanzas de Bing...')">
+                    <span class="tile-icon">📈</span>
+                    <span class="tile-label">Finanzas</span>
+                </div>
+                <div class="tile tile-blue" onclick="openDesktopApp('Este Equipo', 'pc')">
+                    <span class="tile-icon">📁</span>
+                    <span class="tile-label">Escritorio</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- VENTANA PRE-CARGADA (ESTILO PLANO DE COLOR SÓLIDO) -->
+        <div class="window" id="win-pc" style="top: 80px; left: 100px;">
+            <div class="window-header" onmousedown="dragStart(event, 'win-pc')">
+                <div class="window-title">Este Equipo</div>
+                <div class="window-controls">
+                    <div class="win-btn">🗕</div>
+                    <div class="win-btn close-btn" onclick="document.getElementById('win-pc').remove()">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <p style="margin-bottom: 15px;"><b>Dispositivos y unidades (1)</b></p>
+                <div style="display: flex; gap: 15px; align-items: center; border: 1px solid #ddd; padding: 10px;">
+                    <span style="font-size: 28px;">💽</span>
+                    <div>
+                        <span style="font-size: 13px; font-weight: 600;">Disco local (C:)</span>
+                        <div style="width: 180px; height: 10px; background: #e0e0e0; margin-top: 4px;">
+                            <div style="width: 40%; height: 100%; background: #1c97ea;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px; padding: 12px; background: #e6f4ff; color: #005599; font-size: 12px;">
+                    💡 <b>Tip de Windows 8.1:</b> Haz clic en el botón de la esquina inferior izquierda para alternar entre este Escritorio clásico y la Pantalla de Inicio Metro.
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE TAREAS CON EL LOGO INCLINADO RE-INTRODUCIDO -->
+        <div class="taskbar">
+            <div class="taskbar-left" style="height: 100%; display: flex; align-items: center;">
+                <div class="start-btn" id="startBtn" onclick="toggleMetro()">
+                    🪟
+                </div>
+                <div class="taskbar-apps">
+                    <div class="active-app" onclick="openDesktopApp('Este Equipo', 'pc')">Este Equipo</div>
+                </div>
+            </div>
+            <div class="system-tray">
+                <span id="clock">00:00</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let zIndexCounter = 100;
+
+        // Mostrar / Ocultar la Pantalla de Inicio Completa de Windows 8.1
+        function toggleMetro() {
+            const metro = document.getElementById('metroScreen');
+            const btn = document.getElementById('startBtn');
+            metro.classList.toggle('open');
+            btn.classList.toggle('active');
+        }
+
+        function openDesktopApp(name, type) {
+            document.getElementById('metroScreen').classList.remove('open');
+            document.getElementById('startBtn').classList.remove('active');
+            
+            if (document.getElementById(`win-${type}`)) return;
+
+            let content = `<h3>${name}</h3><p style="margin-top:10px;">Aplicación ejecutándose de manera clásica en el Escritorio tradicional de Windows 8.1.</p>`;
+            
+            if(type === 'store') {
+                content = `<h3>Tienda de Windows</h3><p style="color:#666; margin-top:5px;">Buscando aplicaciones optimizadas para la interfaz táctil...</p>`;
+            }
+
+            const win = document.createElement('div');
+            win.classList.add('window');
+            win.id = `win-${type}`;
+            win.style.top = '120px';
+            win.style.left = '160px';
+            win.style.zIndex = ++zIndexCounter;
+
+            win.innerHTML = `
+                <div class="window-header" onmousedown="dragStart(event, '${win.id}')">
+                    <div class="window-title">${name}</div>
+                    <div class="window-controls">
+                        <div class="win-btn">🗕</div>
+                        <div class="win-btn close-btn" onclick="document.getElementById('${win.id}').remove()">✕</div>
+                    </div>
+                </div>
+                <div class="window-content">${content}</div>
+            `;
+
+            win.addEventListener('mousedown', () => { win.style.zIndex = ++zIndexCounter; });
+            document.getElementById('desktop').appendChild(win);
+        }
+
+        // --- ARRASTRE DE VENTANAS SIN BORDES REDONDEADOS ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours().toString().padStart(2, '0');
+            let m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Nashville Simulation (Project 1996)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'MS Sans Serif', Tahoma, Arial, sans-serif;
+            font-size: 11px;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #008080; /* El clásico verde azulado opaco de los 90 */
+        }
+
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* --- ICONOS DE ESCRITORIO CON SUBRAYADO (Estilo Hipervínculo Web) --- */
+        /* Nashville introdujo la opción de abrir archivos con un solo clic como en la web */
+        .desktop-icons {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 70px;
+            cursor: pointer;
+            color: white;
+            text-align: center;
+        }
+        .icon:hover span {
+            text-decoration: underline;
+            color: #ff0; /* Subrayado amarillo clásico de los hipervínculos antiguos */
+        }
+        .icon-img {
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+
+        /* --- VENTANA CON PROTOCOLO WEB INTEGRADO --- */
+        .window-95 {
+            position: absolute;
+            width: 550px;
+            height: 360px;
+            background: #c0c0c0; /* Gris industrial de los 90 */
+            border: 2px solid;
+            border-color: #fff #0a0a0a #0a0a0a #fff; /* Relieve 3D clásico */
+            box-shadow: 1px 1px 0 0 #000;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .win-header {
+            background: linear-gradient(to right, #000080, #1084d0); /* Degradado azul oscuro */
+            color: white;
+            padding: 4px 6px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+        .win-title { font-size: 12px; }
+        
+        .win-btn-close {
+            width: 16px;
+            height: 14px;
+            background: #c0c0c0;
+            border: 1px solid;
+            border-color: #fff #0a0a0a #0a0a0a #fff;
+            color: black;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding-bottom: 2px;
+        }
+        .win-btn-close:active { border-color: #0a0a0a #fff #fff #0a0a0a; padding: 1px 0 0 1px; }
+
+        /* Mítica Barra de Herramientas de Internet de Nashville */
+        .web-toolbar {
+            background: #c0c0c0;
+            padding: 4px;
+            border-bottom: 1px solid #808080;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .tool-btn {
+            padding: 2px 6px;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+        .tool-btn:hover {
+            border-color: #fff #0a0a0a #0a0a0a #fff;
+        }
+        .address-bar {
+            flex: 1;
+            padding: 2px 4px;
+            border: 1px solid #808080;
+            background: white;
+            font-family: monospace;
+            outline: none;
+        }
+
+        /* Contenido de la carpeta renderizado como página HTML */
+        .window-content {
+            flex: 1;
+            background: white;
+            border: 2px solid;
+            border-color: #808080 #fff #fff #808080;
+            margin: 4px;
+            padding: 15px;
+            overflow: auto;
+            color: black;
+        }
+
+        /* --- BARRA DE TAREAS RETRO --- */
+        .taskbar-95 {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 28px;
+            background: #c0c0c0;
+            border-top: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            box-shadow: inset 0 1px 0 #fff;
+            z-index: 2000;
+        }
+
+        .start-btn {
+            height: 22px;
+            padding: 0 6px;
+            background: #c0c0c0;
+            border: 1px solid;
+            border-color: #fff #0a0a0a #0a0a0a #fff;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+        .start-btn:active {
+            border-color: #0a0a0a #fff #fff #0a0a0a;
+            padding: 1px 5px 0 7px;
+        }
+
+        .system-tray {
+            margin-left: auto;
+            height: 20px;
+            padding: 0 8px;
+            border: 1px solid;
+            border-color: #808080 #fff #fff #808080;
+            display: flex;
+            align-items: center;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop">
+        
+        <!-- ICONOS CON COMPORTAMIENTO WEB (SINGLE CLICK) -->
+        <div class="desktop-icons">
+            <div class="icon" onclick="openNashvilleFolder('Mi PC', 'file://C:/')">
+                <div class="icon-img">🖥️</div>
+                <span>Mi PC</span>
+            </div>
+            <div class="icon" onclick="openNashvilleFolder('The Internet', 'http://www.microsoft.com/nashville')">
+                <div class="icon-img">🌐</div>
+                <span>The Internet</span>
+            </div>
+        </div>
+
+        <!-- EXPLORADOR DE VENTANA HÍBRIDO (EXPLORER + INTERNET EXPLORER) -->
+        <div class="window-95" id="win-nashville" style="top: 60px; left: 100px;">
+            <div class="win-header" onmousedown="dragStart(event, 'win-nashville')">
+                <span class="win-title" id="winTitle">Explorando - Mi PC</span>
+                <div class="win-btn-close" onclick="document.getElementById('win-nashville').remove()">✕</div>
+            </div>
+            
+            <!-- Barra de navegación que fusionó los dos mundos -->
+            <div class="web-toolbar">
+                <div class="tool-btn" onclick="alert('Atrás (Historial Web/Carpetas)')">⬅️ Atrás</div>
+                <div class="tool-btn" onclick="alert('Adelante')">➡️</div>
+                <span style="color:#555;">|</span>
+                <span style="font-weight:bold;">Dirección:</span>
+                <input type="text" class="address-bar" id="addressInput" value="file://C:/" readonly>
+            </div>
+
+            <!-- Contenido que mezcla archivos locales con código web -->
+            <div class="window-content" id="winContent">
+                <h2 style="font-size: 16px; font-weight: normal; color: #000080; margin-bottom: 10px;">Índice de Disco Local (C:)</h2>
+                <p style="margin-bottom: 15px; color: #555;">Nashville ha detectado que estas carpetas locales pueden comportarse como hipertexto.</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                    <div style="border:1px dashed #808080; padding:8px; background:#f5f5f5;">
+                        <a href="#" onclick="alert('Abriendo directorio local Archivos de Programa...')" style="color:blue; font-weight:bold; text-decoration:underline;">📁 Program Files</a>
+                        <p style="color:#666; font-size:10px;">Contiene Internet Explorer 3.0 Beta</p>
+                    </div>
+                    <div style="border:1px dashed #808080; padding:8px; background:#f5f5f5;">
+                        <a href="#" onclick="alert('Abriendo el núcleo del sistema...')" style="color:blue; font-weight:bold; text-decoration:underline;">📁 System_Beta</a>
+                        <p style="color:#666; font-size:10px;">Windows Nashville Build 999</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 25px; padding: 10px; background: #ffffcc; border: 1px solid #bbbb88;">
+                    ℹ️ <b>Nota Histórica:</b> Esta ventana no es solo un gestor de archivos rígido; utiliza código HTML para mostrar el contenido de tu disco duro, la gran (y peligrosa) apuesta que Microsoft implementó a finales de los 90.
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE TAREAS RETRO DE 1996 -->
+        <div class="taskbar-95">
+            <div class="start-btn" onclick="alert('Menú Inicio de Windows Nashville (Build 999)\n\n- Programas\n- Favoritos de Internet\n- Buscar en la Web\n- Ejecutar...')">
+                <span style="font-size:14px;">🪟</span> <b>Inicio</b>
+            </div>
+            <div class="system-tray">
+                <span id="clock">00:00</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let zIndexCounter = 100;
+
+        function openNashvilleFolder(name, url) {
+            document.getElementById('winTitle').textContent = `Explorando - ${name}`;
+            document.getElementById('addressInput').value = url;
+            
+            const content = document.getElementById('winContent');
+            if(url.startsWith('http')) {
+                content.innerHTML = `
+                    <div style="text-align:center; padding-top:20px;">
+                        <h1 style="color:#1084d0; font-size:18px;">Microsoft Nashville Welcome Page</h1>
+                        <p style="margin-top:5px; font-size:12px;">"Donde quieras ir hoy con tu PC e Internet unificados."</p>
+                        <hr style="margin:15px 0;">
+                        <p style="text-align:left; line-height:1.4;">Estás viendo una página HTML real cargada directamente desde el explorador del sistema. En 1996, este nivel de integración causó un juicio antimonopolio histórico por parte del gobierno de EE.UU.</p>
+                        <br>
+                        <button onclick="openNashvilleFolder('Mi PC', 'file://C:/')" style="padding:4px 10px; cursor:pointer;">Volver al Disco Duro</button>
+                    </div>
+                `;
+            } else {
+                location.reload(); // Resetea al estado inicial de disco local
+            }
+        }
+
+        // --- MANEJO DE MOVIMIENTO RETRO ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj clásico
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours().toString().padStart(2, '0');
+            let m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

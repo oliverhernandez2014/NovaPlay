@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Windows XP</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tahoma', 'Segoe UI', sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Legendario Fondo de Pantalla "Bliss" */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/2/21/Bliss_%28Windows_XP_wallpaper%29.png') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* --- BARRA DE TAREAS CLÁSICA AZUL --- */
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 9%, #1b52e3 18%, #174be6 50%, #174be6 71%, #1b52e3 87%, #245edb 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.4);
+        }
+
+        /* Botón Inicio Verde */
+        .start-button {
+            height: 100%;
+            padding: 0 15px 0 10px;
+            background: linear-gradient(to bottom, #00cb00 0%, #009900 15%, #007700 85%, #005500 100%);
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: white;
+            font-weight: bold;
+            font-style: italic;
+            font-size: 14px;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.7);
+            cursor: pointer;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+        }
+        .start-button:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Área de Reloj Azul Oscuro */
+        .taskbar-right {
+            height: 100%;
+            background: linear-gradient(to bottom, #0c76cb 0%, #0c5bb3 100%);
+            border-left: 1px solid #103a8a;
+            box-shadow: inset 1px 0 1px rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            color: white;
+            font-size: 11px;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
+        }
+
+        /* --- MENÚ INICIO (ESTILO DOS TONOS DE AZUL) --- */
+        .start-menu {
+            position: absolute;
+            bottom: -600px;
+            left: 0;
+            width: 380px;
+            height: 450px;
+            background: white;
+            border: 2px solid #103a8a;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            box-shadow: 3px 3px 15px rgba(0,0,0,0.4);
+            transition: bottom 0.2s ease-out;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .start-menu.open { bottom: 30px; }
+
+        /* Cabecera de Usuario */
+        .start-header {
+            height: 55px;
+            background: linear-gradient(to bottom, #1b52e3 0%, #245edb 100%);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            border-bottom: 1px solid #103a8a;
+        }
+        .user-pic {
+            width: 38px;
+            height: 38px;
+            border: 2px solid white;
+            border-radius: 4px;
+            background: #ff9800; /* Simulación de imagen de perfil de XP */
+            margin-right: 10px;
+        }
+
+        /* Cuerpo del menú dividido */
+        .start-body {
+            flex: 1;
+            display: flex;
+        }
+        .start-left {
+            width: 55%;
+            background: white;
+            padding: 8px;
+        }
+        .start-right {
+            width: 45%;
+            background: #cbdaf6;
+            border-left: 1px solid #94b2eb;
+            padding: 8px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 6px;
+            font-size: 11px;
+            color: #333;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .menu-item:hover {
+            background: #316ac5;
+            color: white;
+        }
+        .menu-item img { width: 22px; height: 22px; margin-right: 8px; }
+
+        .start-right .menu-item { font-weight: bold; color: #001765; }
+        .start-right .menu-item:hover { color: white; }
+
+        /* Footer con botón apagar */
+        .start-footer {
+            height: 40px;
+            background: linear-gradient(to bottom, #437fe7 0%, #245edb 100%);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 10px;
+            border-top: 1px solid #103a8a;
+        }
+        .logoff-btn {
+            color: white;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 5px;
+            font-weight: bold;
+        }
+
+        /* --- VENTANAS ESTILO LUNA (XP) --- */
+        .window {
+            position: absolute;
+            width: 500px;
+            height: 350px;
+            background: #ece9d8; /* Color gris beige clásico de XP */
+            border: 3px solid #004ebd;
+            border-top-left-radius: 7px;
+            border-top-right-radius: 7px;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        /* Barra de título XP gradient */
+        .window-header {
+            background: linear-gradient(to right, #0058e6 0%, #0a8bf5 50%, #0058e6 100%);
+            height: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5px;
+            cursor: move;
+        }
+        .window-title {
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+        }
+
+        /* Botones de control icónicos */
+        .window-controls {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+        }
+        .xp-btn {
+            width: 21px;
+            height: 21px;
+            border: 1px solid white;
+            border-radius: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.5);
+        }
+        .xp-btn.min { background: linear-gradient(to bottom, #3c7fb1 0%, #1a4d75 100%); }
+        .xp-btn.max { background: linear-gradient(to bottom, #3c7fb1 0%, #1a4d75 100%); }
+        .xp-btn.close { 
+            background: linear-gradient(to bottom, #e7633a 0%, #b22000 100%); 
+            font-size: 11px;
+        }
+        .xp-btn:hidden-space:active { filter: brightness(0.8); }
+
+        /* Contenido de la app */
+        .window-content {
+            flex: 1;
+            background: white;
+            margin: 2px;
+            border: 1px solid #7f9db9;
+            padding: 15px;
+            overflow: auto;
+            font-size: 13px;
+        }
+
+        /* Iconos en el escritorio */
+        .desktop-icons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .desk-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 75px;
+            text-align: center;
+            color: white;
+            font-size: 11px;
+            text-shadow: 1px 1px 2px black;
+            cursor: pointer;
+        }
+        .desk-icon img { width: 35px; height: 35px; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop" onclick="closeStartMenu()">
+        
+        <!-- Iconos clásicos del escritorio -->
+        <div class="desktop-icons">
+            <div class="desk-icon" odblclick="openApp('Mis Documentos', 'docs')" onclick="openApp('Mis Documentos', 'docs')">
+                <img src="https://img.icons8.com/color/48/000000/folder-invoices.png" alt="Docs">
+                <span>Mis Documentos</span>
+            </div>
+            <div class="desk-icon" onclick="openApp('Internet Explorer', 'ie')">
+                <img src="https://img.icons8.com/color/48/000000/internet-explorer-2012.png" alt="IE">
+                <span>Internet Explorer</span>
+            </div>
+        </div>
+
+        <!-- Menú de Inicio Estilo XP -->
+        <div class="start-menu" id="startMenu" onclick="event.stopPropagation()">
+            <div class="start-header">
+                <div class="user-pic"></div>
+                <span>Administrador</span>
+            </div>
+            <div class="start-body">
+                <div class="start-left">
+                    <div class="menu-item" onclick="openApp('Internet Explorer', 'ie')">
+                        <img src="https://img.icons8.com/color/48/000000/internet-explorer-2012.png">
+                        <span>Internet Explorer</span>
+                    </div>
+                    <div class="menu-item" onclick="openApp('Bloc de Notas', 'notepad')">
+                        <img src="https://img.icons8.com/color/48/000000/notepad.png">
+                        <span>Bloc de Notas</span>
+                    </div>
+                </div>
+                <div class="start-right">
+                    <div class="menu-item" onclick="openApp('Mis Documentos', 'docs')">
+                        <span>Mis Documentos</span>
+                    </div>
+                    <div class="menu-item" onclick="alert('Mi PC simulado')">
+                        <span>Mi PC</span>
+                    </div>
+                    <div class="menu-item" onclick="alert('Panel de control')">
+                        <span>Panel de Control</span>
+                    </div>
+                </div>
+            </div>
+            <div class="start-footer">
+                <div class="logoff-btn" onclick="alert('Apagando sistema simulado...')">🔴 Apagar el equipo</div>
+            </div>
+        </div>
+
+        <!-- Barra de Tareas Clásica -->
+        <div class="taskbar" onclick="event.stopPropagation()">
+            <div class="start-button" onclick="toggleStartMenu()">
+                <img src="https://img.icons8.com/color/48/000000/windows-xp.png" style="width:20px; height:20px;">
+                inicio
+            </div>
+            
+            <div class="taskbar-right">
+                <div id="clock">12:00 PM</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleStartMenu() {
+            document.getElementById('startMenu').classList.toggle('open');
+        }
+
+        function closeStartMenu() {
+            document.getElementById('startMenu').classList.remove('open');
+        }
+
+        let zIndexCounter = 100;
+
+        // Abrir aplicaciones dinámicas con ventanas estilo XP
+        function openApp(name, type) {
+            closeStartMenu();
+            
+            if (document.getElementById(`win-${name}`)) return;
+
+            let content = '';
+            if (type === 'ie') {
+                content = `<iframe src="https://bing.com" style="width:100%; height:100%; border:none;"></iframe>`;
+            } else if (type === 'notepad') {
+                content = `<textarea style="width:100%; height:100%; resize:none; border:none; outline:none; font-family:Courier, monospace;" placeholder="Clásico Bloc de notas..."></textarea>`;
+            } else if (type === 'docs') {
+                content = `<h3>Carpeta de Archivos</h3><hr style="margin:10px 0;"><p>📁 Mi música</p><p>📁 Mis imágenes</p><p>📁 Mis vídeos</p>`;
+            }
+
+            const win = document.createElement('div');
+            win.classList.add('window');
+            win.id = `win-${name}`;
+            win.style.top = '80px';
+            win.style.left = '120px';
+            win.style.zIndex = ++zIndexCounter;
+
+            win.innerHTML = `
+                <div class="window-header" onmousedown="dragStart(event, '${win.id}')">
+                    <div class="window-title">${name}</div>
+                    <div class="window-controls">
+                        <div class="xp-btn min">0</div>
+                        <div class="xp-btn max">1</div>
+                        <div class="xp-btn close" onclick="closeWin('${win.id}')">X</div>
+                    </div>
+                </div>
+                <div class="window-content">${content}</div>
+            `;
+
+            win.addEventListener('mousedown', () => {
+                win.style.zIndex = ++zIndexCounter;
+            });
+
+            document.getElementById('desktop').appendChild(win);
+        }
+
+        function closeWin(id) { document.getElementById(id).remove(); }
+
+        // --- SISTEMA DE ARRASTRE DE VENTANAS ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj Clásico
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes().toString().padStart(2, '0');
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // Formato 12 horas
+            document.getElementById('clock').textContent = `${hours}:${minutes} ${ampm}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

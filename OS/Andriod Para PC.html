@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Desktop OS</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', 'Segoe UI', sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* Fondo de pantalla estilo Android stock (Geométrico/Gradiente) */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* --- BARRA DE NAVEGACIÓN ANDROID (INFERIOR) --- */
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 48px;
+            background: #121212;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 2000;
+        }
+
+        /* Botones del Sistema (Triángulo, Círculo, Cuadrado) */
+        .nav-buttons {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 60px;
+        }
+
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); }
+        .nav-btn svg { fill: #ffffff; width: 18px; height: 18px; }
+
+        .nav-right { color: #ffffff; font-size: 14px; font-weight: 500; }
+
+        /* --- PANTALLA DE INICIO / ACCESOS DIRECTOS --- */
+        .dock-container {
+            position: absolute;
+            bottom: 68px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 24px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .android-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 65px;
+            color: white;
+            font-size: 11px;
+            cursor: pointer;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        .icon-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            margin-bottom: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        .android-icon:hover .icon-circle { transform: scale(1.1); }
+
+        /* --- CAJÓN DE APLICACIONES (APP DRAWER) --- */
+        .app-drawer {
+            position: absolute;
+            top: 100vh; /* Escondido abajo */
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 48px);
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 1500;
+            transition: top 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
+            padding: 40px;
+            color: white;
+        }
+        .app-drawer.open { top: 0; }
+        
+        .drawer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+            justify-items: center;
+        }
+
+        /* --- VENTANAS ESTILO ANDROID MULTITAREA --- */
+        .window {
+            position: absolute;
+            width: 400px;
+            height: 600px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Barra superior tipo Android (Limpia) */
+        .window-header {
+            background: #f5f5f5;
+            height: 45px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            cursor: move;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .window-title { font-size: 14px; font-weight: 500; color: #333; }
+        .close-win-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
+            color: #666;
+        }
+        .close-win-btn:hover { background: #ff4a4a; color: white; }
+
+        .window-content { flex: 1; overflow: auto; background: #fafafa; position: relative; }
+
+        /* --- CONTENIDOS DE LAS APPS --- */
+        /* Calculadora */
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); height: 100%; }
+        .calc-screen { grid-column: span 4; background: #222; color: white; font-size: 32px; text-align: right; padding: 20px; display: flex; align-items: flex-end; justify-content: flex-end; height: 140px; }
+        .calc-btn { background: #f0f0f0; border: 1px solid #e0e0e0; font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .calc-btn:active { background: #dcdcdc; }
+        .calc-btn.op { background: #ff9800; color: white; }
+
+        /* Ajustes Estilo Android */
+        .settings-list { padding: 10px; }
+        .settings-item { padding: 16px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; font-size: 15px; color: #333; cursor: pointer;}
+        .settings-item:hover { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop">
+        
+        <!-- Dock Principal de la Pantalla de Inicio -->
+        <div class="dock-container">
+            <div class="android-icon" onclick="openApp('Teléfono', 'dialer')">
+                <div class="icon-circle" style="background: #4caf50; color: white;">📞</div>
+                <span>Teléfono</span>
+            </div>
+            <div class="android-icon" onclick="openApp('YouTube', 'yt')">
+                <div class="icon-circle" style="background: #e53935; color: white;">▶️</div>
+                <span>YouTube</span>
+            </div>
+            <div class="android-icon" onclick="toggleAppDrawer()">
+                <div class="icon-circle" style="background: #2196f3; color: white;"> Apps </div>
+                <span>Menú</span>
+            </div>
+            <div class="android-icon" onclick="openApp('Calculadora', 'calc')">
+                <div class="icon-circle" style="background: #ff9800; color: white;">🧮</div>
+                <span>Calculadora</span>
+            </div>
+            <div class="android-icon" onclick="openApp('Ajustes', 'settings')">
+                <div class="icon-circle" style="background: #607d8b; color: white;">⚙️</div>
+                <span>Ajustes</span>
+            </div>
+        </div>
+
+        <!-- CAJÓN DE APLICACIONES (APP DRAWER) -->
+        <div class="app-drawer" id="appDrawer">
+            <h2>Aplicaciones</h2>
+            <div class="drawer-grid">
+                <div class="android-icon" onclick="openApp('Calculadora', 'calc')">
+                    <div class="icon-circle" style="background: #ff9800;">🧮</div>
+                    <span>Calculadora</span>
+                </div>
+                <div class="android-icon" onclick="openApp('Ajustes', 'settings')">
+                    <div class="icon-circle" style="background: #607d8b;">⚙️</div>
+                    <span>Ajustes</span>
+                </div>
+                <div class="android-icon" onclick="openApp('YouTube', 'yt')">
+                    <div class="icon-circle" style="background: #e53935;">▶️</div>
+                    <span>YouTube</span>
+                </div>
+                <div class="android-icon" onclick="openApp('Teléfono', 'dialer')">
+                    <div class="icon-circle" style="background: #4caf50;">📞</div>
+                    <span>Teléfono</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE NAVEGACIÓN ESTILO TABLET / PC -->
+        <div class="nav-bar">
+            <div></div> <!-- Espacio -->
+            
+            <div class="nav-buttons">
+                <!-- Atrás (Triángulo) -->
+                <div class="nav-btn" onclick="closeTopWindow()">
+                    <svg viewBox="0 0 24 24"><polygon points="15,5 9,12 15,19"/></svg>
+                </div>
+                <!-- Inicio (Círculo) -->
+                <div class="nav-btn" onclick="goHome()">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>
+                </div>
+                <!-- Multitarea (Cuadrado) -->
+                <div class="nav-btn" onclick="alert('Modo multitarea: Arrastra las ventanas de forma libre')">
+                    <svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                </div>
+            </div>
+
+            <div class="nav-right">
+                <span id="clock">00:00 AM</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Control de Cajón de Aplicaciones
+        function toggleAppDrawer() {
+            document.getElementById('appDrawer').classList.toggle('open');
+        }
+        
+        function goHome() {
+            document.getElementById('appDrawer').classList.remove('open');
+        }
+
+        let zIndexCounter = 100;
+        let activeWindows = [];
+
+        // Abrir Apps en Ventanas flotantes (Estilo Freeform de Android)
+        function openApp(name, type) {
+            document.getElementById('appDrawer').classList.remove('open'); // Cierra el cajón
+
+            if (document.getElementById(`win-${name}`)) return;
+
+            let content = '';
+            if (type === 'calc') {
+                content = `
+                    <div class="calc-screen" id="calc-screen">0</div>
+                    <div class="calc-grid">
+                        <div class="calc-btn" onclick="pressCalc('7')">7</div><div class="calc-btn" onclick="pressCalc('8')">8</div><div class="calc-btn" onclick="pressCalc('9')">9</div><div class="calc-btn op" onclick="pressCalc('/')">÷</div>
+                        <div class="calc-btn" onclick="pressCalc('4')">4</div><div class="calc-btn" onclick="pressCalc('5')">5</div><div class="calc-btn" onclick="pressCalc('6')">6</div><div class="calc-btn op" onclick="pressCalc('*')">×</div>
+                        <div class="calc-btn" onclick="pressCalc('1')">1</div><div class="calc-btn" onclick="pressCalc('2')">2</div><div class="calc-btn" onclick="pressCalc('3')">3</div><div class="calc-btn op" onclick="pressCalc('-')">-</div>
+                        <div class="calc-btn" onclick="pressCalc('C')">C</div><div class="calc-btn" onclick="pressCalc('0')">0</div><div class="calc-btn op" onclick="pressCalc('=')">=</div><div class="calc-btn op" onclick="pressCalc('+')">+</div>
+                    </div>`;
+            } else if (type === 'settings') {
+                content = `
+                    <div class="settings-list">
+                        <div class="settings-item"><span>📶 Internet y Redes</span><span style="color:#666;">WiFi conectado</span></div>
+                        <div class="settings-item"><span>🎧 Dispositivos conectados</span><span style="color:#666;">Bluetooth</span></div>
+                        <div class="settings-item"><span>📱 Pantalla</span><span style="color:#666;">Fondo, modo oscuro</span></div>
+                        <div class="settings-item"><span>🔋 Batería</span><span style="color:#4caf50;">98% - Cargando</span></div>
+                        <div class="settings-item" onclick="alert('Android x86 - Versión 13 Simulada')"><span>ℹ️ Información del dispositivo</span><span>MintOS v1</span></div>
+                    </div>`;
+            } else if (type === 'yt') {
+                content = `<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" style="width:100%; height:100%; border:none;"></iframe>`;
+            } else {
+                content = `<div style="padding:20px; text-align:center;"><h3>${name}</h3><p style="margin-top:10px; color:#666;">Aplicación cargada de forma nativa.</p></div>`;
+            }
+
+            const win = document.createElement('div');
+            win.classList.add('window');
+            win.id = `win-${name}`;
+            
+            // Posiciones iniciales alternadas
+            win.style.top = `${80 + (activeWindows.length * 30)}px`;
+            win.style.left = `${100 + (activeWindows.length * 40)}px`;
+            win.style.zIndex = ++zIndexCounter;
+
+            win.innerHTML = `
+                <div class="window-header" onmousedown="dragStart(event, '${win.id}')">
+                    <div class="window-title">${name}</div>
+                    <div class="close-win-btn" onclick="closeWin('${win.id}')">✕</div>
+                </div>
+                <div class="window-content">${content}</div>
+            `;
+
+            win.addEventListener('mousedown', () => {
+                win.style.zIndex = ++zIndexCounter;
+            });
+
+            document.getElementById('desktop').appendChild(win);
+            activeWindows.push(win.id);
+        }
+
+        function closeWin(id) {
+            document.getElementById(id).remove();
+            activeWindows = activeWindows.filter(w => w !== id);
+        }
+
+        // Botón físico "Atrás" cierra la última ventana abierta
+        function closeTopWindow() {
+            if (activeWindows.length > 0) {
+                let topWinId = activeWindows[activeWindows.length - 1];
+                closeWin(topWinId);
+            }
+        }
+
+        // --- LÓGICA DE CALCULADORA ---
+        let calcInput = "";
+        function pressCalc(val) {
+            const screen = document.getElementById('calc-screen');
+            if (val === 'C') { calcInput = ""; screen.textContent = "0"; }
+            else if (val === '=') {
+                try { screen.textContent = eval(calcInput); calcInput = screen.textContent; } 
+                catch { screen.textContent = "Error"; calcInput = ""; }
+            } else { calcInput += val; screen.textContent = calcInput; }
+        }
+
+        // --- SISTEMA DE ARRASTRE DE VENTANAS ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj Android
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes().toString().padStart(2, '0');
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            document.getElementById('clock').textContent = `${hours}:${minutes} ${ampm}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

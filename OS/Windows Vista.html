@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Vista Simulation (Aero Glass Era)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #011425;
+        }
+
+        /* El icónico fondo de pantalla de auroras e hilos de luz de Windows Vista */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920') no-repeat center center;
+            background-size: cover;
+            position: relative;
+        }
+
+        /* --- LAS VENTANAS AERO GLASS (La gran joya visual de Vista) --- */
+        .window-aero {
+            position: absolute;
+            width: 560px;
+            height: 380px;
+            /* Efecto cristal esmerilado real con filtros CSS moderno */
+            background: rgba(30, 60, 90, 0.35);
+            backdrop-filter: blur(20px) saturate(130%);
+            -webkit-backdrop-filter: blur(20px) saturate(130%);
+            border-radius: 8px 8px 0 0;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        /* Encabezado ultra brillante y reflejos de luz */
+        .aero-header {
+            height: 34px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.02) 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.1) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            cursor: move;
+            color: white;
+            font-size: 12px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+        }
+
+        /* Los tres botones de control con el diseño original de Vista */
+        .aero-controls { display: flex; gap: 4px; align-items: center; }
+        .aero-btn {
+            width: 28px;
+            height: 18px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
+            border: 1px solid rgba(0,0,0,0.3);
+            border-radius: 2px;
+            color: white;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .aero-btn:hover { background: rgba(255,255,255,0.5); }
+        
+        /* El botón de cerrar rojo degradado brillante que sobresale */
+        .aero-btn.close-btn {
+            width: 42px;
+            height: 18px;
+            background: linear-gradient(to bottom, #fca3a3 0%, #ef4747 50%, #d31212 50%, #9c0000 100%);
+            border: 1px solid #7c0000;
+            box-shadow: 0 1px 2px rgba(255,255,255,0.4) inset;
+        }
+        .aero-btn.close-btn:hover {
+            filter: brightness(1.2);
+        }
+
+        /* El interior "blanco lechoso" del explorador clásico de Vista */
+        .aero-content {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            color: #111;
+            font-size: 13px;
+        }
+
+        /* --- WINDOWS SIDEBAR (La barra lateral de Gadgets) --- */
+        .sidebar {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 160px;
+            height: calc(100vh - 40px);
+            background: linear-gradient(to right, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 100%);
+            border-left: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 25px;
+            z-index: 10;
+        }
+
+        .gadget {
+            width: 120px;
+            background: rgba(240, 245, 250, 0.85);
+            border: 1px solid #aaa;
+            border-radius: 8px;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.2);
+            padding: 10px;
+            text-align: center;
+            font-size: 11px;
+            color: #333;
+        }
+        .gadget-clock {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #555;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 auto 5px auto;
+        }
+
+        /* --- BARRA DE TAREAS OSCURA TRASLÚCIDA --- */
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(to bottom, rgba(10,20,30,0.75) 0%, rgba(5,10,15,0.9) 100%);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            z-index: 1000;
+        }
+
+        /* El legendario botón de inicio redondo (Vista Orb) */
+        .vista-orb {
+            width: 38px;
+            height: 38px;
+            background: radial-gradient(circle at 50% 20%, #6ec2ff 0%, #005cd6 45%, #002d7a 80%, #000f30 100%);
+            border-radius: 50%;
+            border: 1px solid #99ccff;
+            box-shadow: 0 0 8px rgba(0,110,255,0.8), inset 0 1px 2px white;
+            cursor: pointer;
+            position: absolute;
+            top: -4px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .vista-orb:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 14px rgba(0,110,255,1), inset 0 1px 2px white;
+        }
+        /* El logo de Windows de 4 colores clásico flotando dentro del orbe */
+        .orb-logo {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23f35325" d="M1 1h10v10H1z"/><path fill="%2381bc06" d="M12 1h10v10H12z"/><path fill="%2305a6f0" d="M1 12h10v10H1z"/><path fill="%23ffba08" d="M12 12h10v12H12z"/></svg>') no-repeat center;
+            background-size: contain;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+        }
+
+        .system-tray {
+            color: white;
+            font-size: 11px;
+            margin-left: auto;
+            text-shadow: 0 1px 2px black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop">
+        
+        <!-- WINDOWS SIDEBAR ORIGINAL -->
+        <div class="sidebar">
+            <!-- Gadget de Reloj Análogo simple -->
+            <div class="gadget">
+                <div class="gadget-clock" id="largeClock">00:00</div>
+                <b>Reloj de Vista</b>
+            </div>
+            <!-- Gadget de Notas Rápidas -->
+            <div class="gadget" style="background: #fef49c; border-color: #e6c855;">
+                <p style="text-align:left; font-style:italic;">"Comprar más memoria RAM de 1GB para que el Aero Glass no trabe la PC."</p>
+            </div>
+        </div>
+
+        <!-- VENTANA FLUIDA CON CRISTAL AERO -->
+        <div class="window-aero" id="win-welcome" style="top: 100px; left: 120px;">
+            <div class="aero-header" onmousedown="dragStart(event, 'win-welcome')">
+                <span>Centro de Bienvenida — Windows Vista Home Premium</span>
+                <div class="aero-controls">
+                    <div class="aero-btn">🗕</div>
+                    <div class="aero-btn">🗖</div>
+                    <div class="aero-btn close-btn" onclick="document.getElementById('win-welcome').remove()">✕</div>
+                </div>
+            </div>
+            <div class="aero-content">
+                <h2 style="font-weight: 300; color: #1e4a75; margin-bottom: 12px;">Descubra Windows Vista</h2>
+                <p style="line-height: 1.5; margin-bottom: 15px;">Bienvenido a la experiencia visual más avanzada de 2007. Las esquinas redondeadas en el cristal superior y el fondo lechoso del explorador definieron una generación del diseño informático.</p>
+                
+                <div style="background: #f0f4f8; border: 1px solid #bcd; padding: 12px; font-size: 12px; border-radius: 4px;">
+                    💻 <b>Rendimiento del Sistema:</b> <br>
+                    • Procesador Gráfico compatible con DirectX 9: <b>Detectado</b><br>
+                    • Puntuación de experiencia en Windows: <span style="background:#4bc05e; color:white; padding:1px 5px; font-weight:bold; border-radius:2px;">4.5</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE TAREAS CON EL ORBE ORIGINAL -->
+        <div class="taskbar">
+            <div class="vista-orb" onclick="alert('Menú Inicio de Vista:\n\n- Windows Media Center\n- Windows DreamScene (Fondos animados)\n- Internet Explorer 7\n- Juegos (¡Purble Place!)')">
+                <div class="orb-logo"></div>
+            </div>
+            <div class="system-tray">
+                <span id="trayClock">00:00 M.</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let zIndexCounter = 100;
+
+        // --- MANEJO DE MOVIMIENTO AERO GLASS ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Relojes (De la barra y del Gadget de la Sidebar)
+        function updateClocks() {
+            const now = new Date();
+            let h = now.getHours().toString().padStart(2, '0');
+            let m = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('largeClock').textContent = `${h}:${m}`;
+            document.getElementById('trayClock').textContent = `${h}:${m} p.m.`;
+        }
+        setInterval(updateClocks, 1000);
+        updateClocks();
+    </script>
+</body>
+</html>

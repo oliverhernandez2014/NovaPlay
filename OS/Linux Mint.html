@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Mint - Cinnamon Desktop</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Ubuntu', 'Noto Sans', 'Segoe UI', sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1c1c1c;
+        }
+
+        /* Fondo oficial de Linux Mint (Gris/Verde abstracto) */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(circle at center, #2f343f 0%, #1a1c22 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Logo de fondo Mint central sutil */
+        .desktop::before {
+            content: "lm";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 180px;
+            font-weight: bold;
+            color: rgba(141, 198, 63, 0.04);
+            font-family: monospace;
+            border: 10px solid rgba(141, 198, 63, 0.04);
+            padding: 20px 50px;
+            border-radius: 30px;
+        }
+
+        /* --- PANEL INFERIOR (BARRA DE TAREAS) --- */
+        .panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: #2b2b2b;
+            border-top: 1px solid #3d3d3d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+        }
+
+        /* Botón de Menú Mint (Verde característico) */
+        .mint-menu-btn {
+            height: 100%;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            cursor: pointer;
+            background: transparent;
+            transition: background 0.2s;
+        }
+        .mint-menu-btn:hover {
+            background: #3a3a3a;
+        }
+        .mint-logo {
+            width: 22px;
+            height: 22px;
+            background: #8dc63f;
+            color: #2b2b2b;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .panel-left { display: flex; align-items: center; height: 100%; }
+        .panel-right { display: flex; align-items: center; gap: 15px; padding-right: 15px; color: #b5b5b5; font-size: 13px; }
+
+        /* --- MENÚ DE APLICACIONES MINT --- */
+        .mint-menu {
+            position: absolute;
+            bottom: -600px;
+            left: 5px;
+            width: 450px;
+            height: 500px;
+            background: #22252a;
+            border: 1px solid #3d434f;
+            border-radius: 5px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.7);
+            transition: bottom 0.25s cubic-bezier(0, 1, 0.5, 1);
+            z-index: 999;
+            display: flex;
+        }
+        .mint-menu.open { bottom: 45px; }
+
+        /* Barra lateral izquierda del menú (Categorías) */
+        .menu-categories {
+            width: 35%;
+            background: #1f2226;
+            border-right: 1px solid #2d3139;
+            padding: 10px 5px;
+        }
+        .cat-item {
+            padding: 8px 12px;
+            color: #c5c8c6;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 2px;
+        }
+        .cat-item:hover, .cat-item.active {
+            background: #8dc63f;
+            color: #111;
+            font-weight: 500;
+        }
+
+        /* Contenedor de aplicaciones del menú */
+        .menu-apps {
+            width: 65%;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        .menu-app-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            color: #e0e0e0;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .menu-app-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* --- SISTEMA DE VENTANAS MINT (Tema Mint-Y) --- */
+        .window {
+            position: absolute;
+            width: 600px;
+            height: 400px;
+            background: #2f343f;
+            border: 1px solid #4b5162;
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        /* Barra superior de ventana gris oscuro */
+        .window-header {
+            background: #242832;
+            height: 34px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            cursor: move;
+            border-bottom: 1px solid #21252e;
+        }
+        .window-title {
+            color: #cfd2da;
+            font-size: 13px;
+        }
+        .window-controls {
+            display: flex;
+            gap: 8px;
+        }
+        /* Botones de cerrar, maximizar planos minimalistas */
+        .mint-btn {
+            width: 18px;
+            height: 18px;
+            background: #3e4453;
+            color: #cfd2da;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            cursor: pointer;
+            border: none;
+        }
+        .mint-btn:hover { background: #4b5266; }
+        .mint-btn.close:hover { background: #e54c4c; color: white; }
+
+        .window-content {
+            flex: 1;
+            background: #242832;
+            padding: 15px;
+            color: #e0e0e0;
+            overflow: auto;
+        }
+
+        /* --- TERMINAL DE LINUX (INTERACTIVA) --- */
+        .terminal-body {
+            background: #15171c;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            height: 100%;
+            padding: 10px;
+            overflow-y: auto;
+            border-radius: 4px;
+        }
+        .terminal-output {
+            white-space: pre-wrap;
+            margin-bottom: 8px;
+            color: #dfdfdf;
+        }
+        .terminal-line {
+            display: flex;
+            gap: 5px;
+        }
+        .prompt { color: #8dc63f; font-weight: bold; }
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            flex: 1;
+            outline: none;
+        }
+
+        /* Iconos del Escritorio */
+        .desktop-shortcuts {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .shortcut {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 70px;
+            color: #ffffff;
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        .shortcut:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        .shortcut-icon {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop" onclick="closeMintMenu()">
+        
+        <!-- Iconos en el escritorio -->
+        <div class="desktop-shortcuts">
+            <div class="shortcut" onclick="openApp('Equipo', 'system')">
+                <div class="shortcut-icon">📁</div>
+                <span>Equipo</span>
+            </div>
+            <div class="shortcut" onclick="openApp('Terminal de Mint', 'terminal')">
+                <div class="shortcut-icon">💻</div>
+                <span>Terminal</span>
+            </div>
+        </div>
+
+        <!-- Menú Mint -->
+        <div class="mint-menu" id="mintMenu" onclick="event.stopPropagation()">
+            <div class="menu-categories">
+                <div class="cat-item active">Lugares</div>
+                <div class="cat-item">Sistema</div>
+                <div class="cat-item">Internet</div>
+            </div>
+            <div class="menu-apps">
+                <div class="menu-app-item" onclick="openApp('Terminal de Mint', 'terminal')">
+                    <span>💻 Terminal de comandos</span>
+                </div>
+                <div class="menu-app-item" onclick="openApp('Firefox Web Browser', 'browser')">
+                    <span>🦊 Firefox</span>
+                </div>
+                <div class="menu-app-item" onclick="openApp('Acerca de Mint', 'about')">
+                    <span>ℹ️ Acerca de esta versión</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra Inferior (Panel) -->
+        <div class="panel" onclick="event.stopPropagation()">
+            <div class="panel-left">
+                <div class="mint-menu-btn" onclick="toggleMintMenu()">
+                    <div class="mint-logo">lm</div>
+                    <span>Menú</span>
+                </div>
+            </div>
+            
+            <div class="panel-right">
+                <span>🔋 🔊 📶</span>
+                <span id="clock">00:00</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleMintMenu() {
+            document.getElementById('mintMenu').classList.toggle('open');
+        }
+
+        function closeMintMenu() {
+            document.getElementById('mintMenu').classList.remove('open');
+        }
+
+        let zIndexCounter = 100;
+
+        // Gestión de aplicaciones y ventanas
+        function openApp(name, type) {
+            closeMintMenu();
+            
+            if (document.getElementById(`win-${name}`)) return;
+
+            let content = '';
+            
+            if (type === 'terminal') {
+                content = `
+                    <div class="terminal-body" onclick="document.getElementById('term-input').focus()">
+                        <div class="terminal-output" id="term-out">Bienvenido a la terminal de Linux Mint (Cinnamon)\nEscribe 'help' para ver los comandos disponibles.\n</div>
+                        <div class="terminal-line">
+                            <span class="prompt">mint@user:~$</span>
+                            <input type="text" id="term-input" class="terminal-input" onkeydown="handleTerminal(event)">
+                        </div>
+                    </div>`;
+            } else if (type === 'browser') {
+                content = `<iframe src="https://bing.com" style="width:100%; height:100%; border:none; background:white;"></iframe>`;
+            } else if (type === 'about') {
+                content = `
+                    <div style="text-align:center; padding-top:20px;">
+                        <h2 style="color:#8dc63f; margin-bottom:10px;">Linux Mint "Vanessa"</h2>
+                        <p style="font-size:14px; color:#aaa;">Cinnamon Edition (Simulación en HTML)</p>
+                        <p style="margin-top:20px; font-size:13px;">Basado en una arquitectura web ligera y de código limpio.</p>
+                        <div style="margin-top:30px; background:#1f2226; padding:10px; display:inline-block; border-radius:4px; color:#5fba7d;">Kernel simulado: 5.15.0-generic</div>
+                    </div>`;
+            } else {
+                content = `<h3>${name}</h3><p style="margin-top:10px; color:#aaa;">Contenedor del sistema abierto exitosamente.</p>`;
+            }
+
+            const win = document.createElement('div');
+            win.classList.add('window');
+            win.id = `win-${name}`;
+            win.style.top = '120px';
+            win.style.left = '160px';
+            win.style.zIndex = ++zIndexCounter;
+
+            win.innerHTML = `
+                <div class="window-header" onmousedown="dragStart(event, '${win.id}')">
+                    <div class="window-title">${name}</div>
+                    <div class="window-controls">
+                        <button class="mint-btn">_</button>
+                        <button class="mint-btn">🗖</button>
+                        <button class="mint-btn close" onclick="closeWin('${win.id}')">✕</button>
+                    </div>
+                </div>
+                <div class="window-content">${content}</div>
+            `;
+
+            win.addEventListener('mousedown', () => {
+                win.style.zIndex = ++zIndexCounter;
+            });
+
+            document.getElementById('desktop').appendChild(win);
+            
+            // Foco automático si es la terminal
+            if(type === 'terminal') {
+                setTimeout(() => document.getElementById('term-input').focus(), 50);
+            }
+        }
+
+        function closeWin(id) { document.getElementById(id).remove(); }
+
+        // --- MANEJO DE LA TERMINAL DE COMANDOS INTERACTIVA ---
+        function handleTerminal(e) {
+            if (e.key === 'Enter') {
+                const input = document.getElementById('term-input');
+                const output = document.getElementById('term-out');
+                const command = input.value.trim().toLowerCase();
+                
+                let reply = '';
+                
+                if (command === 'help') {
+                    reply = 'Comandos disponibles:\n - clear : Limpia la pantalla\n - neofetch : Muestra información del sistema\n - whoami : Muestra el usuario actual\n - date : Muestra la fecha';
+                } else if (command === 'clear') {
+                    output.innerHTML = '';
+                    input.value = '';
+                    return;
+                } else if (command === 'neofetch') {
+                    reply = '   .--.       mint@user\n  |o_o |      OS: Linux Mint 21 (HTML UI)\n  |:_/ |      Kernel: 5.15-web-edition\n //   \\ \\     Uptime: Just booted\n(|     | )    Shell: js-bash\n/\'\_   _/\'\\   WM: Cinnamon\n\\___)=(___/';
+                } else if (command === 'whoami') {
+                    reply = 'mint-guest-user';
+                } else if (command === 'date') {
+                    reply = new Date().toString();
+                } else if (command === '') {
+                    reply = '';
+                } else {
+                    reply = `bash: ${command}: orden no encontrada. Escribe 'help' para ver comandos.`;
+                }
+                
+                output.innerHTML += `<span style="color:#8dc63f;">mint@user:~$</span> ${input.value}\n${reply}\n\n`;
+                input.value = '';
+                
+                // Auto scroll hacia abajo
+                const body = output.parentElement;
+                body.scrollTop = body.scrollHeight;
+            }
+        }
+
+        // --- ARRASTRE DE VENTANAS ---
+        let activeWin = null;
+        let offsetX, offsetY;
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            activeWin.style.zIndex = ++zIndexCounter;
+            offsetX = e.clientX - activeWin.offsetLeft;
+            offsetY = e.clientY - activeWin.offsetTop;
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeWin) return;
+            activeWin.style.left = `${e.clientX - offsetX}px`;
+            activeWin.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function dragEnd() {
+            activeWin = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
+
+        // Reloj del Panel
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
