@@ -84,7 +84,7 @@
 
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-    <!-- VISOR DE JUEGO ACTIVO (Oculto por defecto) -->
+    <!-- VISOR DE PROYECTO ACTIVO -->
     <section id="seccion-visor" class="hidden mb-8">
       <div class="rounded-2xl overflow-hidden border border-cyan-500/40 bg-[#0d111a] shadow-2xl shadow-cyan-950/30">
         <!-- Barra de control del visor -->
@@ -162,7 +162,7 @@
         </div>
       </div>
 
-      <!-- Cuadrícula de Juegos -->
+      <!-- Cuadrícula de Proyectos -->
       <div id="grid-juegos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         <!-- Tarjetas generadas dinámicamente -->
       </div>
@@ -187,6 +187,14 @@
   <script>
     const MIS_JUEGOS = [
       {
+        id: 'excel',
+        title: 'Excel',
+        category: 'Productividad',
+        icon: '📊',
+        description: 'Hoja de cálculo web interactiva.',
+        url: './Excel/'
+      },
+      {
         id: 'futbol-2026-2d',
         title: 'Futbol 2026 2D',
         category: 'Deportes',
@@ -203,6 +211,22 @@
         url: './Marcador/'
       },
       {
+        id: 'os',
+        title: 'OS',
+        category: 'Sistema',
+        icon: '💻',
+        description: 'Simulador de entorno de sistema operativo web.',
+        url: './OS/'
+      },
+      {
+        id: 'powerpoint',
+        title: 'PowerPoint',
+        category: 'Productividad',
+        icon: '📽️',
+        description: 'Creador y visor de presentaciones web.',
+        url: './Powerpoint/'
+      },
+      {
         id: 'traductor',
         title: 'Traductor',
         category: 'Herramientas',
@@ -217,6 +241,14 @@
         icon: '📦',
         description: 'Calculadora de volumen y capacidad geométrica.',
         url: './Volumen/'
+      },
+      {
+        id: 'word',
+        title: 'Word',
+        category: 'Productividad',
+        icon: '📝',
+        description: 'Procesador de textos web integrado.',
+        url: './Word/'
       }
     ];
 
