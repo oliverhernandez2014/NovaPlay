@@ -11,14 +11,8 @@
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #030712;
-      color: #f8fafc;
       transition: background-color 0.6s ease, color 0.6s ease;
       overflow-x: hidden;
-      background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 32px 32px;
     }
     .font-custom-style {
       font-family: 'Caveat', cursive;
@@ -47,15 +41,12 @@
     }
 
     .app-card {
-      background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
       transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .app-card:hover {
       transform: translateY(-8px) scale(1.02);
-      border-color: rgba(99, 102, 241, 0.5);
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 25px rgba(99, 102, 241, 0.25);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
     }
 
     #dropdown-disenos {
@@ -91,20 +82,20 @@
 
   <div class="flex-1 flex flex-col">
     
-    <!-- BARRA SUPERIOR -->
-    <header id="barra-superior" class="py-4 px-6 sm:px-10 shadow-2xl transition-all duration-500 sticky top-0 z-50 bg-slate-950/80 backdrop-blur-2xl border-b border-slate-800/80">
+    <!-- BARRA SUPERIOR (Principal) -->
+    <header id="barra-superior" class="py-4 px-6 sm:px-10 shadow-2xl transition-all duration-500 sticky top-0 z-50 border-b border-white/10">
       <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
         
         <!-- Logo y Título -->
         <div class="flex items-center gap-3 cursor-pointer group" onclick="cerrarVisor(); seleccionarCategoria('Todos')">
-          <div id="logo-header-box" class="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg bg-indigo-600 logo-animated overflow-hidden p-1">
+          <div id="logo-header-box" class="w-11 h-11 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg logo-animated overflow-hidden p-1">
             <img src="https://play-lh.googleusercontent.com/Vt3x_xEWabXw14MyYKfeFGazAxLFKg4Q-rAowh_ZYAI3-kcX7qkots-9opxGglSJ3vIbG9iBF2vppWjihACH" alt="NovaPlay Logo" class="w-full h-full object-cover rounded-xl" />
           </div>
           <div>
             <h1 class="text-base sm:text-lg font-extrabold tracking-wider text-white leading-tight">
-              NOVAPLAY <span id="titulo-sub" class="text-lg font-light ml-1 text-indigo-400">Cyber</span>
+              NOVAPLAY <span id="titulo-sub" class="text-lg font-light ml-1 text-white">Portal</span>
             </h1>
-            <p class="text-[9px] font-bold text-slate-400 tracking-widest uppercase">Interfaz Avanzada</p>
+            <p id="sub-etiqueta-header" class="text-[9px] font-bold tracking-widest uppercase opacity-80">Interfaz Avanzada</p>
           </div>
         </div>
 
@@ -116,7 +107,7 @@
               type="text"
               placeholder="Buscar aplicación o juego..."
               oninput="sincronizarBusqueda(this.value)"
-              class="w-full bg-slate-900/90 text-white rounded-xl px-4 py-2 text-xs focus:outline-none placeholder-slate-400 font-medium border border-slate-700/80 focus:border-indigo-500 transition-all duration-300 focus:ring-4 focus:ring-indigo-500/20 shadow-inner"
+              class="w-full bg-slate-900/90 text-white rounded-xl px-4 py-2 text-xs focus:outline-none placeholder-slate-400 font-medium border border-slate-700/80 focus:border-indigo-500 transition-all duration-300 shadow-inner"
             />
             <span class="absolute right-3 top-2.5 text-slate-400 text-xs">🔍</span>
           </div>
@@ -124,7 +115,7 @@
 
         <!-- Botón de Diseños -->
         <div class="relative">
-          <button onclick="toggleMenuDisenos()" id="btn-menu-disenos" class="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold px-4 py-2 rounded-xl text-xs transition-all duration-300 flex items-center gap-2 shadow-lg border border-indigo-400/40">
+          <button onclick="toggleMenuDisenos()" id="btn-menu-disenos" class="font-extrabold px-4 py-2 rounded-xl text-xs transition-all duration-300 flex items-center gap-2 shadow-lg border border-white/20">
             🎨 Diseños ▾
           </button>
 
@@ -139,7 +130,7 @@
             <button onclick="cambiarTema('negro'); cerrarMenuDisenos();" class="w-full text-left px-4 py-2 hover:bg-slate-800 hover:text-white transition-colors">⬛ Negro (Oscuro)</button>
 
             <div class="px-4 py-1 font-extrabold text-amber-400 uppercase tracking-wider text-[10px] border-t border-b border-slate-800 mt-2 mb-1">
-              ⚽ Ediciones de Mundiales
+              ⚽ Ediciones de Mundiales (1930 - 2026)
             </div>
             <div class="max-h-48 overflow-y-auto px-1" id="lista-mundiales-dropdown">
               <!-- Generado dinámicamente -->
@@ -150,18 +141,18 @@
       </div>
     </header>
 
-    <!-- BANNER HERO -->
-    <section id="banner-principal" class="py-12 px-6 sm:px-10 relative transition-all duration-500 border-b border-slate-800/60 bg-slate-950/40">
+    <!-- BANNER HERO (Secundario) -->
+    <section id="banner-principal" class="py-12 px-6 sm:px-10 relative transition-all duration-500 border-b border-white/10">
       <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 animate-entry">
         <div>
-          <span id="banner-badge" class="bg-indigo-500/20 text-indigo-300 text-[10px] font-extrabold px-3.5 py-1 rounded-full uppercase tracking-widest border border-indigo-500/30 inline-block mb-2 shadow-sm">
+          <span id="banner-badge" class="text-[10px] font-extrabold px-3.5 py-1 rounded-full uppercase tracking-widest inline-block mb-2 shadow-sm text-white">
             Panel Activo
           </span>
           <h2 id="banner-titulo" class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
             Explora tus herramientas de desarrollo y juegos.
           </h2>
-          <p id="banner-sub" class="text-xs text-slate-400 mt-1">
-            Diseño optimizado con efectos visuales fluidos y transiciones impecables.
+          <p id="banner-sub" class="text-xs text-slate-100 mt-1">
+            Diseño estructurado con colores sólidos independientes por sección.
           </p>
         </div>
 
@@ -171,7 +162,7 @@
             type="text"
             placeholder="Escribe para filtrar..."
             oninput="sincronizarBusqueda(this.value)"
-            class="w-full bg-slate-900/90 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none placeholder-slate-400 font-medium border border-slate-700/80 transition-all duration-300 focus:border-indigo-500 shadow-inner"
+            class="w-full bg-slate-900/90 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none placeholder-slate-400 font-medium border border-slate-700/80 transition-all duration-300 shadow-inner"
           />
         </div>
       </div>
@@ -265,55 +256,61 @@
     </main>
   </div>
 
-  <!-- PIE DE PÁGINA -->
-  <footer id="footer-principal" class="text-slate-400 py-6 px-6 sm:px-10 text-xs mt-12 bg-slate-950/80 border-t border-slate-800/80 transition-all duration-500">
+  <!-- PIE DE PÁGINA (Principal) -->
+  <footer id="footer-principal" class="py-6 px-6 sm:px-10 text-xs mt-12 border-t border-white/10 transition-all duration-500">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
       <div>
-        <p id="footer-titulo" class="font-bold text-slate-200 mb-0.5">NovaPlay Portal</p>
-        <p class="opacity-75">Interfaz Cyber con animaciones fluidas.</p>
+        <p id="footer-titulo" class="font-bold text-white mb-0.5">NovaPlay Portal</p>
+        <p class="opacity-75">Interfaz con colores sólidos independientes por sección.</p>
       </div>
       <div>
-        <p class="font-medium text-indigo-400">Estado: Activo 🟢</p>
+        <p class="font-medium text-emerald-400">Estado: Activo 🟢</p>
       </div>
     </div>
   </footer>
 
   <script>
+    // Asignación estricta por niveles:
+    // primario = Principal (Barra superior y Footer)
+    // secundario = Secundario (Fondo general y Banner)
+    // terciario = Terciario (Cuadro de juegos / Tarjetas)
+    // cuaternario = Cuaternario (Botones de acceso)
     const TEMAS_DISENOS = {
-      institucional: { nombre: "Institucional", tipoFuente: "font-bold text-xl text-[#0d1b2a]", badge: "Institucional", primario: "#0f172a", secundario: "#1e293b", acento: "#3b82f6" },
-      futurista: { nombre: "Futurista", tipoFuente: "font-arcade text-lg text-cyan-400 tracking-wider", badge: "Futurista", primario: "#090b10", secundario: "#1e1b4b", acento: "#06b6d4" },
-      blanco: { nombre: "Modo Blanco", tipoFuente: "font-bold text-xl text-slate-900", badge: "Modo Blanco", primario: "#ffffff", secundario: "#f1f5f9", acento: "#0f172a" },
-      negro: { nombre: "Modo Negro", tipoFuente: "font-bold text-xl text-white", badge: "Modo Negro", primario: "#000000", secundario: "#111827", acento: "#38bdf8" },
+      institucional: { nombre: "Institucional", tipoFuente: "font-bold text-xl text-white", badge: "Institucional", primario: "#0f172a", secundario: "#1e293b", terciario: "#111827", cuaternario: "#3b82f6" },
+      futurista: { nombre: "Futurista", tipoFuente: "font-arcade text-lg text-cyan-400 tracking-wider", badge: "Futurista", primario: "#090b10", secundario: "#131722", terciario: "#0f131d", cuaternario: "#06b6d4" },
+      blanco: { nombre: "Modo Blanco", tipoFuente: "font-bold text-xl text-slate-900", badge: "Modo Blanco", primario: "#ffffff", secundario: "#f1f5f9", terciario: "#ffffff", cuaternario: "#0f172a" },
+      negro: { nombre: "Modo Negro", tipoFuente: "font-bold text-xl text-white", badge: "Modo Negro", primario: "#000000", secundario: "#111827", terciario: "#050505", cuaternario: "#38bdf8" },
 
-      '2026': { nombre: "USA/MX/CN 2026", tipoFuente: "font-bold text-xl", badge: "Mundial USA/MX/CN 2026", primario: "#041E42", secundario: "#C8102E", acento: "#FFB81C" },
-      '2022': { nombre: "Qatar 2022", tipoFuente: "font-bold text-xl", badge: "Mundial Qatar 2022", primario: "#9A1032", secundario: "#003768", acento: "#FCBF0D" },
-      '2018': { nombre: "Rusia 2018", tipoFuente: "font-bold text-xl", badge: "Mundial Rusia 2018", primario: "#D20A11", secundario: "#1D1D1B", acento: "#E4C484" },
-      '2014': { nombre: "Brasil 2014", tipoFuente: "font-custom-style text-3xl text-[#387121]", badge: "Mundial Brasil 2014", primario: "#387121", secundario: "#003768", acento: "#FCBF0D" },
-      '2010': { nombre: "Sudafrica 2010", tipoFuente: "font-bold text-xl", badge: "Mundial Sudafrica 2010", primario: "#0055A5", secundario: "#D21034", acento: "#FFB81C" },
-      '2006': { nombre: "Alemania 2006", tipoFuente: "font-bold text-xl", badge: "Mundial Alemania 2006", primario: "#1e293b", secundario: "#0f172a", acento: "#FFCC00" },
-      '2002': { nombre: "Corea-Japon 2002", tipoFuente: "font-bold text-xl", badge: "Mundial Corea-Japon 2002", primario: "#002B49", secundario: "#C60C30", acento: "#FFD100" },
-      '1998': { nombre: "Francia 1998", tipoFuente: "font-bold text-xl", badge: "Mundial Francia 1998", primario: "#002395", secundario: "#ED2939", acento: "#FFFFFF" },
-      '1994': { nombre: "Estados Unidos 1994", tipoFuente: "font-bold text-xl", badge: "Mundial USA 1994", primario: "#002868", secundario: "#BF0A30", acento: "#FFFFFF" },
-      '1990': { nombre: "Italia 1990", tipoFuente: "font-bold text-xl", badge: "Mundial Italia 1990", primario: "#006400", secundario: "#CC0000", acento: "#FFFFFF" },
-      '1986': { nombre: "Mexico 1986", tipoFuente: "font-bold text-xl", badge: "Mundial Mexico 1986", primario: "#006847", secundario: "#CE1126", acento: "#FFD100" },
-      '1982': { nombre: "Espana 1982", tipoFuente: "font-bold text-xl", badge: "Mundial Espana 1982", primario: "#AA151B", secundario: "#F1BF00", acento: "#000000" },
-      '1978': { nombre: "Argentina 1978", tipoFuente: "font-bold text-xl", badge: "Mundial Argentina 1978", primario: "#75AADB", secundario: "#1e293b", acento: "#FCBF0D" },
-      '1974': { nombre: "Alemania 1974", tipoFuente: "font-bold text-xl", badge: "Mundial Alemania 1974", primario: "#1C1C1C", secundario: "#DD382C", acento: "#FFCC00" },
-      '1970': { nombre: "Mexico 1970", tipoFuente: "font-bold text-xl", badge: "Mundial Mexico 1970", primario: "#006847", secundario: "#CE1126", acento: "#FFFFFF" },
-      '1966': { nombre: "Inglaterra 1966", tipoFuente: "font-bold text-xl", badge: "Mundial Inglaterra 1966", primario: "#CE1126", secundario: "#00247D", acento: "#FFFFFF" },
-      '1962': { nombre: "Chile 1962", tipoFuente: "font-bold text-xl", badge: "Mundial Chile 1962", primario: "#0033A0", secundario: "#DA291C", acento: "#FFFFFF" },
-      '1958': { nombre: "Suecia 1958", tipoFuente: "font-bold text-xl", badge: "Mundial Suecia 1958", primario: "#006AA7", secundario: "#FECC00", acento: "#FFFFFF" },
-      '1954': { nombre: "Suiza 1954", tipoFuente: "font-bold text-xl", badge: "Mundial Suiza 1954", primario: "#DA291C", secundario: "#1e293b", acento: "#FFFFFF" },
-      '1950': { nombre: "Brasil 1950", tipoFuente: "font-bold text-xl", badge: "Mundial Brasil 1950", primario: "#009C3B", secundario: "#FFDF00", acento: "#002776" },
-      '1938': { nombre: "Francia 1938", tipoFuente: "font-bold text-xl", badge: "Mundial Francia 1938", primario: "#002395", secundario: "#ED2939", acento: "#FFFFFF" },
-      '1934': { nombre: "Italia 1934", tipoFuente: "font-bold text-xl", badge: "Mundial Italia 1934", primario: "#006400", secundario: "#CC0000", acento: "#FFFFFF" },
-      '1930': { nombre: "Uruguay 1930", tipoFuente: "font-bold text-xl", badge: "Mundial Uruguay 1930", primario: "#0038A8", secundario: "#1e293b", acento: "#FDDA24" }
+      // Mundiales (1930 - 2026) configurados estrictamente con los colores correspondientes
+      '2026': { nombre: "USA/MX/CN 2026", tipoFuente: "font-bold text-xl", badge: "Mundial USA/MX/CN 2026", primario: "#003DA5", secundario: "#BF0A30", terciario: "#006847", cuaternario: "#FFFFFF" },
+      '2022': { nombre: "Qatar 2022", tipoFuente: "font-bold text-xl", badge: "Mundial Qatar 2022", primario: "#8A1538", secundario: "#C8A45D", terciario: "#F5EBDD", cuaternario: "#171717" },
+      '2018': { nombre: "Rusia 2018", tipoFuente: "font-bold text-xl", badge: "Mundial Rusia 2018", primario: "#FFFFFF", secundario: "#0039A6", terciario: "#D52B1E", cuaternario: "#D4AF37" },
+      '2014': { nombre: "Brasil 2014", tipoFuente: "font-custom-style text-3xl text-yellow-300", badge: "Mundial Brasil 2014", primario: "#009739", secundario: "#FFDF00", terciario: "#002776", cuaternario: "#FFFFFF" },
+      '2010': { nombre: "Sudafrica 2010", tipoFuente: "font-bold text-xl", badge: "Mundial Sudafrica 2010", primario: "#007749", secundario: "#FFB81C", terciario: "#DE3831", cuaternario: "#002395" },
+      '2006': { nombre: "Alemania 2006", tipoFuente: "font-bold text-xl", badge: "Mundial Alemania 2006", primario: "#000000", secundario: "#DD0000", terciario: "#FFCE00", cuaternario: "#FFFFFF" },
+      '2002': { nombre: "Corea-Japon 2002", tipoFuente: "font-bold text-xl", badge: "Mundial Corea-Japon 2002", primario: "#CD2E3A", secundario: "#003478", terciario: "#BC002D", cuaternario: "#FFFFFF" },
+      '1998': { nombre: "Francia 1998", tipoFuente: "font-bold text-xl", badge: "Mundial Francia 1998", primario: "#0055A4", secundario: "#EF4135", terciario: "#FFFFFF", cuaternario: "#D4AF37" },
+      '1994': { nombre: "USA 1994", tipoFuente: "font-bold text-xl", badge: "Mundial USA 1994", primario: "#3C3B6E", secundario: "#B22234", terciario: "#FFFFFF", cuaternario: "#C0C0C0" },
+      '1990': { nombre: "Italia 1990", tipoFuente: "font-bold text-xl", badge: "Mundial Italia 1990", primario: "#009246", secundario: "#FFFFFF", terciario: "#CE2B37", cuaternario: "#0066B3" },
+      '1986': { nombre: "Mexico 1986", tipoFuente: "font-bold text-xl", badge: "Mundial Mexico 1986", primario: "#006847", secundario: "#FFFFFF", terciario: "#CE1126", cuaternario: "#D4AF37" },
+      '1982': { nombre: "Espana 1982", tipoFuente: "font-bold text-xl", badge: "Mundial Espana 1982", primario: "#AA151B", secundario: "#F1BF00", terciario: "#FFFFFF", cuaternario: "#003399" },
+      '1978': { nombre: "Argentina 1978", tipoFuente: "font-bold text-xl", badge: "Mundial Argentina 1978", primario: "#74ACDF", secundario: "#FFFFFF", terciario: "#D4AF37", cuaternario: "#1B365D" },
+      '1974': { nombre: "Alemania 1974", tipoFuente: "font-bold text-xl", badge: "Mundial Alemania 1974", primario: "#000000", secundario: "#DD0000", terciario: "#FFCE00", cuaternario: "#FFFFFF" },
+      '1970': { nombre: "Mexico 1970", tipoFuente: "font-bold text-xl", badge: "Mundial Mexico 1970", primario: "#006847", secundario: "#FFFFFF", terciario: "#CE1126", cuaternario: "#D4AF37" },
+      '1966': { nombre: "Inglaterra 1966", tipoFuente: "font-bold text-xl", badge: "Mundial Inglaterra 1966", primario: "#012169", secundario: "#C8102E", terciario: "#FFFFFF", cuaternario: "#D4AF37" },
+      '1962': { nombre: "Chile 1962", tipoFuente: "font-bold text-xl", badge: "Mundial Chile 1962", primario: "#D52B1E", secundario: "#FFFFFF", terciario: "#0039A6", cuaternario: "#D4AF37" },
+      '1958': { nombre: "Suecia 1958", tipoFuente: "font-bold text-xl", badge: "Mundial Suecia 1958", primario: "#006AA7", secundario: "#FECC00", terciario: "#FFFFFF", cuaternario: "#17365D" },
+      '1954': { nombre: "Suiza 1954", tipoFuente: "font-bold text-xl", badge: "Mundial Suiza 1954", primario: "#D52B1E", secundario: "#FFFFFF", terciario: "#333333", cuaternario: "#D4AF37" },
+      '1950': { nombre: "Brasil 1950", tipoFuente: "font-bold text-xl", badge: "Mundial Brasil 1950", primario: "#009739", secundario: "#FFDF00", terciario: "#002776", cuaternario: "#FFFFFF" },
+      '1938': { nombre: "Francia 1938", tipoFuente: "font-bold text-xl", badge: "Mundial Francia 1938", primario: "#0055A4", secundario: "#FFFFFF", terciario: "#EF4135", cuaternario: "#D4AF37" },
+      '1934': { nombre: "Italia 1934", tipoFuente: "font-bold text-xl", badge: "Mundial Italia 1934", primario: "#009246", secundario: "#FFFFFF", terciario: "#CE2B37", cuaternario: "#D4AF37" },
+      '1930': { nombre: "Uruguay 1930", tipoFuente: "font-bold text-xl", badge: "Mundial Uruguay 1930", primario: "#75AADB", secundario: "#FFFFFF", terciario: "#1B365D", cuaternario: "#D4AF37" }
     };
 
     let temaActual = 'institucional';
 
     const LISTA_PROYECTOS = [
-      { id: 'among-us', title: 'Among Us', category: 'Arcade', iconUrl: 'https://images.seeklogo.com/logo-png/41/2/among-us-logo-png_seeklogo-410042.png', description: 'Descubre al impostor antes de que sea demasiado tarde.', url: './AmongUs/' },
+      { id: 'among-us', title: 'Among Us', category: 'Arcade', iconUrl: 'https://upload.wikimedia.org/wikipedia/en/9/9a/Among_Us_App_Icon.png', description: 'Descubre al impostor antes de que sea demasiado tarde.', url: './AmongUs/' },
       { id: 'angry-birds', title: 'Angry Birds', category: 'Arcade', iconUrl: 'https://www.angrybirds.com/wp-content/uploads/2022/05/ABF_App_Logo-800x800.jpg', description: 'Lanza aves y destruye las estructuras enemigas.', url: './Angry%20Birds/' },
       { id: 'excel', title: 'Excel', category: 'Productividad', iconUrl: 'https://mailmeteor.com/logos/assets/PNG/Microsoft_Office_Excel_Logo_512px.png', description: 'Hoja de cálculo web interactiva.', url: './Excel/' },
       { id: 'futbol-2026-2d', title: 'Futbol 2026 2D', category: 'Deportes', iconUrl: 'https://assets.football-logos.cc/logos/tournaments/700x700/fifa-world-cup-2026.7042846f.png', description: 'Partido arcade de fútbol 2D en navegador.', url: './Futbol%202026%202D/' },
@@ -369,29 +366,41 @@
       if (clave === 'blanco') {
         document.body.style.backgroundColor = '#f8fafc';
         document.body.style.color = '#0f172a';
-        document.getElementById('barra-superior').style = `background: #ffffff; color: #0f172a; border-bottom: 1px solid #e2e8f0;`;
+        document.getElementById('barra-superior').style = `background-color: #ffffff; color: #0f172a; border-bottom: 1px solid #e2e8f0;`;
         document.getElementById('logo-header-box').style = `background-color: #0f172a; color: #ffffff;`;
-        document.getElementById('banner-principal').style = `background: #f1f5f9; color: #0f172a; border-bottom: 1px solid #cbd5e1;`;
+        document.getElementById('banner-principal').style = `background-color: #f1f5f9; color: #0f172a; border-bottom: 1px solid #cbd5e1;`;
         document.getElementById('banner-badge').style = `background-color: #0f172a; color: #ffffff;`;
         document.getElementById('footer-principal').style = `background-color: #ffffff; color: #0f172a; border-top: 1px solid #e2e8f0;`;
         document.getElementById('banner-principal').querySelectorAll('h2, p').forEach(el => el.style.color = '#0f172a');
       } else {
-        document.body.style.backgroundColor = tema.primario;
+        // Aplicación estricta de colores sólidos según jerarquía solicitada
+        document.body.style.backgroundColor = tema.secundario; // Secundario = Fondo general
         document.body.style.color = '#f8fafc';
-        document.getElementById('barra-superior').style = `background: linear-gradient(135deg, ${tema.primario} 0%, ${tema.secundario} 100%); color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.1);`;
-        document.getElementById('logo-header-box').style = `background-color: ${tema.acento}; color: ${tema.primario};`;
-        document.getElementById('banner-principal').style = `background: linear-gradient(135deg, ${tema.primario}ee 0%, ${tema.secundario}ee 100%); border-bottom: 1px solid rgba(255,255,255,0.1);`;
-        document.getElementById('banner-badge').style = `background-color: ${tema.acento}; color: #0f172a;`;
+        
+        // 1. Principal = Barra superior
+        document.getElementById('barra-superior').style = `background-color: ${tema.primario}; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.15);`;
+        document.getElementById('logo-header-box').style = `background-color: ${tema.cuaternario}; color: ${tema.primario};`;
+        
+        // 2. Secundario = Banner principal
+        document.getElementById('banner-principal').style = `background-color: ${tema.secundario}; border-bottom: 1px solid rgba(255,255,255,0.15);`;
+        document.getElementById('banner-badge').style = `background-color: ${tema.cuaternario}; color: #0f172a;`;
         document.getElementById('banner-badge').textContent = tema.badge;
-        document.getElementById('footer-principal').style = `background-color: ${tema.primario}; border-top: 1px solid rgba(255,255,255,0.1); color: #94a3b8;`;
-        document.getElementById('banner-principal').querySelectorAll('h2, p').forEach(el => el.style.color = '#ffffff');
+        
+        // 3. Principal = Footer
+        document.getElementById('footer-principal').style = `background-color: ${tema.primario}; border-top: 1px solid rgba(255,255,255,0.15); color: #cbd5e1;`;
+        
+        // Ajustar color de textos del banner según contraste del secundario
+        const esSecundarioClaro = (tema.secundario.toLowerCase() === '#ffffff' || tema.secundario.toLowerCase() === '#f1f5f9' || tema.secundario.toLowerCase() === '#ffdf00' || tema.secundario.toLowerCase() === '#fecc00' || tema.secundario.toLowerCase() === '#f1bf00' || tema.secundario.toLowerCase() === '#f5ebdd');
+        document.getElementById('banner-principal').querySelectorAll('h2, p').forEach(el => {
+          el.style.color = esSecundarioClaro ? '#0f172a' : '#ffffff';
+        });
       }
 
       const sub = document.getElementById('titulo-sub');
       sub.textContent = tema.nombre;
       sub.className = tema.tipoFuente;
       if(!tema.tipoFuente.includes('text-') && clave !== 'blanco') {
-        sub.style.color = tema.acento;
+        sub.style.color = tema.cuaternario;
       }
 
       renderizarCategorias();
@@ -421,7 +430,7 @@
               activa
                 ? 'text-white font-bold shadow-lg scale-105'
                 : esBlanco ? 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50' : 'bg-slate-900/80 text-slate-300 border border-slate-700 hover:bg-slate-800'
-            }" style="${activa ? `background-color: ${esBlanco ? '#0f172a' : tema.acento}; color: ${esBlanco ? '#ffffff' : '#0f172a'};` : ''}">
+            }" style="${activa ? `background-color: ${esBlanco ? '#0f172a' : tema.cuaternario}; color: ${esBlanco ? '#ffffff' : '#0f172a'};` : ''}">
             ${cat}
           </button>
         `;
@@ -468,8 +477,18 @@
 
         const delay = index * 0.05;
 
+        // Terciario = Cuadro de los juegos (Tarjetas)
+        // Cuaternario = Botones de acceso
+        const cardStyle = esBlanco ? 'background-color: #ffffff; border: 1px solid #cbd5e1;' : `background-color: ${tema.terciario}; border: 1px solid rgba(255,255,255,0.12);`;
+        const btnStyle = esBlanco ? 'background-color: #0f172a; color: #ffffff;' : `background-color: ${tema.cuaternario}; color: #0f172a;`;
+
+        // Determinar si el color terciario es claro para ajustar textos de la tarjeta automáticamente
+        const esTerciarioClaro = (tema.terciario && (tema.terciario.toLowerCase() === '#ffffff' || tema.terciario.toLowerCase() === '#f5ebdd' || tema.terciario.toLowerCase() === '#ffce00'));
+        const textColorTitle = esBlanco || esTerciarioClaro ? 'text-slate-900' : 'text-white';
+        const textColorDesc = esBlanco || esTerciarioClaro ? 'text-slate-700' : 'text-slate-300';
+
         return `
-          <article class="app-card rounded-2xl p-4 flex flex-col justify-between shadow-lg group animate-entry ${esBlanco ? 'bg-white border-slate-200' : 'bg-slate-900/80 border-slate-800'}" style="animation-delay: ${delay}s;">
+          <article class="app-card rounded-2xl p-4 flex flex-col justify-between shadow-lg group animate-entry" style="${cardStyle} animation-delay: ${delay}s;">
             <div>
               <div class="flex items-start justify-between gap-3 mb-3">
                 <div class="w-11 h-11 rounded-xl ${esBlanco ? 'bg-slate-100 border-slate-200' : 'bg-slate-950 border-slate-800'} border flex items-center justify-center text-xl shadow-inner overflow-hidden p-1 transition-transform duration-300 group-hover:scale-110">
@@ -480,16 +499,16 @@
                 </span>
               </div>
 
-              <h4 class="text-sm font-extrabold ${esBlanco ? 'text-slate-900' : 'text-white'} mb-1 tracking-tight group-hover:text-indigo-400 transition-colors">${proj.title}</h4>
-              <p class="text-xs ${esBlanco ? 'text-slate-600' : 'text-slate-400'} leading-relaxed mb-5 font-medium line-clamp-2">
+              <h4 class="text-sm font-extrabold ${textColorTitle} mb-1 tracking-tight group-hover:opacity-80 transition-opacity">${proj.title}</h4>
+              <p class="text-xs ${textColorDesc} leading-relaxed mb-5 font-medium line-clamp-2">
                 ${proj.description || 'Haz clic para abrir el proyecto.'}
               </p>
             </div>
 
-            <div class="flex items-center gap-2 pt-3 border-t ${esBlanco ? 'border-slate-100' : 'border-slate-800'}">
+            <div class="flex items-center gap-2 pt-3 border-t ${esBlanco ? 'border-slate-100' : 'border-white/10'}">
               <button
                 onclick="abrirProyecto('${proj.id}')"
-                class="flex-1 py-2 px-3 rounded-xl text-white font-bold text-xs transition-all duration-300 shadow-md hover:opacity-90 active:scale-95 hover:shadow-indigo-500/25" style="background-color: ${esBlanco ? '#0f172a' : tema.acento}; color: ${esBlanco ? '#ffffff' : '#0f172a'};">
+                class="flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all duration-300 shadow-md hover:opacity-90 active:scale-95" style="${btnStyle}">
                 ▶ ACCEDER
               </button>
               <a
