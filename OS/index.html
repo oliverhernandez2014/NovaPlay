@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hypervisor OS Launcher - Centro de Mando Global</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🌌</text></svg>">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: #050608;
+            color: #ffffff;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+        }
+
+        /* --- CONTROL LATERAL ULTRA-COMPACTO --- */
+        .sidebar {
+            background: #0a0c14;
+            border-right: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 999;
+            overflow-y: auto;
+        }
+
+        /* Barra de scroll estilizada */
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+        }
+
+        .hub-header {
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #a855f7;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+
+        .category-group {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #475569;
+            letter-spacing: 1px;
+            margin-top: 12px;
+            margin-bottom: 4px;
+            padding-left: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            padding-bottom: 2px;
+        }
+
+        /* Botones de Selección */
+        .launcher-btn {
+            width: 100%;
+            padding: 9px 12px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            color: #94a3b8;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .launcher-btn .btn-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .launcher-btn .badge {
+            font-size: 8.5px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 1px 5px;
+            border-radius: 4px;
+            color: #475569;
+            font-family: monospace;
+        }
+
+        .launcher-btn:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: #ffffff;
+            transform: translateX(2px);
+        }
+
+        .launcher-btn.active {
+            background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+            color: #ffffff;
+            border-color: #c084fc;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+        }
+
+        .launcher-btn.active .badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* --- VISOR CENTRAL EN PANTALLA COMPLETA --- */
+        .viewport {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #000000;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+            background: #000000;
+        }
+
+        iframe.active {
+            display: block;
+        }
+
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            padding: 40px;
+            background: radial-gradient(circle at center, #0f111d 0%, #050608 100%);
+        }
+
+        .pulse-logo {
+            font-size: 64px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 25px rgba(168,85,247,0.25));
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="hub-header">
+            <span>🌌</span> Hypervisor Global
+        </div>
+        
+        <div class="category-group">Universos Híbridos y AI</div>
+        
+        <button class="launcher-btn" onclick="bootSystem('CompuOS.html', this)">
+            <div class="btn-meta"><span>❖</span> CompuOS</div> <span class="badge">Fusion</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('iOS Para PC.html', this)">
+            <div class="btn-meta"><span></span> iOS Desktop</div> <span class="badge">Concept</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('GeminiOS.html', this)">
+            <div class="btn-meta"><span>✦</span> GeminiOS</div> <span class="badge">AI.Core</span>
+        </button>
+
+        <div class="category-group">Sistemas de Consolas (Gaming)</div>
+        
+        <button class="launcher-btn" onclick="bootSystem('WinNintenOS.html', this)">
+            <div class="btn-meta"><span>🎮</span> WinNintenOS</div> <span class="badge">Switch</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows Vita (version ps).html', this)">
+            <div class="btn-meta"><span>💎</span> Windows Vita</div> <span class="badge">PS.Vita</span>
+        </button>
+
+        <div class="category-group">Eras Retro y Betas Olvidadas</div>
+        
+        <button class="launcher-btn" onclick="bootSystem('Windows 1.html', this)">
+            <div class="btn-meta"><span>💾</span> Windows 1.1</div> <span class="badge">1985</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows Cairo.html', this)">
+            <div class="btn-meta"><span>📐</span> Windows Cairo</div> <span class="badge">1993</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows Nashville.html', this)">
+            <div class="btn-meta"><span>🤠</span> Win Nashville</div> <span class="badge">1996</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows Memphis.html', this)">
+            <div class="btn-meta"><span>🎸</span> Win Memphis</div> <span class="badge">1997</span>
+        </button>
+
+        <div class="category-group">La Edad de Oro de Windows</div>
+        
+        <button class="launcher-btn" onclick="bootSystem('Windows Netpune.html', this)">
+            <div class="btn-meta"><span>🔱</span> Windows Neptune</div> <span class="badge">1999</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows ME.html', this)">
+            <div class="btn-meta"><span>💽</span> Windows ME</div> <span class="badge">2000</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows XP.html', this)">
+            <div class="btn-meta"><span>🌄</span> Windows XP</div> <span class="badge">Luna</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows Longhorn.html', this)">
+            <div class="btn-meta"><span>🐂</span> Win Longhorn</div> <span class="badge">Plex</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows Vista.html', this)">
+            <div class="btn-meta"><span>🌀</span> Windows Vista</div> <span class="badge">Aero</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows 7.html', this)">
+            <div class="btn-meta"><span>💎</span> Windows 7</div> <span class="badge">Glass</span>
+        </button>
+
+        <div class="category-group">Eras Modernas y Prototipos</div>
+
+        <button class="launcher-btn" onclick="bootSystem('Windows 8.html', this)">
+            <div class="btn-meta"><span>🟩</span> Windows 8</div> <span class="badge">Metro</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows 8.1.html', this)">
+            <div class="btn-meta"><span>🗔</span> Windows 8.1</div> <span class="badge">Blue</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows 9.html', this)">
+            <div class="btn-meta"><span>⚡</span> Windows 9</div> <span class="badge">Concept</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows 10.html', this)">
+            <div class="btn-meta"><span>💠</span> Windows 10</div> <span class="badge">Hero</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows 10X.html', this)">
+            <div class="btn-meta"><span>📱</span> Windows 10X</div> <span class="badge">Lite</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows 11.html', this)">
+            <div class="btn-meta"><span>🪟</span> Windows 11</div> <span class="badge">Bloom</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows 12.html', this)">
+            <div class="btn-meta"><span>✨</span> Windows 12</div> <span class="badge">Mica</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Windows 20.html', this)">
+            <div class="btn-meta"><span>🧬</span> Windows 20</div> <span class="badge">Quantum</span>
+        </button>
+
+        <div class="category-group">Entornos Alternativos</div>
+        
+        <button class="launcher-btn" onclick="bootSystem('MacOS.html', this)">
+            <div class="btn-meta"><span>🍏</span> macOS</div> <span class="badge">Desktop</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('ChromeOS.html', this)">
+            <div class="btn-meta"><span>🌐</span> ChromeOS</div> <span class="badge">Web</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Andriod Para PC.html', this)">
+            <div class="btn-meta"><span>🤖</span> Android PC</div> <span class="badge">Mobile</span>
+        </button>
+        <button class="launcher-btn" onclick="bootSystem('Linux Mint.html', this)">
+            <div class="btn-meta"><span>🌿</span> Linux Mint</div> <span class="badge">Cinnamon</span>
+        </button>
+    </div>
+
+    <div class="viewport">
+        
+        <div class="welcome-screen" id="lobby">
+            <div class="pulse-logo">🌌</div>
+            <h1 style="font-weight: 500; font-size: 24px; margin-bottom: 8px; letter-spacing: -0.5px;">Hipervisor Maestro Sincronizado</h1>
+            <p style="color: #4b5563; font-size: 13px; max-width: 500px;">Toda tu librería unificada de 25 sistemas operativos, conceptos de ingeniería y variantes alternativas están listos para ejecutarse de manera local y nativa.</p>
+        </div>
+
+        <iframe id="main-hypervisor"></iframe>
+    </div>
+
+    <script {r1-strict-completion}>
+        const masterFrame = document.getElementById('main-hypervisor');
+        const lobby = document.getElementById('lobby');
+
+        function bootSystem(targetHtmlFile, button) {
+            // Ocultar pantalla inicial
+            lobby.style.display = 'none';
+
+            // Quitar clase activa de todos los botones
+            document.querySelectorAll('.launcher-btn').forEach(b => b.classList.remove('active'));
+
+            // Activar botón actual
+            button.classList.add('active');
+
+            // Cargar archivo físico real mediante la dirección relativa local
+            masterFrame.classList.add('active');
+            masterFrame.src = targetHtmlFile;
+        }
+    </script>
+</body>
+</html>
