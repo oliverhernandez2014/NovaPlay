@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>NovaPlay</title>
+  <title>NovaPlay | World Cup Clean & Interactive Edition</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +42,7 @@
     .font-default { font-family: 'Plus Jakarta Sans', sans-serif; }
 
     /* ==========================================================
-       ANIMACIONES SIMPLES Y FLUIDAS (TARJETAS, ICONOS Y BOTONES)
+       ANIMACIONES FLUIDAS: TARJETAS, ICONOS Y BOTONES
        ========================================================== */
     .app-card {
       transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s ease;
@@ -53,10 +53,8 @@
       box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.5);
     }
 
-    /* Animación al pasar el cursor sobre los iconos de las tarjetas */
-    body.modo-pc-activo .app-card:hover img,
     body.modo-pc-activo .app-card:hover .icon-box {
-      transform: scale(1.08);
+      transform: scale(1.1);
       transition: transform 0.3s ease;
     }
 
@@ -64,7 +62,6 @@
       transition: transform 0.3s ease;
     }
 
-    /* Animación limpia en botones y enlaces */
     body.modo-pc-activo button:hover, 
     body.modo-pc-activo .app-card a:hover {
       transform: scale(1.04);
@@ -137,7 +134,7 @@
     </div>
 
     <div class="pt-4 mt-6 border-t border-white/10 text-[11px] opacity-75 flex items-center justify-between">
-      <span id="texto-estado-modo">Modo PC (Animaciones Simples ON)</span>
+      <span id="texto-estado-modo">Modo PC (Animaciones Fluidas ON)</span>
       <span>Fluido</span>
     </div>
   </aside>
@@ -223,7 +220,7 @@
     <footer id="footer-principal" class="py-5 px-4 sm:px-8 text-[11px] border-t mt-auto">
       <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left opacity-80">
         <p class="font-bold">NovaPlay Portal — Interactive Edition</p>
-        <p>Tarjetas, iconos y botones interactivos</p>
+        <p>Tarjetas, iconos y botones con animaciones fluidas</p>
       </div>
     </footer>
   </div>
@@ -272,7 +269,8 @@
       { id: 'nova-game', title: 'NovaGame', category: 'Arcade', iconUrl: 'https://img.magnific.com/premium-vector/8bit-pixelated-style-star-icon-vector-illustration_1120563-33205.jpg?semt=ais_hybrid&w=740&q=80', description: 'Videojuego exclusivo de la plataforma.', url: './NovaGame/' },
       { id: 'os', title: 'OS', category: 'Sistema', iconUrl: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Windows_logo_-_2021.svg/960px-Windows_logo_-_2021.svg.png', description: 'Simulador de entorno de sistema operativo web.', url: './OS/' },
       { id: 'powerpoint', title: 'PowerPoint', category: 'Productividad', iconUrl: 'https://mailmeteor.com/logos/assets/PNG/Microsoft_Office_PowerPoint_Logo_512px.png', description: 'Creador y visor de presentaciones web.', url: './Powerpoint/' },
-      { id: 'school-party-craft', title: 'School Party Craft', category: 'Arcade', iconUrl: 'https://play-lh.googleusercontent.com/I_w6aXjtW6eH615QTCsn-rHXvCxx8fUpASb2p2vHGPsUQHaZrRaYS0IxmFnpDyxCBOWMSvoQHScAZ_srO8stXx4', description: 'Divertido juego de bloques con temática escolar.', url: './SchoolPartyCraft/' },
+      { id: 'rocket-league', title: 'Rocket League', category: 'Deportes', iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Rocket_League_coverart.jpg', description: 'Fútbol arcade de alta velocidad con autos propulsados por cohetes.', url: './RocketLeague/' },
+      { id: 'school-party-craft', title: 'SchoolPartyCraft', category: 'Arcade', iconUrl: 'https://img-tc.tapimg.com/market/images/c083f350432794bf0b46446b19f83271.png/_tap_appicon_m.jpg', description: 'Divertido juego de bloques con temática escolar.', url: './SchoolPartyCraft/' },
       { id: 'traductor', title: 'Traductor', category: 'Herramientas', iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Google_Translate_logo.svg/1280px-Google_Translate_logo.svg.png', description: 'Traductor de texto rápido y eficiente.', url: './Traductor/' },
       { id: 'volumen', title: 'Volumen', category: 'Cálculo', iconUrl: 'https://cdn-icons-png.flaticon.com/512/2902/2902663.png', description: 'Calculadora de volumen y capacidad geométrica.', url: './Volumen/' },
       { id: 'word', title: 'Word', category: 'Productividad', iconUrl: 'https://mailmeteor.com/logos/assets/PNG/Microsoft_Office_Word_Logo_512px.png', description: 'Procesador de textos web integrado.', url: './Word/' }
@@ -293,7 +291,7 @@
         cuerpo.classList.add('modo-pc-activo');
         btnPc.className = "py-2 px-3 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 shadow-md transition";
         btnMovil.className = "py-2 px-3 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-white/10 transition";
-        textoEstado.textContent = "Modo PC (Animaciones Simples ON)";
+        textoEstado.textContent = "Modo PC (Animaciones Fluidas ON)";
         localStorage.setItem('novaplay_modo_rendimiento', 'pc');
       } else {
         cuerpo.classList.remove('modo-pc-activo');
